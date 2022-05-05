@@ -2,6 +2,8 @@
  * @author Orlando Selenu Originally written in the Summer of 2008 Based on the
  *         algorithms originally published by E. Oran Brigham "The Fast Fourier
  *         Transform" 1973, in ALGOL60 and FORTRAN
+ *
+ * Released in the Public Domain.
  */
 public class FFToptim32 {
   /**
