@@ -19,7 +19,7 @@ class Main {
     double result_base32[] = FFTbase.fft(inputReal32, inputImag32, true);
     double result_optim32[] = FFToptim32.fft(inputReal32, inputImag32, true);
 
-    int howManyTimes = 1 /* * 1000 * 1000 */ ;
+    int howManyTimes = 1000000 /* * 1000 * 1000 */ ;
 
     // confronto versione base con versione ottimizzata 8 elementi
     long startTime1 = System.nanoTime();
