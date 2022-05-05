@@ -19,14 +19,14 @@ class Main {
     double result_base32[] = FFTbase.fft(inputReal32, inputImag32, true);
     double result_optim32[] = FFToptim32.fft(inputReal32, inputImag32, true);
 
-    int quanteVolte = 1 /* * 1000 * 1000 */ ;
+    int howManyTimes = 1 /* * 1000 * 1000 */ ;
 
     // confronto versione base con versione ottimizzata 8 elementi
     long startTime1 = System.nanoTime();
     // base
     System.out.print("{");
     int i = 0;
-    for (int ct = 0; ct < quanteVolte; ct++) {
+    for (int ct = 0; ct < howManyTimes; ct++) {
       for (; i < result_base.length - 1; i++) {
         System.out.print(result_base[i]);
         System.out.print(", ");
@@ -40,7 +40,7 @@ class Main {
     // optim8
     System.out.print("{");
     i = 0;
-    for (int ct = 0; ct < quanteVolte; ct++) {
+    for (int ct = 0; ct < howManyTimes; ct++) {
       for (; i < result_optim8.length - 1; i++) {
         System.out.print(result_optim8[i]);
         System.out.print(", ");
@@ -80,7 +80,7 @@ class Main {
     startTime1 = System.nanoTime();
     // base
     System.out.print("{");
-    for (int ct = 0; ct < quanteVolte; ct++) {
+    for (int ct = 0; ct < howManyTimes; ct++) {
       for (i = 0; i < result_base32.length - 1; i++) {
         System.out.print(result_base32[i]);
         System.out.print(", ");
@@ -93,7 +93,7 @@ class Main {
     startTime2 = System.nanoTime();
     // optim32
     System.out.print("{");
-    for (int ct = 0; ct < quanteVolte; ct++) {
+    for (int ct = 0; ct < howManyTimes; ct++) {
       for (i=0; i < result_optim32.length - 1; i++) {
         System.out.print(result_optim32[i]);
         System.out.print(", ");
