@@ -189,7 +189,7 @@ public class FFToptim8 {
 
     // Here I have to mix xReal and xImag to have an array (yes, it should
     // be possible to do this stuff in the earlier parts of the code, but
-    // it's here to readibility).
+    // it's here to readability).
     double[] newArray = new double[xReal.length << 1];
     double radice = 1 / Math.sqrt(n);
     for (int i = 0; i < newArray.length; i += 2) {
@@ -207,25 +207,15 @@ public class FFToptim8 {
    */
   private static int bitreverseReference(int j) {
 
-    switch (j) {
-      case 0:
-        return 0;
-      case 1:
-        return 4;
-      case 2:
-        return 2;
-      case 3:
-        return 6;
-      case 4:
-        return 1;
-      case 5:
-        return 5;
-      case 6:
-        return 3;
-      case 7:
-        return 7;
-      default:
-        return 0;
-    }
+    return switch (j) {
+      case 1 -> 4;
+      case 2 -> 2;
+      case 3 -> 6;
+      case 4 -> 1;
+      case 5 -> 5;
+      case 6 -> 3;
+      case 7 -> 7;
+      default -> 0;
+    };
   }
 }

@@ -5,21 +5,21 @@ class Main {
 
     // These numbers are to run the FFTs and to check the accuracy of the optimized
     // versions, length = 8
-    double inputReal[] = { 1, 22, 33, 44, 15, 16, 17, 18 };
-    double inputImag[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+    double[] inputReal = { 1, 22, 33, 44, 15, 16, 17, 18 };
+    double[] inputImag = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
-    double result_base[] = FFTbase.fft(inputReal, inputImag, true);
-    double result_optim8[] = FFToptim8.fft(inputReal, inputImag, true);
+    double[] result_base = FFTbase.fft(inputReal, inputImag, true);
+    double[] result_optim8 = FFToptim8.fft(inputReal, inputImag, true);
 
     // These numbers are to run the FFTs and to check the accuracy of the optimized
     // versions, length = 32
-    double inputReal32[] = { 1, 22, 33, 44, 15, 16, 17, 18, 1, 22, 33, 44, 15, 16, 17, 18, 1, 22, 33, 44, 15, 16, 17,
+    double[] inputReal32 = { 1, 22, 33, 44, 15, 16, 17, 18, 1, 22, 33, 44, 15, 16, 17, 18, 1, 22, 33, 44, 15, 16, 17,
         18, 1, 22, 33, 44, 15, 16, 17, 18 };
-    double inputImag32[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    double[] inputImag32 = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0 };
 
-    double result_base32[] = FFTbase.fft(inputReal32, inputImag32, true);
-    double result_optim32[] = FFToptim32.fft(inputReal32, inputImag32, true);
+    double[] result_base32 = FFTbase.fft(inputReal32, inputImag32, true);
+    double[] result_optim32 = FFToptim32.fft(inputReal32, inputImag32, true);
 
     int howManyTimes = 1000000 /* * 1000 * 1000 */ ;
     boolean printDebug = true;
@@ -90,7 +90,7 @@ class Main {
     System.out.println("estimatedTime1-8:" + estimatedTime1);
     System.out.println("estimatedTime2-8:" + estimatedTime2);
 
-    if (flag == false)
+    if (!flag)
       System.out.println("OK"); // non ho trovato discrepanze tra le 2 versioni
     else
       System.out.println("!!! KO !!!"); // ATTENZIONE! Ci sono differenze nelle 2 versioni
@@ -157,7 +157,7 @@ class Main {
     System.out.println("estimatedTime1-32:" + estimatedTime1);
     System.out.println("estimatedTime2-32:" + estimatedTime2);
 
-    if (flag == false)
+    if (!flag)
       System.out.println("OK"); // non ho trovato discrepanze tra le 2 versioni
     else
       System.out.println("!!! KO !!!"); // ATTENZIONE! Ci sono differenze nelle 2 versioni
