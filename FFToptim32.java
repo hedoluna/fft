@@ -83,7 +83,7 @@ public class FFToptim32 {
         }
 
         // Second phase - recombination
-        k = 0;
+        //k = 0;
         int r;
         while (k < n) {
             r = bitreverseReference(k);

@@ -1,3 +1,5 @@
+import static java.lang.String.format;
+
 class Main {
   public static void main(String[] args) {
 
@@ -21,7 +23,7 @@ class Main {
     double[] result_base32 = FFTbase.fft(inputReal32, inputImag32, true);
     double[] result_optim32 = FFToptim32.fft(inputReal32, inputImag32, true);
 
-    int howManyTimes = 1000*1000*10 /* * 1000 * 1000 */ ;
+    int howManyTimes = 1000*1000*100 /* * 1000 * 1000 */ ;
     boolean printDebug = true;
     if (howManyTimes > 1)
       printDebug = false;
@@ -89,7 +91,7 @@ class Main {
 
     System.out.println("estimatedTime1-8: " + estimatedTime1);
     System.out.println("estimatedTime2-8: " + estimatedTime2);
-    System.out.println("boost-8: " + (1-((double)estimatedTime2/(double)estimatedTime1))*100 + "% of improvement");
+    System.out.printf("boost-8: %s%% of improvement%n", format("%.2f", (1 - ((double) estimatedTime2 / (double) estimatedTime1)) * 100));
 
     if (!flag)
       System.out.println("OK, same output in the two versions"); // non ho trovato discrepanze tra le 2 versioni
@@ -157,7 +159,7 @@ class Main {
 
     System.out.println("estimatedTime1-32: " + estimatedTime1);
     System.out.println("estimatedTime2-32: " + estimatedTime2);
-    System.out.println("boost-32: " + (1-((double)estimatedTime2/(double)estimatedTime1))*100 + "% of improvement");
+    System.out.printf("boost-32: %s%% of improvement%n", format("%.2f", (1 - ((double) estimatedTime2 / (double) estimatedTime1)) * 100));
 
     if (!flag)
       System.out.println("OK, same output in the two versions"); // non ho trovato discrepanze tra le 2 versioni
