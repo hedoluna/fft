@@ -21,7 +21,7 @@ public class FFToptim8 {
 
     if (n != 8) {
       System.out.println("ERROR: The number of input elements is not 8.");
-      return null;
+      return new double[0];
     }
 
     // double ld = 3;
@@ -34,7 +34,8 @@ public class FFToptim8 {
     // int nu1 = 2;
     double[] xReal = new double[8];
     double[] xImag = new double[8];
-    double tReal, tImag;
+    double tReal;
+    double tImag;
 
     // System.out.println("nu:" + nu + " n2:" + n2 + " nu1:" + nu1);
 

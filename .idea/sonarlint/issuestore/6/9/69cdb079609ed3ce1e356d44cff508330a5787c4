@@ -1,0 +1,43 @@
+
+h
+java:S3776"RRefactor this method to reduce its Cognitive Complexity from 54 to the 15 allowed.(Çµí‘
+S	java:S106!"9Replace this use of System.out or System.err by a logger.(–µé›ıÿÿÿÿ
+N	java:S106&"9Replace this use of System.out or System.err by a logger.(ÔèË¬
+S	java:S106'"9Replace this use of System.out or System.err by a logger.(Ø–ªùÿÿÿÿ
+N	java:S106,"9Replace this use of System.out or System.err by a logger.(ÔèË¬
+S	java:S106-"9Replace this use of System.out or System.err by a logger.(‹¾úúüÿÿÿÿ
+S	java:S1063"9Replace this use of System.out or System.err by a logger.(–µé›ıÿÿÿÿ
+S	java:S1068"9Replace this use of System.out or System.err by a logger.(õ­¢„ùÿÿÿÿ
+S	java:S1069"9Replace this use of System.out or System.err by a logger.(Ø–ªùÿÿÿÿ
+S	java:S106>"9Replace this use of System.out or System.err by a logger.(õ­¢„ùÿÿÿÿ
+S	java:S106?"9Replace this use of System.out or System.err by a logger.(‹¾úúüÿÿÿÿ
+S	java:S106H"9Replace this use of System.out or System.err by a logger.(–µé›ıÿÿÿÿ
+M	java:S106O"9Replace this use of System.out or System.err by a logger.(Ëƒ“/
+S	java:S106P"9Replace this use of System.out or System.err by a logger.(Ø–ªùÿÿÿÿ
+S	java:S106T"9Replace this use of System.out or System.err by a logger.(çÌˆşÿÿÿÿ
+S	java:S106X"9Replace this use of System.out or System.err by a logger.(‹¾úúüÿÿÿÿ
+S	java:S106Z"9Replace this use of System.out or System.err by a logger.(Ä¦°şÿÿÿÿ
+S	java:S106["9Replace this use of System.out or System.err by a logger.(ûØï©ıÿÿÿÿ
+S	java:S106\"9Replace this use of System.out or System.err by a logger.(ı°Øÿÿÿÿÿ
+S	java:S106_"9Replace this use of System.out or System.err by a logger.(ó®Âûÿÿÿÿ
+S	java:S106a"9Replace this use of System.out or System.err by a logger.(ã×½ìûÿÿÿÿ
+S	java:S106g"9Replace this use of System.out or System.err by a logger.(–µé›ıÿÿÿÿ
+N	java:S106k"9Replace this use of System.out or System.err by a logger.(°¬¢Ö
+S	java:S106l"9Replace this use of System.out or System.err by a logger.(Ø–ªùÿÿÿÿ
+N	java:S106q"9Replace this use of System.out or System.err by a logger.(°¬¢Ö
+S	java:S106r"9Replace this use of System.out or System.err by a logger.(‹¾úúüÿÿÿÿ
+S	java:S106y"9Replace this use of System.out or System.err by a logger.(–µé›ıÿÿÿÿ
+S	java:S106}"9Replace this use of System.out or System.err by a logger.(«ÕÎåÿÿÿÿÿ
+S	java:S106~"9Replace this use of System.out or System.err by a logger.(Ø–ªùÿÿÿÿ
+T	java:S106ƒ"9Replace this use of System.out or System.err by a logger.(«ÕÎåÿÿÿÿÿ
+T	java:S106„"9Replace this use of System.out or System.err by a logger.(‹¾úúüÿÿÿÿ
+T	java:S106Œ"9Replace this use of System.out or System.err by a logger.(–µé›ıÿÿÿÿ
+N	java:S106’"9Replace this use of System.out or System.err by a logger.(Ëƒ“/
+T	java:S106“"9Replace this use of System.out or System.err by a logger.(Ø–ªùÿÿÿÿ
+T	java:S106—"9Replace this use of System.out or System.err by a logger.(‰±Àÿÿÿÿÿ
+T	java:S106›"9Replace this use of System.out or System.err by a logger.(‹¾úúüÿÿÿÿ
+T	java:S106"9Replace this use of System.out or System.err by a logger.(» à„úÿÿÿÿ
+T	java:S106"9Replace this use of System.out or System.err by a logger.(ÆñÚëşÿÿÿÿ
+T	java:S106Ÿ"9Replace this use of System.out or System.err by a logger.(Ìƒ½ùÿÿÿÿ
+T	java:S106¢"9Replace this use of System.out or System.err by a logger.(ó®Âûÿÿÿÿ
+T	java:S106¤"9Replace this use of System.out or System.err by a logger.(ã×½ìûÿÿÿÿ

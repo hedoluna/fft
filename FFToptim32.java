@@ -26,7 +26,7 @@ public class FFToptim32 {
         // from the function returning null.
         if (n != 32) {
             System.out.println("The number of elements is not 32.");
-            return null;
+            return new double[0];
         }
 
         // Declaration and initialization of the variables
@@ -36,7 +36,12 @@ public class FFToptim32 {
         int nu1 = 4; // 4
         double[] xReal = new double[32];
         double[] xImag = new double[32];
-        double tReal, tImag, p, arg, c, s;
+        double tReal;
+        double tImag;
+        double p;
+        double arg;
+        double c;
+        double s;
 
         // System.out.println("nu:" + nu + " ld:" + ld + " n2:" + n2 + " nu1:" + nu1);
 

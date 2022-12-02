@@ -28,7 +28,7 @@ public static double[] fft(final double[] inputReal, double[] inputImag, boolean
     // from the function returning null.
     if (((int) ld) - ld != 0) {
         System.out.println("The number of elements is not a power of 2.");
-        return null;
+        return new double[0];
     }
 
     // Declaration and initialization of the variables
@@ -39,7 +39,12 @@ public static double[] fft(final double[] inputReal, double[] inputImag, boolean
     int nu1 = nu - 1;
     double[] xReal = new double[n];
     double[] xImag = new double[n];
-    double tReal, tImag, p, arg, c, s;
+    double tReal;
+    double tImag;
+    double p;
+    double arg;
+    double c;
+    double s;
 
     // Here I check if I'm going to do the direct transform or the inverse
     // transform.
