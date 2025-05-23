@@ -7,11 +7,24 @@
  */
 public class FFToptim256 {
     
+    // Precomputed trigonometric lookup tables for 256-point FFT
+    private static final double[] COS_TABLE = new double[128];
+    private static final double[] SIN_TABLE = new double[128];
+    
+    static {
+        // Initialize lookup tables
+        for (int i = 0; i < 128; i++) {
+            double angle = 2.0 * Math.PI * i / 256.0;
+            COS_TABLE[i] = Math.cos(angle);
+            SIN_TABLE[i] = Math.sin(angle);
+        }
+    }
+    
     /**
      * The Fast Fourier Transform (optimized version for arrays of size 256).
      * 
      * This implementation is optimized specifically for 256-element arrays
-     * and hardcodes many loop parameters for better performance.
+     * with precomputed trigonometric lookup tables for better performance.
      *
      * @param inputReal an array of length 256, the real part
      * @param inputImag an array of length 256, the imaginary part
@@ -45,15 +58,19 @@ public class FFToptim256 {
         System.arraycopy(inputReal, 0, xReal, 0, 256);
         System.arraycopy(inputImag, 0, xImag, 0, 256);
 
-        // First phase - calculation (8 iterations for 256 elements)
+        // First phase - calculation (8 iterations for 256 elements) with lookup tables
         int k = 0;
+        double constant_sign = DIRECT ? -1.0 : 1.0;
+        
         for (int l = 1; l <= 8; l++) {
             while (k < n) {
                 for (int i = 1; i <= n2; i++) {
-                    p = bitreverseReference(k >> nu1);
-                    arg = constant * p / n;
-                    c = Math.cos(arg);
-                    s = Math.sin(arg);
+                    int bit_rev_k = bitreverseReference(k >> nu1);
+                    
+                    // Use lookup table instead of Math.cos/sin
+                    c = COS_TABLE[bit_rev_k];
+                    s = SIN_TABLE[bit_rev_k] * constant_sign;
+                    
                     tReal = xReal[k + n2] * c + xImag[k + n2] * s;
                     tImag = xImag[k + n2] * c - xReal[k + n2] * s;
                     xReal[k + n2] = xReal[k] - tReal;
