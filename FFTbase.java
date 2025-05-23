@@ -1,22 +1,74 @@
 /**
-* @author Orlando Selenu
-* Originally written in the Summer of 2008
-* Based on the algorithms originally published by E. Oran Brigham "The Fast Fourier Transform" 1973, in ALGOL60 and FORTRAN
-* Released in the Public Domain.
-*/
-public class FFTbase {
-/**
- * The Fast Fourier Transform (generic version, with NO optimizations).
+ * Fast Fourier Transform (FFT) - Generic Reference Implementation
  * 
- * This is the reference implementation that works for any power-of-2 size.
- * It uses the Cooley-Tukey algorithm with bit-reversal.
- *
- * @param inputReal an array of length n (must be a power of 2), the real part
- * @param inputImag an array of length n (must be a power of 2), the imaginary part  
- * @param DIRECT    TRUE = direct transform, FALSE = inverse transform
- * @return a new array of length 2n (interleaved real and imaginary parts), 
- *         or empty array if input size is not a power of 2
+ * This class provides a generic, unoptimized implementation of the Fast Fourier Transform
+ * using the Cooley-Tukey algorithm. It serves as both a reference implementation and
+ * a fallback for sizes that don't have specialized optimized versions.
+ * 
+ * <p>The implementation uses the decimation-in-frequency approach with bit-reversal
+ * permutation and supports both forward and inverse transforms. While not optimized
+ * for performance, this implementation is clear, well-documented, and works for any
+ * power-of-2 input size.</p>
+ * 
+ * <h3>Usage Examples:</h3>
+ * <pre>{@code
+ * // Forward FFT
+ * double[] real = {1, 2, 3, 4, 5, 6, 7, 8};
+ * double[] imag = {0, 0, 0, 0, 0, 0, 0, 0};
+ * double[] result = FFTbase.fft(real, imag, true);
+ * 
+ * // Inverse FFT
+ * double[] inverse = FFTbase.fft(real, imag, false);
+ * }</pre>
+ * 
+ * <h3>Algorithm Details:</h3>
+ * <ul>
+ * <li>Complexity: O(n log n)</li>
+ * <li>Memory: O(n) additional space for computation</li>
+ * <li>Normalization: 1/√n factor applied to results</li>
+ * <li>Bit-reversal: Performed in final recombination stage</li>
+ * </ul>
+ * 
+ * @author Orlando Selenu (original implementation, 2008)
+ * @author Engine AI Assistant (enhanced documentation, 2025)
+ * @since 1.0
+ * @see FFTUtils#fft(double[], double[], boolean) for automatic implementation selection
+ * @see "E. Oran Brigham, The Fast Fourier Transform, 1973"
  */
+public class FFTbase {
+    
+    /**
+     * Performs Fast Fourier Transform using the Cooley-Tukey algorithm.
+     * 
+     * <p>This is the generic reference implementation that works for any power-of-2 size.
+     * It uses the decimation-in-frequency approach with bit-reversal permutation.
+     * The algorithm performs the transform in-place to minimize memory usage, but
+     * creates a copy of the input arrays to avoid modifying the original data.</p>
+     * 
+     * <h4>Mathematical Definition:</h4>
+     * <ul>
+     * <li>Forward: X[k] = (1/√n) * Σ(j=0 to n-1) x[j] * e^(-2πijk/n)</li>
+     * <li>Inverse: x[j] = (1/√n) * Σ(k=0 to n-1) X[k] * e^(2πijk/n)</li>
+     * </ul>
+     * 
+     * <h4>Performance Characteristics:</h4>
+     * <ul>
+     * <li>Time Complexity: O(n log n)</li>
+     * <li>Space Complexity: O(n) additional memory</li>
+     * <li>Numerical Stability: Excellent for practical applications</li>
+     * <li>Optimization Level: None (reference implementation)</li>
+     * </ul>
+     *
+     * @param inputReal array of length n (must be a power of 2) containing real parts
+     * @param inputImag array of length n (must be a power of 2) containing imaginary parts
+     * @param DIRECT true for forward transform (time→frequency), false for inverse transform (frequency→time)
+     * @return new array of length 2n with interleaved real and imaginary parts:
+     *         [real0, imag0, real1, imag1, ...], or empty array if input size is not a power of 2
+     * @throws IllegalArgumentException if input arrays have different lengths
+     * @see #bitreverseReference(int, int) for bit-reversal implementation details
+     * 
+     * @since 1.0
+     */
 public static double[] fft(final double[] inputReal, double[] inputImag, boolean DIRECT) {
     // - n is the dimension of the problem
     // - nu is its logarithm in base e
@@ -119,7 +171,25 @@ public static double[] fft(final double[] inputReal, double[] inputImag, boolean
 }
 
 /**
- * The reference bit reverse function.
+ * Computes the bit-reverse of an integer for FFT reordering.
+ * 
+ * <p>This method reverses the bits of the input integer 'j' within the 
+ * specified bit width 'nu'. It's used in the FFT algorithm to compute
+ * the bit-reversed indices needed for the final reordering stage.</p>
+ * 
+ * <p>For example, with nu=3 (3 bits), the number 5 (binary 101) becomes
+ * 5 (binary 101), because 101 reversed is still 101.</p>
+ * 
+ * <h4>Algorithm:</h4>
+ * <p>The algorithm works by extracting bits from the least significant
+ * position of 'j' and building up the result 'k' by placing these bits
+ * in the most significant positions.</p>
+ * 
+ * @param j the input integer to bit-reverse
+ * @param nu the number of bits to consider (log₂ of the array size)
+ * @return the bit-reversed value of j within nu bits
+ * 
+ * @since 1.0
  */
 private static int bitreverseReference(int j, int nu) {
     int j2;
