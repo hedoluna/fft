@@ -7,12 +7,16 @@
  */
 public class FFToptim8 {
   /**
-   * The Fast Fourier Transform (size 8 version, with small optimizations, just DIRECT).
+   * The Fast Fourier Transform (optimized version for arrays of size 8).
+   * 
+   * This implementation is highly optimized for 8-element arrays with
+   * completely unrolled loops and precomputed trigonometric values.
+   * Note: Currently only supports direct transform (DIRECT parameter is ignored).
    *
-   * @param inputReal an array of length n, the real part
-   * @param inputImag an array of length n, the imaginary part
-   * @param DIRECT    unused param, always DIRECT
-   * @return a new array of length 2n
+   * @param inputReal an array of length 8, the real part
+   * @param inputImag an array of length 8, the imaginary part
+   * @param DIRECT    currently unused, always performs direct transform
+   * @return a new array of length 16 (interleaved real and imaginary parts)
    */
   public static double[] fft(final double[] inputReal, double[] inputImag, boolean DIRECT) {
     // - n is the dimension of the problem

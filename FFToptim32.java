@@ -7,12 +7,15 @@
  */
 public class FFToptim32 {
     /**
-     * The Fast Fourier Transform (generic version, with NO optimizations).
+     * The Fast Fourier Transform (optimized version for arrays of size 32).
+     * 
+     * This implementation is optimized specifically for 32-element arrays
+     * and hardcodes many loop parameters for better performance.
      *
-     * @param inputReal an array of length n, the real part
-     * @param inputImag an array of length n, the imaginary part
+     * @param inputReal an array of length 32, the real part
+     * @param inputImag an array of length 32, the imaginary part
      * @param DIRECT    TRUE = direct transform, FALSE = inverse transform
-     * @return a new array of length 2n
+     * @return a new array of length 64 (interleaved real and imaginary parts)
      */
     public static double[] fft(final double[] inputReal, double[] inputImag, boolean DIRECT) {
         // - n is the dimension of the problem
@@ -88,7 +91,7 @@ public class FFToptim32 {
         }
 
         // Second phase - recombination
-        //k = 0;
+        k = 0;
         int r;
         while (k < n) {
             r = bitreverseReference(k);
