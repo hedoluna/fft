@@ -50,6 +50,30 @@ public class FFTTest {
     private static final double[] TEST_IMAG_512 = new double[512]; // All zeros
     
     /**
+     * Test data for size 1024 arrays
+     */
+    private static final double[] TEST_REAL_1024 = generateTestData(1024);
+    private static final double[] TEST_IMAG_1024 = new double[1024]; // All zeros
+    
+    /**
+     * Test data for size 2048 arrays
+     */
+    private static final double[] TEST_REAL_2048 = generateTestData(2048);
+    private static final double[] TEST_IMAG_2048 = new double[2048]; // All zeros
+    
+    /**
+     * Test data for size 4096 arrays
+     */
+    private static final double[] TEST_REAL_4096 = generateTestData(4096);
+    private static final double[] TEST_IMAG_4096 = new double[4096]; // All zeros
+    
+    /**
+     * Test data for size 8192 arrays
+     */
+    private static final double[] TEST_REAL_8192 = generateTestData(8192);
+    private static final double[] TEST_IMAG_8192 = new double[8192]; // All zeros
+    
+    /**
      * Generate test data for arrays of given size
      */
     private static double[] generateTestData(int size) {
@@ -70,6 +94,10 @@ public class FFTTest {
         testFFTOptim128();
         testFFTOptim256();
         testFFTOptim512();
+        testFFTOptim1024();
+        testFFTOptim2048();
+        testFFTOptim4096();
+        testFFTOptim8192();
         testConsistencyBetweenImplementations();
         testInvalidSizes();
         testInverseTransform();
@@ -209,6 +237,78 @@ public class FFTTest {
     }
     
     /**
+     * Test the optimized FFT implementation for size 1024
+     */
+    private static void testFFTOptim1024() {
+        System.out.println("Testing FFToptim1024...");
+        
+        double[] result = FFToptim1024.fft(TEST_REAL_1024, TEST_IMAG_1024, true);
+        assert result.length == 2048 : "Result length should be 2048";
+        
+        // Test invalid size
+        double[] invalidReal = new double[512];
+        double[] invalidImag = new double[512];
+        double[] resultInvalid = FFToptim1024.fft(invalidReal, invalidImag, true);
+        assert resultInvalid.length == 0 : "Invalid size should return empty array";
+        
+        System.out.println("✓ FFToptim1024 tests passed");
+    }
+    
+    /**
+     * Test the optimized FFT implementation for size 2048
+     */
+    private static void testFFTOptim2048() {
+        System.out.println("Testing FFToptim2048...");
+        
+        double[] result = FFToptim2048.fft(TEST_REAL_2048, TEST_IMAG_2048, true);
+        assert result.length == 4096 : "Result length should be 4096";
+        
+        // Test invalid size
+        double[] invalidReal = new double[1024];
+        double[] invalidImag = new double[1024];
+        double[] resultInvalid = FFToptim2048.fft(invalidReal, invalidImag, true);
+        assert resultInvalid.length == 0 : "Invalid size should return empty array";
+        
+        System.out.println("✓ FFToptim2048 tests passed");
+    }
+    
+    /**
+     * Test the optimized FFT implementation for size 4096
+     */
+    private static void testFFTOptim4096() {
+        System.out.println("Testing FFToptim4096...");
+        
+        double[] result = FFToptim4096.fft(TEST_REAL_4096, TEST_IMAG_4096, true);
+        assert result.length == 8192 : "Result length should be 8192";
+        
+        // Test invalid size
+        double[] invalidReal = new double[2048];
+        double[] invalidImag = new double[2048];
+        double[] resultInvalid = FFToptim4096.fft(invalidReal, invalidImag, true);
+        assert resultInvalid.length == 0 : "Invalid size should return empty array";
+        
+        System.out.println("✓ FFToptim4096 tests passed");
+    }
+    
+    /**
+     * Test the optimized FFT implementation for size 8192
+     */
+    private static void testFFTOptim8192() {
+        System.out.println("Testing FFToptim8192...");
+        
+        double[] result = FFToptim8192.fft(TEST_REAL_8192, TEST_IMAG_8192, true);
+        assert result.length == 16384 : "Result length should be 16384";
+        
+        // Test invalid size
+        double[] invalidReal = new double[4096];
+        double[] invalidImag = new double[4096];
+        double[] resultInvalid = FFToptim8192.fft(invalidReal, invalidImag, true);
+        assert resultInvalid.length == 0 : "Invalid size should return empty array";
+        
+        System.out.println("✓ FFToptim8192 tests passed");
+    }
+    
+    /**
      * Test consistency between different implementations
      */
     private static void testConsistencyBetweenImplementations() {
@@ -249,6 +349,30 @@ public class FFTTest {
         double[] optimResult512 = FFToptim512.fft(TEST_REAL_512, TEST_IMAG_512, true);
         
         assertArraysEqual(baseResult512, optimResult512, "Base and Optim512 should produce same results");
+        
+        // Test size 1024 consistency
+        double[] baseResult1024 = FFTbase.fft(TEST_REAL_1024, TEST_IMAG_1024, true);
+        double[] optimResult1024 = FFToptim1024.fft(TEST_REAL_1024, TEST_IMAG_1024, true);
+        
+        assertArraysEqual(baseResult1024, optimResult1024, "Base and Optim1024 should produce same results");
+        
+        // Test size 2048 consistency
+        double[] baseResult2048 = FFTbase.fft(TEST_REAL_2048, TEST_IMAG_2048, true);
+        double[] optimResult2048 = FFToptim2048.fft(TEST_REAL_2048, TEST_IMAG_2048, true);
+        
+        assertArraysEqual(baseResult2048, optimResult2048, "Base and Optim2048 should produce same results");
+        
+        // Test size 4096 consistency
+        double[] baseResult4096 = FFTbase.fft(TEST_REAL_4096, TEST_IMAG_4096, true);
+        double[] optimResult4096 = FFToptim4096.fft(TEST_REAL_4096, TEST_IMAG_4096, true);
+        
+        assertArraysEqual(baseResult4096, optimResult4096, "Base and Optim4096 should produce same results");
+        
+        // Test size 8192 consistency
+        double[] baseResult8192 = FFTbase.fft(TEST_REAL_8192, TEST_IMAG_8192, true);
+        double[] optimResult8192 = FFToptim8192.fft(TEST_REAL_8192, TEST_IMAG_8192, true);
+        
+        assertArraysEqual(baseResult8192, optimResult8192, "Base and Optim8192 should produce same results");
         
         System.out.println("✓ Consistency tests passed");
     }

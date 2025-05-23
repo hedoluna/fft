@@ -22,6 +22,10 @@ public class FFTBenchmark {
         benchmarkSize128();
         benchmarkSize256();
         benchmarkSize512();
+        benchmarkSize1024();
+        benchmarkSize2048();
+        benchmarkSize4096();
+        benchmarkSize8192();
     }
     
     private static void benchmarkSize8() {
@@ -229,6 +233,142 @@ public class FFTBenchmark {
         System.out.printf("FFTbase:     %,d ns (%.2f ms)\n", baseTime, baseTime / 1_000_000.0);
         System.out.printf("FFToptim512: %,d ns (%.2f ms)\n", optimTime, optimTime / 1_000_000.0);
         System.out.printf("Speedup:     %.2fx\n", speedup);
+        System.out.println();
+    }
+    
+    private static void benchmarkSize1024() {
+        System.out.println("Benchmarking Size 1024:");
+        System.out.println("----------------------");
+        
+        double[] inputReal = generateTestData(1024);
+        double[] inputImag = new double[1024];
+        
+        // Warmup
+        for (int i = 0; i < WARMUP_ITERATIONS; i++) {
+            FFTbase.fft(inputReal, inputImag, true);
+            FFToptim1024.fft(inputReal, inputImag, true);
+        }
+        
+        // Benchmark FFTbase
+        long startTime = System.nanoTime();
+        for (int i = 0; i < BENCHMARK_ITERATIONS; i++) {
+            FFTbase.fft(inputReal, inputImag, true);
+        }
+        long baseTime = System.nanoTime() - startTime;
+        
+        // Benchmark FFToptim1024
+        startTime = System.nanoTime();
+        for (int i = 0; i < BENCHMARK_ITERATIONS; i++) {
+            FFToptim1024.fft(inputReal, inputImag, true);
+        }
+        long optimTime = System.nanoTime() - startTime;
+        
+        double speedup = (double) baseTime / optimTime;
+        System.out.printf("FFTbase:      %,d ns (%.2f ms)\n", baseTime, baseTime / 1_000_000.0);
+        System.out.printf("FFToptim1024: %,d ns (%.2f ms)\n", optimTime, optimTime / 1_000_000.0);
+        System.out.printf("Speedup:      %.2fx\n", speedup);
+        System.out.println();
+    }
+    
+    private static void benchmarkSize2048() {
+        System.out.println("Benchmarking Size 2048:");
+        System.out.println("----------------------");
+        
+        double[] inputReal = generateTestData(2048);
+        double[] inputImag = new double[2048];
+        
+        // Warmup
+        for (int i = 0; i < WARMUP_ITERATIONS; i++) {
+            FFTbase.fft(inputReal, inputImag, true);
+            FFToptim2048.fft(inputReal, inputImag, true);
+        }
+        
+        // Benchmark FFTbase
+        long startTime = System.nanoTime();
+        for (int i = 0; i < BENCHMARK_ITERATIONS; i++) {
+            FFTbase.fft(inputReal, inputImag, true);
+        }
+        long baseTime = System.nanoTime() - startTime;
+        
+        // Benchmark FFToptim2048
+        startTime = System.nanoTime();
+        for (int i = 0; i < BENCHMARK_ITERATIONS; i++) {
+            FFToptim2048.fft(inputReal, inputImag, true);
+        }
+        long optimTime = System.nanoTime() - startTime;
+        
+        double speedup = (double) baseTime / optimTime;
+        System.out.printf("FFTbase:      %,d ns (%.2f ms)\n", baseTime, baseTime / 1_000_000.0);
+        System.out.printf("FFToptim2048: %,d ns (%.2f ms)\n", optimTime, optimTime / 1_000_000.0);
+        System.out.printf("Speedup:      %.2fx\n", speedup);
+        System.out.println();
+    }
+    
+    private static void benchmarkSize4096() {
+        System.out.println("Benchmarking Size 4096:");
+        System.out.println("----------------------");
+        
+        double[] inputReal = generateTestData(4096);
+        double[] inputImag = new double[4096];
+        
+        // Warmup
+        for (int i = 0; i < WARMUP_ITERATIONS; i++) {
+            FFTbase.fft(inputReal, inputImag, true);
+            FFToptim4096.fft(inputReal, inputImag, true);
+        }
+        
+        // Benchmark FFTbase
+        long startTime = System.nanoTime();
+        for (int i = 0; i < BENCHMARK_ITERATIONS; i++) {
+            FFTbase.fft(inputReal, inputImag, true);
+        }
+        long baseTime = System.nanoTime() - startTime;
+        
+        // Benchmark FFToptim4096
+        startTime = System.nanoTime();
+        for (int i = 0; i < BENCHMARK_ITERATIONS; i++) {
+            FFToptim4096.fft(inputReal, inputImag, true);
+        }
+        long optimTime = System.nanoTime() - startTime;
+        
+        double speedup = (double) baseTime / optimTime;
+        System.out.printf("FFTbase:      %,d ns (%.2f ms)\n", baseTime, baseTime / 1_000_000.0);
+        System.out.printf("FFToptim4096: %,d ns (%.2f ms)\n", optimTime, optimTime / 1_000_000.0);
+        System.out.printf("Speedup:      %.2fx\n", speedup);
+        System.out.println();
+    }
+    
+    private static void benchmarkSize8192() {
+        System.out.println("Benchmarking Size 8192:");
+        System.out.println("----------------------");
+        
+        double[] inputReal = generateTestData(8192);
+        double[] inputImag = new double[8192];
+        
+        // Warmup
+        for (int i = 0; i < WARMUP_ITERATIONS; i++) {
+            FFTbase.fft(inputReal, inputImag, true);
+            FFToptim8192.fft(inputReal, inputImag, true);
+        }
+        
+        // Benchmark FFTbase
+        long startTime = System.nanoTime();
+        for (int i = 0; i < BENCHMARK_ITERATIONS; i++) {
+            FFTbase.fft(inputReal, inputImag, true);
+        }
+        long baseTime = System.nanoTime() - startTime;
+        
+        // Benchmark FFToptim8192
+        startTime = System.nanoTime();
+        for (int i = 0; i < BENCHMARK_ITERATIONS; i++) {
+            FFToptim8192.fft(inputReal, inputImag, true);
+        }
+        long optimTime = System.nanoTime() - startTime;
+        
+        double speedup = (double) baseTime / optimTime;
+        System.out.printf("FFTbase:      %,d ns (%.2f ms)\n", baseTime, baseTime / 1_000_000.0);
+        System.out.printf("FFToptim8192: %,d ns (%.2f ms)\n", optimTime, optimTime / 1_000_000.0);
+        System.out.printf("Speedup:      %.2fx\n", speedup);
         System.out.println();
     }
     
