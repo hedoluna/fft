@@ -7,14 +7,15 @@
 public class FFTbase {
 /**
  * The Fast Fourier Transform (generic version, with NO optimizations).
+ * 
+ * This is the reference implementation that works for any power-of-2 size.
+ * It uses the Cooley-Tukey algorithm with bit-reversal.
  *
- * @param inputReal
- *            an array of length n, the real part
- * @param inputImag
- *            an array of length n, the imaginary part
- * @param DIRECT
- *            TRUE = direct transform, FALSE = inverse transform
- * @return a new array of length 2n
+ * @param inputReal an array of length n (must be a power of 2), the real part
+ * @param inputImag an array of length n (must be a power of 2), the imaginary part  
+ * @param DIRECT    TRUE = direct transform, FALSE = inverse transform
+ * @return a new array of length 2n (interleaved real and imaginary parts), 
+ *         or empty array if input size is not a power of 2
  */
 public static double[] fft(final double[] inputReal, double[] inputImag, boolean DIRECT) {
     // - n is the dimension of the problem
