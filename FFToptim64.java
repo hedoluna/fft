@@ -7,6 +7,19 @@
  */
 public class FFToptim64 {
     
+    // Precomputed trigonometric lookup tables for 64-point FFT
+    private static final double[] COS_TABLE = new double[32];
+    private static final double[] SIN_TABLE = new double[32];
+    
+    static {
+        // Initialize lookup tables
+        for (int i = 0; i < 32; i++) {
+            double angle = 2.0 * Math.PI * i / 64.0;
+            COS_TABLE[i] = Math.cos(angle);
+            SIN_TABLE[i] = Math.sin(angle);
+        }
+    }
+    
     /**
      * The Fast Fourier Transform (optimized version for arrays of size 64).
      * 
