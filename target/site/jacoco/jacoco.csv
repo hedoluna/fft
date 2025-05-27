@@ -1,0 +1,8 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+Fast Fourier Transform Library,com.fft.optimized,FFTOptimized8,6,799,2,12,2,126,2,12,0,7
+Fast Fourier Transform Library,com.fft.factory,DefaultFFTFactory,10,336,7,31,2,60,7,27,0,15
+Fast Fourier Transform Library,com.fft.factory,DefaultFFTFactory.ImplementationEntry,0,9,0,0,0,4,0,1,0,1
+Fast Fourier Transform Library,com.fft.core,FFT,8,8,1,1,2,3,2,1,1,1
+Fast Fourier Transform Library,com.fft.core,FFTBase,0,359,1,27,0,70,1,21,0,8
+Fast Fourier Transform Library,com.fft.core,FFTResult,5,414,7,33,0,67,7,29,0,16
+Fast Fourier Transform Library,com.fft.utils,FFTUtils,8,217,1,21,2,42,2,27,1,17
