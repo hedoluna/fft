@@ -1,0 +1,8 @@
+com/fft/utils/FFTUtilsTest.class
+com/fft/factory/DefaultFFTFactoryTest$MockFFT.class
+com/fft/factory/FFTFactoryIntegrationTest.class
+com/fft/core/FFTResultTest.class
+com/fft/optimized/FFTOptimized8Test.class
+com/fft/factory/DefaultFFTFactoryTest.class
+com/fft/factory/FFTFactoryIntegrationTest$MockFFT.class
+com/fft/core/FFTBaseTest.class
