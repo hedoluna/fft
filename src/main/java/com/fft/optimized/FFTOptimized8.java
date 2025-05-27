@@ -3,6 +3,7 @@ package com.fft.optimized;
 import com.fft.core.FFT;
 import com.fft.core.FFTBase;
 import com.fft.core.FFTResult;
+import com.fft.factory.FFTImplementation;
 
 /**
  * Highly optimized FFT implementation for 8-element arrays.
@@ -40,6 +41,12 @@ import com.fft.core.FFTResult;
  * @see FFT for interface details
  * @see "E. Oran Brigham, The Fast Fourier Transform, 1973"
  */
+@FFTImplementation(
+    size = 8,
+    priority = 50,
+    description = "Highly optimized implementation with complete loop unrolling for 8-element arrays",
+    characteristics = {"unrolled-loops", "precomputed-trig", "1.4x-speedup"}
+)
 public class FFTOptimized8 implements FFT {
     
     private static final int SIZE = 8;
