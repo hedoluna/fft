@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RefactoringDemo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Fast Fourier Transform Library</a> &gt; <a href="index.source.html" class="el_package">com.fft.demo</a> &gt; <span class="el_source">RefactoringDemo.java</span></div><h1>RefactoringDemo.java</h1><pre class="source lang-java linenums">package com.fft.demo;
+
+import com.fft.core.FFT;
+import com.fft.core.FFTResult;
+import com.fft.factory.DefaultFFTFactory;
+import com.fft.utils.FFTUtils;
+
+/**
+ * Demonstration of the refactored FFT library functionality.
+ * 
+ * &lt;p&gt;This class showcases the key improvements made during the refactoring process,
+ * including the new API, factory pattern, and optimized implementations.&lt;/p&gt;
+ * 
+ * @author Engine AI Assistant
+ * @since 2.0.0
+ */
+<span class="nc" id="L17">public class RefactoringDemo {</span>
+    
+    public static void main(String[] args) {
+<span class="nc" id="L20">        System.out.println(&quot;=== FFT Library Refactoring Demonstration ===\n&quot;);</span>
+        
+<span class="nc" id="L22">        demonstrateNewAPI();</span>
+<span class="nc" id="L23">        demonstrateFactoryPattern();</span>
+<span class="nc" id="L24">        demonstrateOptimizedImplementations();</span>
+<span class="nc" id="L25">        demonstrateBackwardCompatibility();</span>
+<span class="nc" id="L26">        demonstrateResultWrapper();</span>
+        
+<span class="nc" id="L28">        System.out.println(&quot;=== Refactoring Demonstration Complete ===&quot;);</span>
+<span class="nc" id="L29">    }</span>
+    
+    private static void demonstrateNewAPI() {
+<span class="nc" id="L32">        System.out.println(&quot;1. New Type-Safe API:&quot;);</span>
+<span class="nc" id="L33">        System.out.println(&quot;--------------------&quot;);</span>
+        
+<span class="nc" id="L35">        double[] signal = {1, 2, 3, 4, 5, 6, 7, 8};</span>
+        
+        // New API - returns structured FFTResult object
+<span class="nc" id="L38">        FFTResult result = FFTUtils.fft(signal);</span>
+        
+<span class="nc" id="L40">        System.out.printf(&quot;Signal size: %d\n&quot;, result.size());</span>
+<span class="nc" id="L41">        System.out.printf(&quot;DC component magnitude: %.3f\n&quot;, result.getMagnitudeAt(0));</span>
+<span class="nc" id="L42">        System.out.printf(&quot;First few magnitudes: [%.3f, %.3f, %.3f]\n&quot;, </span>
+<span class="nc" id="L43">                         result.getMagnitudeAt(0), result.getMagnitudeAt(1), result.getMagnitudeAt(2));</span>
+<span class="nc" id="L44">        System.out.println();</span>
+<span class="nc" id="L45">    }</span>
+    
+    private static void demonstrateFactoryPattern() {
+<span class="nc" id="L48">        System.out.println(&quot;2. Factory Pattern with Automatic Implementation Selection:&quot;);</span>
+<span class="nc" id="L49">        System.out.println(&quot;-----------------------------------------------------------&quot;);</span>
+        
+<span class="nc" id="L51">        DefaultFFTFactory factory = new DefaultFFTFactory();</span>
+        
+        // Factory automatically selects the best implementation
+<span class="nc" id="L54">        FFT fft8 = factory.createFFT(8);</span>
+<span class="nc" id="L55">        FFT fft16 = factory.createFFT(16);</span>
+<span class="nc" id="L56">        FFT fft1024 = factory.createFFT(1024);</span>
+        
+<span class="nc" id="L58">        System.out.printf(&quot;Size 8: %s\n&quot;, fft8.getDescription());</span>
+<span class="nc" id="L59">        System.out.printf(&quot;Size 16: %s\n&quot;, fft16.getDescription());</span>
+<span class="nc" id="L60">        System.out.printf(&quot;Size 1024: %s\n&quot;, fft1024.getDescription());</span>
+        
+<span class="nc" id="L62">        System.out.println(&quot;\nImplementation Registry Report:&quot;);</span>
+<span class="nc" id="L63">        System.out.println(factory.getRegistryReport());</span>
+<span class="nc" id="L64">    }</span>
+    
+    private static void demonstrateOptimizedImplementations() {
+<span class="nc" id="L67">        System.out.println(&quot;3. Optimized Implementation Performance:&quot;);</span>
+<span class="nc" id="L68">        System.out.println(&quot;----------------------------------------&quot;);</span>
+        
+<span class="nc" id="L70">        double[] signal = {1, 2, 3, 4, 5, 6, 7, 8};</span>
+        
+        // Compare implementations
+<span class="nc" id="L73">        System.out.printf(&quot;Implementation for size 8: %s\n&quot;, FFTUtils.getImplementationInfo(8));</span>
+<span class="nc" id="L74">        System.out.printf(&quot;Implementation for size 16: %s\n&quot;, FFTUtils.getImplementationInfo(16));</span>
+        
+        // Performance demonstration
+<span class="nc" id="L77">        long startTime = System.nanoTime();</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        for (int i = 0; i &lt; 10000; i++) {</span>
+<span class="nc" id="L79">            FFTUtils.fft(signal);</span>
+        }
+<span class="nc" id="L81">        long endTime = System.nanoTime();</span>
+        
+<span class="nc" id="L83">        System.out.printf(&quot;10,000 size-8 FFTs completed in %.2f ms\n&quot;, (endTime - startTime) / 1_000_000.0);</span>
+<span class="nc" id="L84">        System.out.println();</span>
+<span class="nc" id="L85">    }</span>
+    
+    @SuppressWarnings(&quot;deprecation&quot;)
+    private static void demonstrateBackwardCompatibility() {
+<span class="nc" id="L89">        System.out.println(&quot;4. Backward Compatibility:&quot;);</span>
+<span class="nc" id="L90">        System.out.println(&quot;---------------------------&quot;);</span>
+        
+<span class="nc" id="L92">        double[] real = {1, 2, 3, 4, 5, 6, 7, 8};</span>
+<span class="nc" id="L93">        double[] imag = new double[8];</span>
+        
+        // Legacy API still works
+<span class="nc" id="L96">        double[] legacyResult = FFTUtils.fftLegacy(real, imag, true);</span>
+        
+        // New API
+<span class="nc" id="L99">        FFTResult newResult = FFTUtils.fft(real, imag, true);</span>
+        
+<span class="nc" id="L101">        System.out.printf(&quot;Legacy result length: %d\n&quot;, legacyResult.length);</span>
+<span class="nc" id="L102">        System.out.printf(&quot;New result size: %d\n&quot;, newResult.size());</span>
+<span class="nc" id="L103">        System.out.printf(&quot;Results match: %s\n&quot;, </span>
+<span class="nc" id="L104">                         java.util.Arrays.equals(legacyResult, newResult.getInterleavedResult()));</span>
+<span class="nc" id="L105">        System.out.println();</span>
+<span class="nc" id="L106">    }</span>
+    
+    private static void demonstrateResultWrapper() {
+<span class="nc" id="L109">        System.out.println(&quot;5. Rich FFTResult Wrapper:&quot;);</span>
+<span class="nc" id="L110">        System.out.println(&quot;---------------------------&quot;);</span>
+        
+        // Create a test signal with known frequency content
+<span class="nc" id="L113">        double[] frequencies = {1.0, 3.0};</span>
+<span class="nc" id="L114">        double[] amplitudes = {1.0, 0.5};</span>
+<span class="nc" id="L115">        double[] signal = FFTUtils.generateTestSignal(32, 32.0, frequencies, amplitudes);</span>
+        
+<span class="nc" id="L117">        FFTResult spectrum = FFTUtils.fft(signal);</span>
+        
+<span class="nc" id="L119">        System.out.printf(&quot;Signal length: %d\n&quot;, signal.length);</span>
+<span class="nc" id="L120">        System.out.printf(&quot;Spectrum size: %d\n&quot;, spectrum.size());</span>
+        
+        // Easy access to different representations
+<span class="nc" id="L123">        double[] magnitudes = spectrum.getMagnitudes();</span>
+<span class="nc" id="L124">        double[] phases = spectrum.getPhases();</span>
+<span class="nc" id="L125">        double[] powerSpectrum = spectrum.getPowerSpectrum();</span>
+        
+<span class="nc" id="L127">        System.out.printf(&quot;Peak magnitude at bin 1: %.3f\n&quot;, magnitudes[1]);</span>
+<span class="nc" id="L128">        System.out.printf(&quot;Peak magnitude at bin 3: %.3f\n&quot;, magnitudes[3]);</span>
+<span class="nc" id="L129">        System.out.printf(&quot;Phase at bin 1: %.3f radians\n&quot;, phases[1]);</span>
+<span class="nc" id="L130">        System.out.printf(&quot;Power at bin 3: %.3f\n&quot;, powerSpectrum[3]);</span>
+        
+<span class="nc" id="L132">        System.out.printf(&quot;Result object: %s\n&quot;, spectrum.toString());</span>
+<span class="nc" id="L133">        System.out.println();</span>
+<span class="nc" id="L134">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

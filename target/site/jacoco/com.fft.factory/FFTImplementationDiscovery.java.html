@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FFTImplementationDiscovery.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Fast Fourier Transform Library</a> &gt; <a href="index.source.html" class="el_package">com.fft.factory</a> &gt; <span class="el_source">FFTImplementationDiscovery.java</span></div><h1>FFTImplementationDiscovery.java</h1><pre class="source lang-java linenums">package com.fft.factory;
+
+import com.fft.core.FFT;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
+import java.util.*;
+import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ * Discovery mechanism for FFT implementations using annotations and classpath scanning.
+ * 
+ * &lt;p&gt;This class provides automatic discovery of FFT implementations marked with the
+ * {@link FFTImplementation} annotation. It uses a combination of classpath scanning
+ * and reflection to find and instantiate implementations.&lt;/p&gt;
+ * 
+ * &lt;h3&gt;Discovery Methods:&lt;/h3&gt;
+ * &lt;ol&gt;
+ * &lt;li&gt;&lt;strong&gt;Package-based scanning&lt;/strong&gt;: Scans specific packages for annotated classes&lt;/li&gt;
+ * &lt;li&gt;&lt;strong&gt;Service loader pattern&lt;/strong&gt;: Uses META-INF/services for explicit registration&lt;/li&gt;
+ * &lt;li&gt;&lt;strong&gt;Reflection-based discovery&lt;/strong&gt;: Scans the classpath for annotations&lt;/li&gt;
+ * &lt;/ol&gt;
+ * 
+ * &lt;h3&gt;Performance Considerations:&lt;/h3&gt;
+ * &lt;p&gt;Discovery is performed once during initialization and results are cached.
+ * The discovery process uses lazy initialization to minimize startup overhead.&lt;/p&gt;
+ * 
+ * @author Engine AI Assistant
+ * @since 2.0.0
+ * @see FFTImplementation
+ * @see DefaultFFTFactory
+ */
+<span class="nc" id="L39">public class FFTImplementationDiscovery {</span>
+    
+<span class="fc" id="L41">    private static final Logger LOGGER = Logger.getLogger(FFTImplementationDiscovery.class.getName());</span>
+    
+    /**
+     * Package prefixes to scan for FFT implementations.
+     */
+<span class="fc" id="L46">    private static final String[] SCAN_PACKAGES = {</span>
+        &quot;com.fft.optimized&quot;,
+        &quot;com.fft.experimental&quot;,
+        &quot;com.fft.custom&quot;
+    };
+    
+    /**
+     * Cache of discovered implementations to avoid repeated scanning.
+     */
+    private static volatile Map&lt;Integer, List&lt;DiscoveredImplementation&gt;&gt; discoveredImplementations;
+    
+    /**
+     * Represents a discovered FFT implementation with its metadata.
+     */
+    public static class DiscoveredImplementation {
+        private final Class&lt;? extends FFT&gt; implementationClass;
+        private final FFTImplementation annotation;
+        private final Supplier&lt;FFT&gt; supplier;
+        
+        public DiscoveredImplementation(Class&lt;? extends FFT&gt; implementationClass, 
+<span class="fc" id="L66">                                      FFTImplementation annotation) {</span>
+<span class="fc" id="L67">            this.implementationClass = implementationClass;</span>
+<span class="fc" id="L68">            this.annotation = annotation;</span>
+<span class="fc" id="L69">            this.supplier = createSupplier(implementationClass);</span>
+<span class="fc" id="L70">        }</span>
+        
+        public int getSize() {
+<span class="fc" id="L73">            return annotation.size();</span>
+        }
+        
+        public int getPriority() {
+<span class="fc" id="L77">            return annotation.priority();</span>
+        }
+        
+        public String getDescription() {
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">            return annotation.description().isEmpty() ? </span>
+<span class="pc" id="L82">                implementationClass.getSimpleName() : annotation.description();</span>
+        }
+        
+        public boolean isAutoRegister() {
+<span class="fc" id="L86">            return annotation.autoRegister();</span>
+        }
+        
+        public Supplier&lt;FFT&gt; getSupplier() {
+<span class="fc" id="L90">            return supplier;</span>
+        }
+        
+        public Class&lt;? extends FFT&gt; getImplementationClass() {
+<span class="fc" id="L94">            return implementationClass;</span>
+        }
+        
+        public String[] getCharacteristics() {
+<span class="fc" id="L98">            return annotation.characteristics();</span>
+        }
+        
+        /**
+         * Creates a supplier for the implementation class.
+         */
+        private static Supplier&lt;FFT&gt; createSupplier(Class&lt;? extends FFT&gt; clazz) {
+<span class="fc" id="L105">            return () -&gt; {</span>
+                try {
+<span class="fc" id="L107">                    Constructor&lt;? extends FFT&gt; constructor = clazz.getDeclaredConstructor();</span>
+<span class="fc" id="L108">                    constructor.setAccessible(true);</span>
+<span class="fc" id="L109">                    return constructor.newInstance();</span>
+<span class="nc" id="L110">                } catch (NoSuchMethodException | InstantiationException | </span>
+                         IllegalAccessException | InvocationTargetException e) {
+<span class="nc" id="L112">                    LOGGER.log(Level.WARNING, &quot;Failed to create instance of &quot; + clazz.getName(), e);</span>
+<span class="nc" id="L113">                    throw new RuntimeException(&quot;Failed to create FFT implementation: &quot; + clazz.getName(), e);</span>
+                }
+            };
+        }
+    }
+    
+    /**
+     * Discovers all FFT implementations in the classpath.
+     * 
+     * @return map of size to list of discovered implementations
+     */
+    public static Map&lt;Integer, List&lt;DiscoveredImplementation&gt;&gt; discoverImplementations() {
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        if (discoveredImplementations == null) {</span>
+<span class="fc" id="L126">            synchronized (FFTImplementationDiscovery.class) {</span>
+<span class="pc bpc" id="L127" title="1 of 2 branches missed.">                if (discoveredImplementations == null) {</span>
+<span class="fc" id="L128">                    discoveredImplementations = performDiscovery();</span>
+                }
+<span class="fc" id="L130">            }</span>
+        }
+<span class="fc" id="L132">        return discoveredImplementations;</span>
+    }
+    
+    /**
+     * Performs the actual discovery process.
+     */
+    private static Map&lt;Integer, List&lt;DiscoveredImplementation&gt;&gt; performDiscovery() {
+<span class="fc" id="L139">        Map&lt;Integer, List&lt;DiscoveredImplementation&gt;&gt; implementations = new HashMap&lt;&gt;();</span>
+        
+        // Discover implementations from known packages
+<span class="fc" id="L142">        discoverFromPackages(implementations);</span>
+        
+        // Discover implementations from service files
+<span class="fc" id="L145">        discoverFromServices(implementations);</span>
+        
+        // Sort implementations by priority (highest first)
+<span class="fc" id="L148">        implementations.values().forEach(list -&gt; </span>
+<span class="pc" id="L149">            list.sort((a, b) -&gt; Integer.compare(b.getPriority(), a.getPriority())));</span>
+        
+<span class="fc" id="L151">        LOGGER.info(&quot;Discovered &quot; + implementations.values().stream()</span>
+<span class="fc" id="L152">                    .mapToInt(List::size).sum() + &quot; FFT implementations&quot;);</span>
+        
+<span class="fc" id="L154">        return implementations;</span>
+    }
+    
+    /**
+     * Discovers implementations by scanning known packages.
+     */
+    private static void discoverFromPackages(Map&lt;Integer, List&lt;DiscoveredImplementation&gt;&gt; implementations) {
+<span class="fc bfc" id="L161" title="All 2 branches covered.">        for (String packageName : SCAN_PACKAGES) {</span>
+            try {
+<span class="fc" id="L163">                scanPackage(packageName, implementations);</span>
+<span class="nc" id="L164">            } catch (Exception e) {</span>
+<span class="nc" id="L165">                LOGGER.log(Level.WARNING, &quot;Failed to scan package: &quot; + packageName, e);</span>
+<span class="fc" id="L166">            }</span>
+        }
+<span class="fc" id="L168">    }</span>
+    
+    /**
+     * Scans a specific package for FFT implementations.
+     */
+    private static void scanPackage(String packageName, 
+                                  Map&lt;Integer, List&lt;DiscoveredImplementation&gt;&gt; implementations) {
+        try {
+<span class="fc" id="L176">            String packagePath = packageName.replace('.', '/');</span>
+<span class="fc" id="L177">            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();</span>
+<span class="fc" id="L178">            Enumeration&lt;URL&gt; resources = classLoader.getResources(packagePath);</span>
+            
+<span class="fc bfc" id="L180" title="All 2 branches covered.">            while (resources.hasMoreElements()) {</span>
+<span class="fc" id="L181">                URL resource = resources.nextElement();</span>
+<span class="pc bpc" id="L182" title="1 of 2 branches missed.">                if (resource.getProtocol().equals(&quot;file&quot;)) {</span>
+                    // Handle file system resources
+<span class="fc" id="L184">                    scanFileSystemPackage(resource, packageName, implementations);</span>
+<span class="nc bnc" id="L185" title="All 2 branches missed.">                } else if (resource.getProtocol().equals(&quot;jar&quot;)) {</span>
+                    // Handle JAR resources
+<span class="nc" id="L187">                    scanJarPackage(resource, packageName, implementations);</span>
+                }
+<span class="fc" id="L189">            }</span>
+<span class="nc" id="L190">        } catch (IOException e) {</span>
+<span class="nc" id="L191">            LOGGER.log(Level.WARNING, &quot;Failed to scan package: &quot; + packageName, e);</span>
+<span class="fc" id="L192">        }</span>
+<span class="fc" id="L193">    }</span>
+    
+    /**
+     * Scans a package in the file system.
+     */
+    private static void scanFileSystemPackage(URL resource, String packageName,
+                                            Map&lt;Integer, List&lt;DiscoveredImplementation&gt;&gt; implementations) {
+        try {
+<span class="fc" id="L201">            java.io.File directory = new java.io.File(resource.toURI());</span>
+<span class="pc bpc" id="L202" title="2 of 4 branches missed.">            if (directory.exists() &amp;&amp; directory.isDirectory()) {</span>
+<span class="fc bfc" id="L203" title="All 2 branches covered.">                for (java.io.File file : directory.listFiles()) {</span>
+<span class="pc bpc" id="L204" title="1 of 2 branches missed.">                    if (file.getName().endsWith(&quot;.class&quot;)) {</span>
+<span class="fc" id="L205">                        String className = packageName + &quot;.&quot; + </span>
+<span class="fc" id="L206">                            file.getName().substring(0, file.getName().length() - 6);</span>
+<span class="fc" id="L207">                        checkClass(className, implementations);</span>
+                    }
+                }
+            }
+<span class="nc" id="L211">        } catch (Exception e) {</span>
+<span class="nc" id="L212">            LOGGER.log(Level.WARNING, &quot;Failed to scan file system package: &quot; + packageName, e);</span>
+<span class="fc" id="L213">        }</span>
+<span class="fc" id="L214">    }</span>
+    
+    /**
+     * Scans a package in a JAR file.
+     */
+    private static void scanJarPackage(URL resource, String packageName,
+                                     Map&lt;Integer, List&lt;DiscoveredImplementation&gt;&gt; implementations) {
+        // For simplicity, we'll use a known class list approach for JAR scanning
+        // In a production environment, you might want to use a more sophisticated
+        // JAR scanning mechanism or a library like Reflections
+        
+        // For now, we'll rely on explicit registration through the service loader pattern
+<span class="nc" id="L226">        LOGGER.fine(&quot;JAR scanning not fully implemented, relying on service loader pattern&quot;);</span>
+<span class="nc" id="L227">    }</span>
+    
+    /**
+     * Checks if a class is an annotated FFT implementation.
+     */
+    private static void checkClass(String className, 
+                                 Map&lt;Integer, List&lt;DiscoveredImplementation&gt;&gt; implementations) {
+        try {
+<span class="fc" id="L235">            Class&lt;?&gt; clazz = Class.forName(className);</span>
+            
+<span class="fc bfc" id="L237" title="All 4 branches covered.">            if (FFT.class.isAssignableFrom(clazz) &amp;&amp; clazz.isAnnotationPresent(FFTImplementation.class)) {</span>
+                @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L239">                Class&lt;? extends FFT&gt; fftClass = (Class&lt;? extends FFT&gt;) clazz;</span>
+<span class="fc" id="L240">                FFTImplementation annotation = clazz.getAnnotation(FFTImplementation.class);</span>
+                
+<span class="pc bpc" id="L242" title="1 of 2 branches missed.">                if (annotation.autoRegister()) {</span>
+<span class="fc" id="L243">                    DiscoveredImplementation discovered = new DiscoveredImplementation(fftClass, annotation);</span>
+<span class="fc" id="L244">                    implementations.computeIfAbsent(discovered.getSize(), k -&gt; new ArrayList&lt;&gt;())</span>
+<span class="fc" id="L245">                                 .add(discovered);</span>
+                    
+<span class="fc" id="L247">                    LOGGER.fine(&quot;Discovered FFT implementation: &quot; + className + </span>
+<span class="fc" id="L248">                              &quot; for size &quot; + discovered.getSize());</span>
+                }
+            }
+<span class="nc" id="L251">        } catch (ClassNotFoundException | NoClassDefFoundError e) {</span>
+            // Expected for some classes, don't log as warning
+<span class="nc" id="L253">            LOGGER.finest(&quot;Could not load class: &quot; + className);</span>
+<span class="nc" id="L254">        } catch (Exception e) {</span>
+<span class="nc" id="L255">            LOGGER.log(Level.WARNING, &quot;Failed to check class: &quot; + className, e);</span>
+<span class="pc" id="L256">        }</span>
+<span class="fc" id="L257">    }</span>
+    
+    /**
+     * Discovers implementations through the service loader pattern.
+     */
+    private static void discoverFromServices(Map&lt;Integer, List&lt;DiscoveredImplementation&gt;&gt; implementations) {
+        try {
+<span class="fc" id="L264">            ServiceLoader&lt;FFT&gt; serviceLoader = ServiceLoader.load(FFT.class);</span>
+<span class="pc bpc" id="L265" title="1 of 2 branches missed.">            for (FFT fft : serviceLoader) {</span>
+<span class="nc" id="L266">                Class&lt;? extends FFT&gt; clazz = fft.getClass();</span>
+<span class="nc bnc" id="L267" title="All 2 branches missed.">                if (clazz.isAnnotationPresent(FFTImplementation.class)) {</span>
+<span class="nc" id="L268">                    FFTImplementation annotation = clazz.getAnnotation(FFTImplementation.class);</span>
+<span class="nc bnc" id="L269" title="All 2 branches missed.">                    if (annotation.autoRegister()) {</span>
+<span class="nc" id="L270">                        DiscoveredImplementation discovered = new DiscoveredImplementation(clazz, annotation);</span>
+<span class="nc" id="L271">                        implementations.computeIfAbsent(discovered.getSize(), k -&gt; new ArrayList&lt;&gt;())</span>
+<span class="nc" id="L272">                                     .add(discovered);</span>
+                        
+<span class="nc" id="L274">                        LOGGER.fine(&quot;Discovered FFT implementation via service loader: &quot; + </span>
+<span class="nc" id="L275">                                  clazz.getName() + &quot; for size &quot; + discovered.getSize());</span>
+                    }
+                }
+<span class="nc" id="L278">            }</span>
+<span class="nc" id="L279">        } catch (Exception e) {</span>
+<span class="nc" id="L280">            LOGGER.log(Level.WARNING, &quot;Failed to discover implementations via service loader&quot;, e);</span>
+<span class="fc" id="L281">        }</span>
+<span class="fc" id="L282">    }</span>
+    
+    /**
+     * Registers all discovered implementations with the given factory.
+     * 
+     * @param factory the factory to register implementations with
+     */
+    public static void registerDiscoveredImplementations(DefaultFFTFactory factory) {
+<span class="fc" id="L290">        Map&lt;Integer, List&lt;DiscoveredImplementation&gt;&gt; discovered = discoverImplementations();</span>
+        
+<span class="fc bfc" id="L292" title="All 2 branches covered.">        for (Map.Entry&lt;Integer, List&lt;DiscoveredImplementation&gt;&gt; entry : discovered.entrySet()) {</span>
+<span class="fc" id="L293">            int size = entry.getKey();</span>
+<span class="fc bfc" id="L294" title="All 2 branches covered.">            for (DiscoveredImplementation impl : entry.getValue()) {</span>
+<span class="pc bpc" id="L295" title="1 of 2 branches missed.">                if (impl.isAutoRegister()) {</span>
+<span class="fc" id="L296">                    factory.registerImplementation(size, impl.getSupplier(), impl.getPriority());</span>
+<span class="fc" id="L297">                    LOGGER.fine(&quot;Auto-registered &quot; + impl.getImplementationClass().getSimpleName() + </span>
+<span class="fc" id="L298">                              &quot; for size &quot; + size + &quot; with priority &quot; + impl.getPriority());</span>
+                }
+<span class="fc" id="L300">            }</span>
+<span class="fc" id="L301">        }</span>
+        
+<span class="fc" id="L303">        LOGGER.info(&quot;Auto-registration completed for &quot; + </span>
+<span class="fc" id="L304">                   discovered.values().stream().mapToInt(List::size).sum() + &quot; implementations&quot;);</span>
+<span class="fc" id="L305">    }</span>
+    
+    /**
+     * Gets a detailed report of all discovered implementations.
+     * 
+     * @return formatted string with discovery details
+     */
+    public static String getDiscoveryReport() {
+<span class="fc" id="L313">        Map&lt;Integer, List&lt;DiscoveredImplementation&gt;&gt; discovered = discoverImplementations();</span>
+<span class="fc" id="L314">        StringBuilder report = new StringBuilder();</span>
+<span class="fc" id="L315">        report.append(&quot;FFT Implementation Discovery Report:\n&quot;);</span>
+<span class="fc" id="L316">        report.append(&quot;===================================\n&quot;);</span>
+        
+<span class="pc bpc" id="L318" title="1 of 2 branches missed.">        if (discovered.isEmpty()) {</span>
+<span class="nc" id="L319">            report.append(&quot;No implementations discovered.\n&quot;);</span>
+        } else {
+<span class="fc bfc" id="L321" title="All 2 branches covered.">            for (Map.Entry&lt;Integer, List&lt;DiscoveredImplementation&gt;&gt; entry : discovered.entrySet()) {</span>
+<span class="fc" id="L322">                int size = entry.getKey();</span>
+<span class="fc" id="L323">                report.append(String.format(&quot;\nSize %d:\n&quot;, size));</span>
+                
+<span class="fc bfc" id="L325" title="All 2 branches covered.">                for (DiscoveredImplementation impl : entry.getValue()) {</span>
+<span class="fc" id="L326">                    report.append(String.format(&quot;  - %s (priority: %d, auto-register: %s)\n&quot;,</span>
+<span class="fc" id="L327">                                               impl.getDescription(),</span>
+<span class="fc" id="L328">                                               impl.getPriority(),</span>
+<span class="fc" id="L329">                                               impl.isAutoRegister()));</span>
+                    
+<span class="pc bpc" id="L331" title="1 of 2 branches missed.">                    if (impl.getCharacteristics().length &gt; 0) {</span>
+<span class="fc" id="L332">                        report.append(&quot;    Characteristics: &quot;);</span>
+<span class="fc" id="L333">                        report.append(String.join(&quot;, &quot;, impl.getCharacteristics()));</span>
+<span class="fc" id="L334">                        report.append(&quot;\n&quot;);</span>
+                    }
+<span class="fc" id="L336">                }</span>
+<span class="fc" id="L337">            }</span>
+        }
+        
+<span class="fc" id="L340">        return report.toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,8 +1,11 @@
 com/fft/utils/FFTUtilsTest.class
+com/fft/factory/FFTImplementationDiscoveryTest.class
 com/fft/factory/DefaultFFTFactoryTest$MockFFT.class
+com/fft/optimized/FFTOptimized32Test.class
 com/fft/factory/FFTFactoryIntegrationTest.class
-com/fft/core/FFTResultTest.class
 com/fft/optimized/FFTOptimized8Test.class
+com/fft/core/FFTResultTest.class
 com/fft/factory/DefaultFFTFactoryTest.class
 com/fft/factory/FFTFactoryIntegrationTest$MockFFT.class
+com/fft/demo/AutoDiscoveryDemo.class
 com/fft/core/FFTBaseTest.class

@@ -52,19 +52,33 @@ public class DefaultFFTFactory implements FFTFactory {
      */
     public DefaultFFTFactory() {
         registerDefaultImplementations();
+        registerDiscoveredImplementations();
     }
     
     /**
      * Registers the standard set of optimized implementations.
-     * This method will be updated as optimized implementations are moved to the new package structure.
+     * This method registers known implementations and provides fallback implementations.
      */
     private void registerDefaultImplementations() {
         // Register optimized implementations with high priority
         registerImplementation(8, com.fft.optimized.FFTOptimized8::new, 50);
+        registerImplementation(32, com.fft.optimized.FFTOptimized32::new, 50);
         
         // Register FFTBase as fallback for all power-of-2 sizes up to 8192
         for (int size = 2; size <= 8192; size *= 2) {
             registerImplementation(size, FFTBase::new, 0); // Low priority fallback
+        }
+    }
+    
+    /**
+     * Registers implementations discovered through auto-discovery.
+     */
+    private void registerDiscoveredImplementations() {
+        try {
+            FFTImplementationDiscovery.registerDiscoveredImplementations(this);
+        } catch (Exception e) {
+            // Log warning but don't fail initialization
+            System.err.println("Warning: Failed to auto-discover FFT implementations: " + e.getMessage());
         }
     }
     

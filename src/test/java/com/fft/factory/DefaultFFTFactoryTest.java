@@ -110,8 +110,9 @@ class DefaultFFTFactoryTest {
         FFT lowPriorityFFT = new MockFFT(32);
         FFT highPriorityFFT = new MockFFT(32);
         
-        factory.registerImplementation(32, () -> lowPriorityFFT, 5);
-        factory.registerImplementation(32, () -> highPriorityFFT, 10);
+        // Use higher priorities than auto-discovered implementations (which have priority 50)
+        factory.registerImplementation(32, () -> lowPriorityFFT, 55);
+        factory.registerImplementation(32, () -> highPriorityFFT, 60);
         
         FFT created = factory.createFFT(32);
         assertThat(created).isSameAs(highPriorityFFT);

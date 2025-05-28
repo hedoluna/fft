@@ -3,6 +3,7 @@
 import com.fft.core.FFT;
 import com.fft.core.FFTBase;
 import com.fft.core.FFTResult;
+import com.fft.factory.FFTImplementation;
 
 /**
  * Highly optimized FFT implementation for 8-element arrays.
@@ -40,50 +41,56 @@ import com.fft.core.FFTResult;
  * @see FFT for interface details
  * @see &quot;E. Oran Brigham, The Fast Fourier Transform, 1973&quot;
  */
-<span class="fc" id="L43">public class FFTOptimized8 implements FFT {</span>
+@FFTImplementation(
+    size = 8,
+    priority = 50,
+    description = &quot;Highly optimized implementation with complete loop unrolling for 8-element arrays&quot;,
+    characteristics = {&quot;unrolled-loops&quot;, &quot;precomputed-trig&quot;, &quot;1.4x-speedup&quot;}
+)
+<span class="fc" id="L50">public class FFTOptimized8 implements FFT {</span>
     
     private static final int SIZE = 8;
     
     @Override
     public FFTResult transform(double[] real, double[] imaginary, boolean forward) {
-<span class="pc bpc" id="L49" title="1 of 4 branches missed.">        if (real.length != SIZE || imaginary.length != SIZE) {</span>
-<span class="fc" id="L50">            throw new IllegalArgumentException(&quot;Arrays must be of length &quot; + SIZE);</span>
+<span class="pc bpc" id="L56" title="1 of 4 branches missed.">        if (real.length != SIZE || imaginary.length != SIZE) {</span>
+<span class="fc" id="L57">            throw new IllegalArgumentException(&quot;Arrays must be of length &quot; + SIZE);</span>
         }
         
-<span class="fc bfc" id="L53" title="All 2 branches covered.">        if (!forward) {</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (!forward) {</span>
             // For inverse transform, use the generic FFTBase implementation
             // since the optimized version only supports forward transform
-<span class="fc" id="L56">            FFTBase fallback = new FFTBase();</span>
-<span class="fc" id="L57">            return fallback.transform(real, imaginary, forward);</span>
+<span class="fc" id="L63">            FFTBase fallback = new FFTBase();</span>
+<span class="fc" id="L64">            return fallback.transform(real, imaginary, forward);</span>
         }
         
-<span class="fc" id="L60">        double[] result = fft(real, imaginary, forward);</span>
-<span class="fc" id="L61">        return new FFTResult(result);</span>
+<span class="fc" id="L67">        double[] result = fft(real, imaginary, forward);</span>
+<span class="fc" id="L68">        return new FFTResult(result);</span>
     }
     
     @Override
     public FFTResult transform(double[] real, boolean forward) {
-<span class="fc bfc" id="L66" title="All 2 branches covered.">        if (real.length != SIZE) {</span>
-<span class="fc" id="L67">            throw new IllegalArgumentException(&quot;Array must be of length &quot; + SIZE);</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">        if (real.length != SIZE) {</span>
+<span class="fc" id="L74">            throw new IllegalArgumentException(&quot;Array must be of length &quot; + SIZE);</span>
         }
         
-<span class="fc" id="L70">        double[] imaginary = new double[SIZE];</span>
-<span class="fc" id="L71">        return transform(real, imaginary, forward);</span>
+<span class="fc" id="L77">        double[] imaginary = new double[SIZE];</span>
+<span class="fc" id="L78">        return transform(real, imaginary, forward);</span>
     }
     
     @Override
     public int getSupportedSize() {
-<span class="fc" id="L76">        return SIZE;</span>
+<span class="fc" id="L83">        return SIZE;</span>
     }
     
     @Override
     public boolean supportsSize(int size) {
-<span class="fc bfc" id="L81" title="All 2 branches covered.">        return size == SIZE;</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        return size == SIZE;</span>
     }
     
     @Override
     public String getDescription() {
-<span class="fc" id="L86">        return &quot;Highly optimized FFT implementation (size &quot; + SIZE + &quot;, ~1.4x speedup)&quot;;</span>
+<span class="fc" id="L93">        return &quot;Highly optimized FFT implementation (size &quot; + SIZE + &quot;, ~1.4x speedup)&quot;;</span>
     }
     
     /**
@@ -99,106 +106,106 @@ import com.fft.core.FFTResult;
      * @return a new array of length 16 (interleaved real and imaginary parts)
      */
     public static double[] fft(final double[] inputReal, double[] inputImag, boolean DIRECT) {
-<span class="fc" id="L102">        int n = inputReal.length;</span>
+<span class="fc" id="L109">        int n = inputReal.length;</span>
 
-<span class="pc bpc" id="L104" title="1 of 2 branches missed.">        if (n != 8) {</span>
-<span class="nc" id="L105">            System.out.println(&quot;ERROR: The number of input elements is not 8.&quot;);</span>
-<span class="nc" id="L106">            return new double[0];</span>
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">        if (n != 8) {</span>
+<span class="nc" id="L112">            System.out.println(&quot;ERROR: The number of input elements is not 8.&quot;);</span>
+<span class="nc" id="L113">            return new double[0];</span>
         }
 
         // Declaration and initialization of the variables
-<span class="fc" id="L110">        double[] xReal = new double[8];</span>
-<span class="fc" id="L111">        double[] xImag = new double[8];</span>
+<span class="fc" id="L117">        double[] xReal = new double[8];</span>
+<span class="fc" id="L118">        double[] xImag = new double[8];</span>
         double tReal;
         double tImag;
 
         // Copy input arrays to avoid modifying originals
-<span class="fc" id="L116">        xReal[0] = inputReal[0];</span>
-<span class="fc" id="L117">        xImag[0] = inputImag[0];</span>
-<span class="fc" id="L118">        xReal[1] = inputReal[1];</span>
-<span class="fc" id="L119">        xImag[1] = inputImag[1];</span>
-<span class="fc" id="L120">        xReal[2] = inputReal[2];</span>
-<span class="fc" id="L121">        xImag[2] = inputImag[2];</span>
-<span class="fc" id="L122">        xReal[3] = inputReal[3];</span>
-<span class="fc" id="L123">        xImag[3] = inputImag[3];</span>
-<span class="fc" id="L124">        xReal[4] = inputReal[4];</span>
-<span class="fc" id="L125">        xImag[4] = inputImag[4];</span>
-<span class="fc" id="L126">        xReal[5] = inputReal[5];</span>
-<span class="fc" id="L127">        xImag[5] = inputImag[5];</span>
-<span class="fc" id="L128">        xReal[6] = inputReal[6];</span>
-<span class="fc" id="L129">        xImag[6] = inputImag[6];</span>
-<span class="fc" id="L130">        xReal[7] = inputReal[7];</span>
-<span class="fc" id="L131">        xImag[7] = inputImag[7];</span>
+<span class="fc" id="L123">        xReal[0] = inputReal[0];</span>
+<span class="fc" id="L124">        xImag[0] = inputImag[0];</span>
+<span class="fc" id="L125">        xReal[1] = inputReal[1];</span>
+<span class="fc" id="L126">        xImag[1] = inputImag[1];</span>
+<span class="fc" id="L127">        xReal[2] = inputReal[2];</span>
+<span class="fc" id="L128">        xImag[2] = inputImag[2];</span>
+<span class="fc" id="L129">        xReal[3] = inputReal[3];</span>
+<span class="fc" id="L130">        xImag[3] = inputImag[3];</span>
+<span class="fc" id="L131">        xReal[4] = inputReal[4];</span>
+<span class="fc" id="L132">        xImag[4] = inputImag[4];</span>
+<span class="fc" id="L133">        xReal[5] = inputReal[5];</span>
+<span class="fc" id="L134">        xImag[5] = inputImag[5];</span>
+<span class="fc" id="L135">        xReal[6] = inputReal[6];</span>
+<span class="fc" id="L136">        xImag[6] = inputImag[6];</span>
+<span class="fc" id="L137">        xReal[7] = inputReal[7];</span>
+<span class="fc" id="L138">        xImag[7] = inputImag[7];</span>
 
         // First phase - calculation
         // nu = 3, nu1 = 2, l = 1, n2 = 4,
 
         // i = 1
-<span class="fc" id="L137">        tReal = xReal[4];</span>
-<span class="fc" id="L138">        tImag = xImag[4];</span>
-<span class="fc" id="L139">        xReal[4] = xReal[0] - tReal;</span>
-<span class="fc" id="L140">        xImag[4] = xImag[0] - tImag;</span>
-<span class="fc" id="L141">        xReal[0] += tReal;</span>
-<span class="fc" id="L142">        xImag[0] += tImag;</span>
+<span class="fc" id="L144">        tReal = xReal[4];</span>
+<span class="fc" id="L145">        tImag = xImag[4];</span>
+<span class="fc" id="L146">        xReal[4] = xReal[0] - tReal;</span>
+<span class="fc" id="L147">        xImag[4] = xImag[0] - tImag;</span>
+<span class="fc" id="L148">        xReal[0] += tReal;</span>
+<span class="fc" id="L149">        xImag[0] += tImag;</span>
 
         // i = 2
-<span class="fc" id="L145">        tReal = xReal[5];</span>
-<span class="fc" id="L146">        tImag = xImag[5];</span>
-<span class="fc" id="L147">        xReal[5] = xReal[1] - tReal;</span>
-<span class="fc" id="L148">        xImag[5] = xImag[1] - tImag;</span>
-<span class="fc" id="L149">        xReal[1] += tReal;</span>
-<span class="fc" id="L150">        xImag[1] += tImag;</span>
+<span class="fc" id="L152">        tReal = xReal[5];</span>
+<span class="fc" id="L153">        tImag = xImag[5];</span>
+<span class="fc" id="L154">        xReal[5] = xReal[1] - tReal;</span>
+<span class="fc" id="L155">        xImag[5] = xImag[1] - tImag;</span>
+<span class="fc" id="L156">        xReal[1] += tReal;</span>
+<span class="fc" id="L157">        xImag[1] += tImag;</span>
 
         // i = 3
-<span class="fc" id="L153">        tReal = xReal[6];</span>
-<span class="fc" id="L154">        tImag = xImag[6];</span>
-<span class="fc" id="L155">        xReal[6] = xReal[2] - tReal;</span>
-<span class="fc" id="L156">        xImag[6] = xImag[2] - tImag;</span>
-<span class="fc" id="L157">        xReal[2] += tReal;</span>
-<span class="fc" id="L158">        xImag[2] += tImag;</span>
+<span class="fc" id="L160">        tReal = xReal[6];</span>
+<span class="fc" id="L161">        tImag = xImag[6];</span>
+<span class="fc" id="L162">        xReal[6] = xReal[2] - tReal;</span>
+<span class="fc" id="L163">        xImag[6] = xImag[2] - tImag;</span>
+<span class="fc" id="L164">        xReal[2] += tReal;</span>
+<span class="fc" id="L165">        xImag[2] += tImag;</span>
 
         // i = 4
-<span class="fc" id="L161">        tReal = xReal[7];</span>
-<span class="fc" id="L162">        tImag = xImag[7];</span>
-<span class="fc" id="L163">        xReal[7] = xReal[3] - tReal;</span>
-<span class="fc" id="L164">        xImag[7] = xImag[3] - tImag;</span>
-<span class="fc" id="L165">        xReal[3] += tReal;</span>
-<span class="fc" id="L166">        xImag[3] += tImag;</span>
+<span class="fc" id="L168">        tReal = xReal[7];</span>
+<span class="fc" id="L169">        tImag = xImag[7];</span>
+<span class="fc" id="L170">        xReal[7] = xReal[3] - tReal;</span>
+<span class="fc" id="L171">        xImag[7] = xImag[3] - tImag;</span>
+<span class="fc" id="L172">        xReal[3] += tReal;</span>
+<span class="fc" id="L173">        xImag[3] += tImag;</span>
 
         // n2 = 2;
         // nu = 3, nu1 = 1, l = 2, n2 = 2
 
         // k = 0
-<span class="fc" id="L172">        tReal = xReal[2];</span>
-<span class="fc" id="L173">        tImag = xImag[2];</span>
-<span class="fc" id="L174">        xReal[2] = xReal[0] - tReal;</span>
-<span class="fc" id="L175">        xImag[2] = xImag[0] - tImag;</span>
-<span class="fc" id="L176">        xReal[0] += tReal;</span>
-<span class="fc" id="L177">        xImag[0] += tImag;</span>
+<span class="fc" id="L179">        tReal = xReal[2];</span>
+<span class="fc" id="L180">        tImag = xImag[2];</span>
+<span class="fc" id="L181">        xReal[2] = xReal[0] - tReal;</span>
+<span class="fc" id="L182">        xImag[2] = xImag[0] - tImag;</span>
+<span class="fc" id="L183">        xReal[0] += tReal;</span>
+<span class="fc" id="L184">        xImag[0] += tImag;</span>
 
         // k = 1
-<span class="fc" id="L180">        tReal = xReal[3];</span>
-<span class="fc" id="L181">        tImag = xImag[3];</span>
-<span class="fc" id="L182">        xReal[3] = xReal[1] - tReal;</span>
-<span class="fc" id="L183">        xImag[3] = xImag[1] - tImag;</span>
-<span class="fc" id="L184">        xReal[1] += tReal;</span>
-<span class="fc" id="L185">        xImag[1] += tImag;</span>
+<span class="fc" id="L187">        tReal = xReal[3];</span>
+<span class="fc" id="L188">        tImag = xImag[3];</span>
+<span class="fc" id="L189">        xReal[3] = xReal[1] - tReal;</span>
+<span class="fc" id="L190">        xImag[3] = xImag[1] - tImag;</span>
+<span class="fc" id="L191">        xReal[1] += tReal;</span>
+<span class="fc" id="L192">        xImag[1] += tImag;</span>
 
         // k = 4
-<span class="fc" id="L188">        tReal = xReal[6] * 6.123233995736766E-17 - xImag[6];</span>
-<span class="fc" id="L189">        tImag = xImag[6] * 6.123233995736766E-17 + xReal[6];</span>
-<span class="fc" id="L190">        xReal[6] = xReal[4] - tReal;</span>
-<span class="fc" id="L191">        xImag[6] = xImag[4] - tImag;</span>
-<span class="fc" id="L192">        xReal[4] += tReal;</span>
-<span class="fc" id="L193">        xImag[4] += tImag;</span>
+<span class="fc" id="L195">        tReal = xReal[6] * 6.123233995736766E-17 - xImag[6];</span>
+<span class="fc" id="L196">        tImag = xImag[6] * 6.123233995736766E-17 + xReal[6];</span>
+<span class="fc" id="L197">        xReal[6] = xReal[4] - tReal;</span>
+<span class="fc" id="L198">        xImag[6] = xImag[4] - tImag;</span>
+<span class="fc" id="L199">        xReal[4] += tReal;</span>
+<span class="fc" id="L200">        xImag[4] += tImag;</span>
 
         // k = 5
-<span class="fc" id="L196">        tReal = xReal[7] * 6.123233995736766E-17 - xImag[7];</span>
-<span class="fc" id="L197">        tImag = xImag[7] * 6.123233995736766E-17 + xReal[7];</span>
-<span class="fc" id="L198">        xReal[7] = xReal[5] - tReal;</span>
-<span class="fc" id="L199">        xImag[7] = xImag[5] - tImag;</span>
-<span class="fc" id="L200">        xReal[5] += tReal;</span>
-<span class="fc" id="L201">        xImag[5] += tImag;</span>
+<span class="fc" id="L203">        tReal = xReal[7] * 6.123233995736766E-17 - xImag[7];</span>
+<span class="fc" id="L204">        tImag = xImag[7] * 6.123233995736766E-17 + xReal[7];</span>
+<span class="fc" id="L205">        xReal[7] = xReal[5] - tReal;</span>
+<span class="fc" id="L206">        xImag[7] = xImag[5] - tImag;</span>
+<span class="fc" id="L207">        xReal[5] += tReal;</span>
+<span class="fc" id="L208">        xImag[5] += tImag;</span>
 
         //////////////////////////////
 
@@ -206,65 +213,65 @@ import com.fft.core.FFTResult;
         // nu = 3, nu1 = 0, l = 3, n2 = 1
 
         // k = 0
-<span class="fc" id="L209">        tReal = xReal[1];</span>
-<span class="fc" id="L210">        tImag = xImag[1];</span>
-<span class="fc" id="L211">        xReal[1] = xReal[0] - tReal;</span>
-<span class="fc" id="L212">        xImag[1] = xImag[0] - tImag;</span>
-<span class="fc" id="L213">        xReal[0] += tReal;</span>
-<span class="fc" id="L214">        xImag[0] += tImag;</span>
+<span class="fc" id="L216">        tReal = xReal[1];</span>
+<span class="fc" id="L217">        tImag = xImag[1];</span>
+<span class="fc" id="L218">        xReal[1] = xReal[0] - tReal;</span>
+<span class="fc" id="L219">        xImag[1] = xImag[0] - tImag;</span>
+<span class="fc" id="L220">        xReal[0] += tReal;</span>
+<span class="fc" id="L221">        xImag[0] += tImag;</span>
 
         // k = 2
-<span class="fc" id="L217">        tReal = xReal[3] * 6.123233995736766E-17 - xImag[3];</span>
-<span class="fc" id="L218">        tImag = xImag[3] * 6.123233995736766E-17 + xReal[3];</span>
-<span class="fc" id="L219">        xReal[3] = xReal[2] - tReal;</span>
-<span class="fc" id="L220">        xImag[3] = xImag[2] - tImag;</span>
-<span class="fc" id="L221">        xReal[2] += tReal;</span>
-<span class="fc" id="L222">        xImag[2] += tImag;</span>
+<span class="fc" id="L224">        tReal = xReal[3] * 6.123233995736766E-17 - xImag[3];</span>
+<span class="fc" id="L225">        tImag = xImag[3] * 6.123233995736766E-17 + xReal[3];</span>
+<span class="fc" id="L226">        xReal[3] = xReal[2] - tReal;</span>
+<span class="fc" id="L227">        xImag[3] = xImag[2] - tImag;</span>
+<span class="fc" id="L228">        xReal[2] += tReal;</span>
+<span class="fc" id="L229">        xImag[2] += tImag;</span>
 
         // k = 4
-<span class="fc" id="L225">        tReal = xReal[5] * 0.7071067811865476 - xImag[5] * 0.7071067811865475; // c: 0.7071067811865476</span>
-<span class="fc" id="L226">        tImag = xImag[5] * 0.7071067811865476 + xReal[5] * 0.7071067811865475; // s: -0.7071067811865475</span>
-<span class="fc" id="L227">        xReal[5] = xReal[4] - tReal;</span>
-<span class="fc" id="L228">        xImag[5] = xImag[4] - tImag;</span>
-<span class="fc" id="L229">        xReal[4] += tReal;</span>
-<span class="fc" id="L230">        xImag[4] += tImag;</span>
+<span class="fc" id="L232">        tReal = xReal[5] * 0.7071067811865476 - xImag[5] * 0.7071067811865475; // c: 0.7071067811865476</span>
+<span class="fc" id="L233">        tImag = xImag[5] * 0.7071067811865476 + xReal[5] * 0.7071067811865475; // s: -0.7071067811865475</span>
+<span class="fc" id="L234">        xReal[5] = xReal[4] - tReal;</span>
+<span class="fc" id="L235">        xImag[5] = xImag[4] - tImag;</span>
+<span class="fc" id="L236">        xReal[4] += tReal;</span>
+<span class="fc" id="L237">        xImag[4] += tImag;</span>
 
         // k = 6
         // p = 3;
-<span class="fc" id="L234">        tReal = xReal[7] * -0.7071067811865475 - xImag[7] * 0.7071067811865476; // c: -0.7071067811865475</span>
-<span class="fc" id="L235">        tImag = xImag[7] * -0.7071067811865475 + xReal[7] * 0.7071067811865476; // s: -0.7071067811865476</span>
-<span class="fc" id="L236">        xReal[7] = xReal[6] - tReal;</span>
-<span class="fc" id="L237">        xImag[7] = xImag[6] - tImag;</span>
-<span class="fc" id="L238">        xReal[6] += tReal;</span>
-<span class="fc" id="L239">        xImag[6] += tImag;</span>
+<span class="fc" id="L241">        tReal = xReal[7] * -0.7071067811865475 - xImag[7] * 0.7071067811865476; // c: -0.7071067811865475</span>
+<span class="fc" id="L242">        tImag = xImag[7] * -0.7071067811865475 + xReal[7] * 0.7071067811865476; // s: -0.7071067811865476</span>
+<span class="fc" id="L243">        xReal[7] = xReal[6] - tReal;</span>
+<span class="fc" id="L244">        xImag[7] = xImag[6] - tImag;</span>
+<span class="fc" id="L245">        xReal[6] += tReal;</span>
+<span class="fc" id="L246">        xImag[6] += tImag;</span>
 
         // Second phase - recombination
 
         // k = 1 r = 4
-<span class="fc" id="L244">        tReal = xReal[1];</span>
-<span class="fc" id="L245">        tImag = xImag[1];</span>
-<span class="fc" id="L246">        xReal[1] = xReal[4];</span>
-<span class="fc" id="L247">        xImag[1] = xImag[4];</span>
-<span class="fc" id="L248">        xReal[4] = tReal;</span>
-<span class="fc" id="L249">        xImag[4] = tImag;</span>
+<span class="fc" id="L251">        tReal = xReal[1];</span>
+<span class="fc" id="L252">        tImag = xImag[1];</span>
+<span class="fc" id="L253">        xReal[1] = xReal[4];</span>
+<span class="fc" id="L254">        xImag[1] = xImag[4];</span>
+<span class="fc" id="L255">        xReal[4] = tReal;</span>
+<span class="fc" id="L256">        xImag[4] = tImag;</span>
         // k = 3 r = 6
-<span class="fc" id="L251">        tReal = xReal[3];</span>
-<span class="fc" id="L252">        tImag = xImag[3];</span>
-<span class="fc" id="L253">        xReal[3] = xReal[6];</span>
-<span class="fc" id="L254">        xImag[3] = xImag[6];</span>
-<span class="fc" id="L255">        xReal[6] = tReal;</span>
-<span class="fc" id="L256">        xImag[6] = tImag;</span>
+<span class="fc" id="L258">        tReal = xReal[3];</span>
+<span class="fc" id="L259">        tImag = xImag[3];</span>
+<span class="fc" id="L260">        xReal[3] = xReal[6];</span>
+<span class="fc" id="L261">        xImag[3] = xImag[6];</span>
+<span class="fc" id="L262">        xReal[6] = tReal;</span>
+<span class="fc" id="L263">        xImag[6] = tImag;</span>
 
         // Normalization and output
-<span class="fc" id="L259">        double[] newArray = new double[xReal.length &lt;&lt; 1];</span>
-<span class="fc" id="L260">        double radice = 1 / Math.sqrt(n);</span>
-<span class="fc bfc" id="L261" title="All 2 branches covered.">        for (int i = 0; i &lt; newArray.length; i += 2) {</span>
-<span class="fc" id="L262">            int i2 = i &gt;&gt; 1;</span>
+<span class="fc" id="L266">        double[] newArray = new double[xReal.length &lt;&lt; 1];</span>
+<span class="fc" id="L267">        double radice = 1 / Math.sqrt(n);</span>
+<span class="fc bfc" id="L268" title="All 2 branches covered.">        for (int i = 0; i &lt; newArray.length; i += 2) {</span>
+<span class="fc" id="L269">            int i2 = i &gt;&gt; 1;</span>
             // Normalize the output while copying the elements.
-<span class="fc" id="L264">            newArray[i] = xReal[i2] * radice;</span>
-<span class="fc" id="L265">            newArray[i + 1] = xImag[i2] * radice;</span>
+<span class="fc" id="L271">            newArray[i] = xReal[i2] * radice;</span>
+<span class="fc" id="L272">            newArray[i + 1] = xImag[i2] * radice;</span>
         }
-<span class="fc" id="L267">        return newArray;</span>
+<span class="fc" id="L274">        return newArray;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

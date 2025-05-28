@@ -1,8 +1,11 @@
+/home/engine/project/src/main/java/com/fft/factory/FFTImplementation.java
 /home/engine/project/src/main/java/com/fft/utils/FFTUtils.java
 /home/engine/project/src/main/java/com/fft/core/FFT.java
 /home/engine/project/src/main/java/com/fft/factory/FFTFactory.java
 /home/engine/project/src/main/java/com/fft/optimized/FFTOptimized8.java
 /home/engine/project/src/main/java/com/fft/core/FFTResult.java
+/home/engine/project/src/main/java/com/fft/optimized/FFTOptimized32.java
 /home/engine/project/src/main/java/com/fft/factory/DefaultFFTFactory.java
+/home/engine/project/src/main/java/com/fft/factory/FFTImplementationDiscovery.java
 /home/engine/project/src/main/java/com/fft/demo/RefactoringDemo.java
 /home/engine/project/src/main/java/com/fft/core/FFTBase.java
