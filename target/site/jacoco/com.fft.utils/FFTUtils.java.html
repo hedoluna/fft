@@ -143,13 +143,68 @@ import com.fft.factory.FFTFactory;
     }
     
     /**
+     * Generates test signals with predefined types for testing purposes.
+     * 
+     * @param size size of the signal
+     * @param type type of signal (&quot;impulse&quot;, &quot;dc&quot;, &quot;sine&quot;, &quot;cosine&quot;, &quot;mixed&quot;, &quot;random&quot;)
+     * @return generated signal
+     */
+    public static double[] generateTestSignal(int size, String type) {
+<span class="fc" id="L153">        double[] signal = new double[size];</span>
+        
+<span class="pc bpc" id="L155" title="1 of 7 branches missed.">        switch (type.toLowerCase()) {</span>
+            case &quot;impulse&quot;:
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">                if (size &gt; 0) signal[0] = 1.0;</span>
+                break;
+                
+            case &quot;dc&quot;:
+<span class="fc bfc" id="L161" title="All 2 branches covered.">                for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L162">                    signal[i] = 1.0;</span>
+                }
+<span class="fc" id="L164">                break;</span>
+                
+            case &quot;sine&quot;:
+<span class="fc bfc" id="L167" title="All 2 branches covered.">                for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L168">                    signal[i] = Math.sin(2.0 * Math.PI * 5 * i / size); // 5 cycles</span>
+                }
+<span class="fc" id="L170">                break;</span>
+                
+            case &quot;cosine&quot;:
+<span class="fc bfc" id="L173" title="All 2 branches covered.">                for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L174">                    signal[i] = Math.cos(2.0 * Math.PI * 3 * i / size); // 3 cycles</span>
+                }
+<span class="fc" id="L176">                break;</span>
+                
+            case &quot;mixed&quot;:
+<span class="fc bfc" id="L179" title="All 2 branches covered.">                for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L180">                    signal[i] = Math.sin(2.0 * Math.PI * 5 * i / size) + </span>
+<span class="fc" id="L181">                               0.5 * Math.cos(2.0 * Math.PI * 10 * i / size) +</span>
+<span class="fc" id="L182">                               0.25 * Math.sin(2.0 * Math.PI * 15 * i / size);</span>
+                }
+<span class="fc" id="L184">                break;</span>
+                
+            case &quot;random&quot;:
+<span class="fc" id="L187">                java.util.Random random = new java.util.Random(42); // Fixed seed for reproducibility</span>
+<span class="fc bfc" id="L188" title="All 2 branches covered.">                for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L189">                    signal[i] = random.nextGaussian();</span>
+                }
+<span class="fc" id="L191">                break;</span>
+                
+            default:
+<span class="nc" id="L194">                throw new IllegalArgumentException(&quot;Unknown signal type: &quot; + type);</span>
+        }
+        
+<span class="fc" id="L197">        return signal;</span>
+    }
+    
+    /**
      * Checks if a number is a power of 2.
      * 
      * @param n the number to check
      * @return true if n is a power of 2, false otherwise
      */
     public static boolean isPowerOfTwo(int n) {
-<span class="fc bfc" id="L152" title="All 4 branches covered.">        return n &gt; 0 &amp;&amp; (n &amp; (n - 1)) == 0;</span>
+<span class="fc bfc" id="L207" title="All 4 branches covered.">        return n &gt; 0 &amp;&amp; (n &amp; (n - 1)) == 0;</span>
     }
     
     /**
@@ -159,14 +214,14 @@ import com.fft.factory.FFTFactory;
      * @return the next power of 2 &gt;= n
      */
     public static int nextPowerOfTwo(int n) {
-<span class="fc bfc" id="L162" title="All 2 branches covered.">        if (n &lt;= 0) return 1;</span>
-<span class="fc bfc" id="L163" title="All 2 branches covered.">        if (isPowerOfTwo(n)) return n;</span>
+<span class="fc bfc" id="L217" title="All 2 branches covered.">        if (n &lt;= 0) return 1;</span>
+<span class="fc bfc" id="L218" title="All 2 branches covered.">        if (isPowerOfTwo(n)) return n;</span>
         
-<span class="fc" id="L165">        int power = 1;</span>
-<span class="fc bfc" id="L166" title="All 2 branches covered.">        while (power &lt; n) {</span>
-<span class="fc" id="L167">            power *= 2;</span>
+<span class="fc" id="L220">        int power = 1;</span>
+<span class="fc bfc" id="L221" title="All 2 branches covered.">        while (power &lt; n) {</span>
+<span class="fc" id="L222">            power *= 2;</span>
         }
-<span class="fc" id="L169">        return power;</span>
+<span class="fc" id="L224">        return power;</span>
     }
     
     /**
@@ -176,10 +231,10 @@ import com.fft.factory.FFTFactory;
      * @return zero-padded array with power-of-2 length
      */
     public static double[] zeroPadToPowerOfTwo(double[] input) {
-<span class="fc" id="L179">        int newSize = nextPowerOfTwo(input.length);</span>
-<span class="fc" id="L180">        double[] padded = new double[newSize];</span>
-<span class="fc" id="L181">        System.arraycopy(input, 0, padded, 0, input.length);</span>
-<span class="fc" id="L182">        return padded;</span>
+<span class="fc" id="L234">        int newSize = nextPowerOfTwo(input.length);</span>
+<span class="fc" id="L235">        double[] padded = new double[newSize];</span>
+<span class="fc" id="L236">        System.arraycopy(input, 0, padded, 0, input.length);</span>
+<span class="fc" id="L237">        return padded;</span>
     }
     
     /**
@@ -189,7 +244,7 @@ import com.fft.factory.FFTFactory;
      * @return string describing the implementation that would be used
      */
     public static String getImplementationInfo(int size) {
-<span class="fc" id="L192">        return DEFAULT_FACTORY.getImplementationInfo(size);</span>
+<span class="fc" id="L247">        return DEFAULT_FACTORY.getImplementationInfo(size);</span>
     }
     
     /**
@@ -198,7 +253,7 @@ import com.fft.factory.FFTFactory;
      * @return list of supported sizes
      */
     public static java.util.List&lt;Integer&gt; getSupportedSizes() {
-<span class="fc" id="L201">        return DEFAULT_FACTORY.getSupportedSizes();</span>
+<span class="fc" id="L256">        return DEFAULT_FACTORY.getSupportedSizes();</span>
     }
     
     /**
@@ -207,7 +262,7 @@ import com.fft.factory.FFTFactory;
      * @return new DefaultFFTFactory instance
      */
     public static FFTFactory createFactory() {
-<span class="fc" id="L210">        return new DefaultFFTFactory();</span>
+<span class="fc" id="L265">        return new DefaultFFTFactory();</span>
     }
     
     // Legacy compatibility methods that return double[] arrays
@@ -223,8 +278,8 @@ import com.fft.factory.FFTFactory;
      */
     @Deprecated
     public static double[] fftLegacy(double[] inputReal, double[] inputImag, boolean direct) {
-<span class="fc" id="L226">        FFTResult result = fft(inputReal, inputImag, direct);</span>
-<span class="fc" id="L227">        return result.getInterleavedResult();</span>
+<span class="fc" id="L281">        FFTResult result = fft(inputReal, inputImag, direct);</span>
+<span class="fc" id="L282">        return result.getInterleavedResult();</span>
     }
     
     /**
@@ -236,7 +291,7 @@ import com.fft.factory.FFTFactory;
      */
     @Deprecated
     public static double[] getRealParts(double[] fftResult) {
-<span class="fc" id="L239">        return new FFTResult(fftResult).getRealParts();</span>
+<span class="fc" id="L294">        return new FFTResult(fftResult).getRealParts();</span>
     }
     
     /**
@@ -248,7 +303,7 @@ import com.fft.factory.FFTFactory;
      */
     @Deprecated
     public static double[] getImagParts(double[] fftResult) {
-<span class="fc" id="L251">        return new FFTResult(fftResult).getImaginaryParts();</span>
+<span class="fc" id="L306">        return new FFTResult(fftResult).getImaginaryParts();</span>
     }
     
     /**
@@ -260,7 +315,7 @@ import com.fft.factory.FFTFactory;
      */
     @Deprecated
     public static double[] getMagnitudes(double[] fftResult) {
-<span class="fc" id="L263">        return new FFTResult(fftResult).getMagnitudes();</span>
+<span class="fc" id="L318">        return new FFTResult(fftResult).getMagnitudes();</span>
     }
     
     /**
@@ -272,7 +327,7 @@ import com.fft.factory.FFTFactory;
      */
     @Deprecated
     public static double[] getPhases(double[] fftResult) {
-<span class="fc" id="L275">        return new FFTResult(fftResult).getPhases();</span>
+<span class="fc" id="L330">        return new FFTResult(fftResult).getPhases();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

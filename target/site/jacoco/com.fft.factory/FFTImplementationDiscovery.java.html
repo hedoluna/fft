@@ -179,12 +179,12 @@ import java.util.logging.Logger;
             
 <span class="fc bfc" id="L180" title="All 2 branches covered.">            while (resources.hasMoreElements()) {</span>
 <span class="fc" id="L181">                URL resource = resources.nextElement();</span>
-<span class="pc bpc" id="L182" title="1 of 2 branches missed.">                if (resource.getProtocol().equals(&quot;file&quot;)) {</span>
+<span class="fc bfc" id="L182" title="All 2 branches covered.">                if (resource.getProtocol().equals(&quot;file&quot;)) {</span>
                     // Handle file system resources
 <span class="fc" id="L184">                    scanFileSystemPackage(resource, packageName, implementations);</span>
-<span class="nc bnc" id="L185" title="All 2 branches missed.">                } else if (resource.getProtocol().equals(&quot;jar&quot;)) {</span>
+<span class="pc bpc" id="L185" title="1 of 2 branches missed.">                } else if (resource.getProtocol().equals(&quot;jar&quot;)) {</span>
                     // Handle JAR resources
-<span class="nc" id="L187">                    scanJarPackage(resource, packageName, implementations);</span>
+<span class="fc" id="L187">                    scanJarPackage(resource, packageName, implementations);</span>
                 }
 <span class="fc" id="L189">            }</span>
 <span class="nc" id="L190">        } catch (IOException e) {</span>
@@ -223,8 +223,8 @@ import java.util.logging.Logger;
         // JAR scanning mechanism or a library like Reflections
         
         // For now, we'll rely on explicit registration through the service loader pattern
-<span class="nc" id="L226">        LOGGER.fine(&quot;JAR scanning not fully implemented, relying on service loader pattern&quot;);</span>
-<span class="nc" id="L227">    }</span>
+<span class="fc" id="L226">        LOGGER.fine(&quot;JAR scanning not fully implemented, relying on service loader pattern&quot;);</span>
+<span class="fc" id="L227">    }</span>
     
     /**
      * Checks if a class is an annotated FFT implementation.
@@ -234,7 +234,7 @@ import java.util.logging.Logger;
         try {
 <span class="fc" id="L235">            Class&lt;?&gt; clazz = Class.forName(className);</span>
             
-<span class="fc bfc" id="L237" title="All 4 branches covered.">            if (FFT.class.isAssignableFrom(clazz) &amp;&amp; clazz.isAnnotationPresent(FFTImplementation.class)) {</span>
+<span class="pc bpc" id="L237" title="1 of 4 branches missed.">            if (FFT.class.isAssignableFrom(clazz) &amp;&amp; clazz.isAnnotationPresent(FFTImplementation.class)) {</span>
                 @SuppressWarnings(&quot;unchecked&quot;)
 <span class="fc" id="L239">                Class&lt;? extends FFT&gt; fftClass = (Class&lt;? extends FFT&gt;) clazz;</span>
 <span class="fc" id="L240">                FFTImplementation annotation = clazz.getAnnotation(FFTImplementation.class);</span>
