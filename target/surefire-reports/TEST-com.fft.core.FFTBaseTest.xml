@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.fft.core.FFTBaseTest" time="0.041" tests="20" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.fft.core.FFTBaseTest" time="0.121" tests="20" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="17"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -7,12 +7,11 @@
     <property name="java.vm.vendor" value="Ubuntu"/>
     <property name="sun.arch.data.model" value="64"/>
     <property name="java.vendor.url" value="https://ubuntu.com/"/>
-    <property name="user.timezone" value="Etc/UTC"/>
     <property name="os.name" value="Linux"/>
     <property name="java.vm.specification.version" value="17"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="sun.boot.library.path" value="/usr/lib/jvm/java-17-openjdk-amd64/lib"/>
-    <property name="sun.java.command" value="/home/engine/project/target/surefire/surefirebooter-20250527155032451_3.jar /home/engine/project/target/surefire 2025-05-27T15-50-32_199-jvmRun1 surefire-20250527155032451_1tmp surefire_0-20250527155032451_2tmp"/>
+    <property name="sun.java.command" value="/home/engine/project/target/surefire/surefirebooter-20250531190456377_3.jar /home/engine/project/target/surefire 2025-05-31T19-04-56_162-jvmRun1 surefire-20250531190456377_1tmp surefire_0-20250531190456377_2tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="/home/engine/project/target/test-classes:/home/engine/project/target/classes:/home/engine/.m2/repository/org/junit/jupiter/junit-jupiter/5.9.2/junit-jupiter-5.9.2.jar:/home/engine/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.9.2/junit-jupiter-api-5.9.2.jar:/home/engine/.m2/repository/org/opentest4j/opentest4j/1.2.0/opentest4j-1.2.0.jar:/home/engine/.m2/repository/org/junit/platform/junit-platform-commons/1.9.2/junit-platform-commons-1.9.2.jar:/home/engine/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/home/engine/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.9.2/junit-jupiter-params-5.9.2.jar:/home/engine/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.9.2/junit-jupiter-engine-5.9.2.jar:/home/engine/.m2/repository/org/junit/platform/junit-platform-engine/1.9.2/junit-platform-engine-1.9.2.jar:/home/engine/.m2/repository/org/assertj/assertj-core/3.24.2/assertj-core-3.24.2.jar:/home/engine/.m2/repository/net/bytebuddy/byte-buddy/1.12.21/byte-buddy-1.12.21.jar:/home/engine/.m2/repository/org/mockito/mockito-core/5.1.1/mockito-core-5.1.1.jar:/home/engine/.m2/repository/net/bytebuddy/byte-buddy-agent/1.12.22/byte-buddy-agent-1.12.22.jar:/home/engine/.m2/repository/org/objenesis/objenesis/3.3/objenesis-3.3.jar:/home/engine/.m2/repository/org/mockito/mockito-junit-jupiter/5.1.1/mockito-junit-jupiter-5.1.1.jar:"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -27,7 +26,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="/home/engine/project/target/surefire/surefirebooter-20250527155032451_3.jar"/>
+    <property name="surefire.real.class.path" value="/home/engine/project/target/surefire/surefirebooter-20250531190456377_3.jar"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="17.0.15+6-Ubuntu-0ubuntu124.04"/>
     <property name="user.name" value="engine"/>
@@ -52,27 +51,27 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="61.0"/>
   </properties>
-  <testcase name="testInterfaceImplementation" classname="com.fft.core.FFTBaseTest" time="0.001"/>
-  <testcase name="testRealOnlyInput" classname="com.fft.core.FFTBaseTest" time="0.001"/>
-  <testcase name="testDifferentArrayLengths" classname="com.fft.core.FFTBaseTest" time="0.001"/>
-  <testcase name="testEnergyConservation" classname="com.fft.core.FFTBaseTest" time="0"/>
-  <testcase name="testNonPowerOfTwoSize" classname="com.fft.core.FFTBaseTest" time="0.001">
+  <testcase name="testInterfaceImplementation" classname="com.fft.core.FFTBaseTest" time="0.004"/>
+  <testcase name="testRealOnlyInput" classname="com.fft.core.FFTBaseTest" time="0.004"/>
+  <testcase name="testDifferentArrayLengths" classname="com.fft.core.FFTBaseTest" time="0.002"/>
+  <testcase name="testEnergyConservation" classname="com.fft.core.FFTBaseTest" time="0.001"/>
+  <testcase name="testNonPowerOfTwoSize" classname="com.fft.core.FFTBaseTest" time="0.003">
     <system-out><![CDATA[The number of elements is not a power of 2.
 ]]></system-out>
   </testcase>
-  <testcase name="testImpulseSignal" classname="com.fft.core.FFTBaseTest" time="0.002"/>
-  <testcase name="testDCComponent" classname="com.fft.core.FFTBaseTest" time="0.001"/>
-  <testcase name="testSineWave" classname="com.fft.core.FFTBaseTest" time="0"/>
-  <testcase name="testPowerOfTwoSizes(int)[1]" classname="com.fft.core.FFTBaseTest" time="0.001"/>
-  <testcase name="testPowerOfTwoSizes(int)[2]" classname="com.fft.core.FFTBaseTest" time="0.001"/>
-  <testcase name="testPowerOfTwoSizes(int)[3]" classname="com.fft.core.FFTBaseTest" time="0.001"/>
-  <testcase name="testPowerOfTwoSizes(int)[4]" classname="com.fft.core.FFTBaseTest" time="0"/>
-  <testcase name="testPowerOfTwoSizes(int)[5]" classname="com.fft.core.FFTBaseTest" time="0"/>
+  <testcase name="testImpulseSignal" classname="com.fft.core.FFTBaseTest" time="0.001"/>
+  <testcase name="testDCComponent" classname="com.fft.core.FFTBaseTest" time="0.002"/>
+  <testcase name="testSineWave" classname="com.fft.core.FFTBaseTest" time="0.005"/>
+  <testcase name="testPowerOfTwoSizes(int)[1]" classname="com.fft.core.FFTBaseTest" time="0.022"/>
+  <testcase name="testPowerOfTwoSizes(int)[2]" classname="com.fft.core.FFTBaseTest" time="0.002"/>
+  <testcase name="testPowerOfTwoSizes(int)[3]" classname="com.fft.core.FFTBaseTest" time="0.002"/>
+  <testcase name="testPowerOfTwoSizes(int)[4]" classname="com.fft.core.FFTBaseTest" time="0.001"/>
+  <testcase name="testPowerOfTwoSizes(int)[5]" classname="com.fft.core.FFTBaseTest" time="0.002"/>
   <testcase name="testPowerOfTwoSizes(int)[6]" classname="com.fft.core.FFTBaseTest" time="0.001"/>
-  <testcase name="testPowerOfTwoSizes(int)[7]" classname="com.fft.core.FFTBaseTest" time="0.001"/>
+  <testcase name="testPowerOfTwoSizes(int)[7]" classname="com.fft.core.FFTBaseTest" time="0"/>
   <testcase name="testPowerOfTwoSizes(int)[8]" classname="com.fft.core.FFTBaseTest" time="0.002"/>
-  <testcase name="testPowerOfTwoSizes(int)[9]" classname="com.fft.core.FFTBaseTest" time="0.001"/>
+  <testcase name="testPowerOfTwoSizes(int)[9]" classname="com.fft.core.FFTBaseTest" time="0.002"/>
   <testcase name="testPowerOfTwoSizes(int)[10]" classname="com.fft.core.FFTBaseTest" time="0.002"/>
-  <testcase name="testForwardInverseCycle" classname="com.fft.core.FFTBaseTest" time="0"/>
+  <testcase name="testForwardInverseCycle" classname="com.fft.core.FFTBaseTest" time="0.002"/>
   <testcase name="testSimpleRealInput" classname="com.fft.core.FFTBaseTest" time="0.001"/>
 </testsuite>

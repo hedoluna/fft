@@ -143,6 +143,61 @@ public class FFTUtils {
     }
     
     /**
+     * Generates test signals with predefined types for testing purposes.
+     * 
+     * @param size size of the signal
+     * @param type type of signal ("impulse", "dc", "sine", "cosine", "mixed", "random")
+     * @return generated signal
+     */
+    public static double[] generateTestSignal(int size, String type) {
+        double[] signal = new double[size];
+        
+        switch (type.toLowerCase()) {
+            case "impulse":
+                if (size > 0) signal[0] = 1.0;
+                break;
+                
+            case "dc":
+                for (int i = 0; i < size; i++) {
+                    signal[i] = 1.0;
+                }
+                break;
+                
+            case "sine":
+                for (int i = 0; i < size; i++) {
+                    signal[i] = Math.sin(2.0 * Math.PI * 5 * i / size); // 5 cycles
+                }
+                break;
+                
+            case "cosine":
+                for (int i = 0; i < size; i++) {
+                    signal[i] = Math.cos(2.0 * Math.PI * 3 * i / size); // 3 cycles
+                }
+                break;
+                
+            case "mixed":
+                for (int i = 0; i < size; i++) {
+                    signal[i] = Math.sin(2.0 * Math.PI * 5 * i / size) + 
+                               0.5 * Math.cos(2.0 * Math.PI * 10 * i / size) +
+                               0.25 * Math.sin(2.0 * Math.PI * 15 * i / size);
+                }
+                break;
+                
+            case "random":
+                java.util.Random random = new java.util.Random(42); // Fixed seed for reproducibility
+                for (int i = 0; i < size; i++) {
+                    signal[i] = random.nextGaussian();
+                }
+                break;
+                
+            default:
+                throw new IllegalArgumentException("Unknown signal type: " + type);
+        }
+        
+        return signal;
+    }
+    
+    /**
      * Checks if a number is a power of 2.
      * 
      * @param n the number to check
