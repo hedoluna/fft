@@ -4,14 +4,14 @@ com/fft/optimized/FFTOptimized32.class
 com/fft/optimized/FFTOptimized256.class
 com/fft/optimized/FFTOptimized65536.class
 com/fft/optimized/FFTOptimized32768.class
-com/fft/factory/DefaultFFTFactory.class
 com/fft/utils/FFTUtils.class
+com/fft/factory/DefaultFFTFactory.class
 com/fft/optimized/FFTOptimized16384.class
 com/fft/demo/RefactoringDemo.class
 com/fft/factory/FFTFactory.class
 com/fft/optimized/FFTOptimized1024.class
-com/fft/core/FFTBase.class
 com/fft/optimized/FFTOptimized512.class
+com/fft/core/FFTBase.class
 com/fft/optimized/FFTOptimized8.class
 com/fft/optimized/FFTOptimized64.class
 com/fft/factory/FFTImplementation.class

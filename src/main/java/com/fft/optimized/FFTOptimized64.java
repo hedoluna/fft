@@ -104,7 +104,7 @@ public class FFTOptimized64 implements FFT {
             throw new IllegalArgumentException("Input arrays must be of length " + SIZE);
         }
         
-        // Delegate to the original optimized implementation, fallback to base if not available
+        // For now, try to use the original FFToptim64 for correctness, fallback to base if not available
         try {
             Class<?> fftClass = Class.forName("FFToptim64");
             java.lang.reflect.Method fftMethod = fftClass.getMethod("fft", double[].class, double[].class, boolean.class);

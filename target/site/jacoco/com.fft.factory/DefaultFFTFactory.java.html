@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefaultFFTFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Fast Fourier Transform Library</a> &gt; <a href="index.source.html" class="el_package">com.fft.factory</a> &gt; <span class="el_source">DefaultFFTFactory.java</span></div><h1>DefaultFFTFactory.java</h1><pre class="source lang-java linenums">package com.fft.factory;
+
+import com.fft.core.FFT;
+import com.fft.core.FFTBase;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
+
+/**
+ * Default implementation of the FFT factory.
+ * 
+ * &lt;p&gt;This factory provides automatic selection of the most appropriate FFT implementation
+ * based on input size. It maintains a registry of implementations with priority-based
+ * selection when multiple implementations are available for the same size.&lt;/p&gt;
+ * 
+ * &lt;h3&gt;Implementation Selection Strategy:&lt;/h3&gt;
+ * &lt;ol&gt;
+ * &lt;li&gt;Look for registered optimized implementations for the exact size&lt;/li&gt;
+ * &lt;li&gt;Select the implementation with the highest priority&lt;/li&gt;
+ * &lt;li&gt;Fall back to the generic FFTBase implementation if no optimized version exists&lt;/li&gt;
+ * &lt;/ol&gt;
+ * 
+ * &lt;h3&gt;Thread Safety:&lt;/h3&gt;
+ * &lt;p&gt;This implementation is thread-safe and can be used concurrently from multiple threads.
+ * Registration operations are synchronized to ensure consistency.&lt;/p&gt;
+ * 
+ * @author Engine AI Assistant
+ * @since 2.0.0
+ * @see FFTFactory for interface details
+ * @see FFTBase for fallback implementation
+ */
+public class DefaultFFTFactory implements FFTFactory {
+    
+    /**
+     * Implementation entry with priority support.
+     */
+    private static class ImplementationEntry {
+        final Supplier&lt;FFT&gt; supplier;
+        final int priority;
+        
+<span class="fc" id="L41">        ImplementationEntry(Supplier&lt;FFT&gt; supplier, int priority) {</span>
+<span class="fc" id="L42">            this.supplier = supplier;</span>
+<span class="fc" id="L43">            this.priority = priority;</span>
+<span class="fc" id="L44">        }</span>
+    }
+    
+<span class="fc" id="L47">    private final Map&lt;Integer, List&lt;ImplementationEntry&gt;&gt; implementations = new ConcurrentHashMap&lt;&gt;();</span>
+<span class="fc" id="L48">    private final FFT fallbackImplementation = new FFTBase();</span>
+    
+    /**
+     * Creates a new default factory with standard optimized implementations registered.
+     */
+<span class="fc" id="L53">    public DefaultFFTFactory() {</span>
+<span class="fc" id="L54">        registerDefaultImplementations();</span>
+<span class="fc" id="L55">        registerDiscoveredImplementations();</span>
+<span class="fc" id="L56">    }</span>
+    
+    /**
+     * Registers the standard set of optimized implementations.
+     * This method registers known implementations and provides fallback implementations.
+     */
+    private void registerDefaultImplementations() {
+        // Register optimized implementations with high priority
+<span class="fc" id="L64">        registerImplementation(8, com.fft.optimized.FFTOptimized8::new, 50);</span>
+<span class="fc" id="L65">        registerImplementation(32, com.fft.optimized.FFTOptimized32::new, 50);</span>
+        
+        // Register FFTBase as fallback for all power-of-2 sizes up to 8192
+<span class="fc bfc" id="L68" title="All 2 branches covered.">        for (int size = 2; size &lt;= 8192; size *= 2) {</span>
+<span class="fc" id="L69">            registerImplementation(size, FFTBase::new, 0); // Low priority fallback</span>
+        }
+<span class="fc" id="L71">    }</span>
+    
+    /**
+     * Registers implementations discovered through auto-discovery.
+     */
+    private void registerDiscoveredImplementations() {
+        try {
+<span class="fc" id="L78">            FFTImplementationDiscovery.registerDiscoveredImplementations(this);</span>
+<span class="nc" id="L79">        } catch (Exception e) {</span>
+            // Log warning but don't fail initialization
+<span class="nc" id="L81">            System.err.println(&quot;Warning: Failed to auto-discover FFT implementations: &quot; + e.getMessage());</span>
+<span class="fc" id="L82">        }</span>
+<span class="fc" id="L83">    }</span>
+    
+    @Override
+    public FFT createFFT(int size) {
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        if (!isPowerOfTwo(size)) {</span>
+<span class="fc" id="L88">            throw new IllegalArgumentException(&quot;Array length must be a power of 2, got: &quot; + size);</span>
+        }
+        
+<span class="fc" id="L91">        List&lt;ImplementationEntry&gt; entries = implementations.get(size);</span>
+<span class="pc bpc" id="L92" title="1 of 4 branches missed.">        if (entries != null &amp;&amp; !entries.isEmpty()) {</span>
+            // Return the highest priority implementation
+<span class="fc" id="L94">            ImplementationEntry best = entries.stream()</span>
+<span class="fc" id="L95">                .max(Comparator.comparingInt(e -&gt; e.priority))</span>
+<span class="fc" id="L96">                .orElse(null);</span>
+            
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">            if (best != null) {</span>
+<span class="fc" id="L99">                return best.supplier.get();</span>
+            }
+        }
+        
+        // Fallback to generic implementation
+<span class="fc" id="L104">        return new FFTBase();</span>
+    }
+    
+    @Override
+    public List&lt;Integer&gt; getSupportedSizes() {
+<span class="fc" id="L109">        Set&lt;Integer&gt; sizes = new TreeSet&lt;&gt;(implementations.keySet());</span>
+        
+        // Add common power-of-2 sizes that are supported by fallback
+<span class="fc bfc" id="L112" title="All 2 branches covered.">        for (int size = 2; size &lt;= 8192; size *= 2) {</span>
+<span class="fc" id="L113">            sizes.add(size);</span>
+        }
+        
+<span class="fc" id="L116">        return new ArrayList&lt;&gt;(sizes);</span>
+    }
+    
+    @Override
+    public void registerImplementation(int size, Supplier&lt;FFT&gt; implementation) {
+<span class="fc" id="L121">        registerImplementation(size, implementation, 10); // Default priority</span>
+<span class="fc" id="L122">    }</span>
+    
+    @Override
+    public synchronized void registerImplementation(int size, Supplier&lt;FFT&gt; implementation, int priority) {
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">        if (!isPowerOfTwo(size)) {</span>
+<span class="nc" id="L127">            throw new IllegalArgumentException(&quot;Size must be a power of 2, got: &quot; + size);</span>
+        }
+        
+<span class="fc bfc" id="L130" title="All 2 branches covered.">        if (implementation == null) {</span>
+<span class="fc" id="L131">            throw new IllegalArgumentException(&quot;Implementation supplier cannot be null&quot;);</span>
+        }
+        
+<span class="fc" id="L134">        implementations.computeIfAbsent(size, k -&gt; new ArrayList&lt;&gt;())</span>
+<span class="fc" id="L135">                      .add(new ImplementationEntry(implementation, priority));</span>
+        
+        // Sort by priority (highest first)
+<span class="fc" id="L138">        implementations.get(size).sort((a, b) -&gt; Integer.compare(b.priority, a.priority));</span>
+<span class="fc" id="L139">    }</span>
+    
+    @Override
+    public boolean supportsSize(int size) {
+<span class="fc" id="L143">        return isPowerOfTwo(size);</span>
+    }
+    
+    @Override
+    public String getImplementationInfo(int size) {
+<span class="fc bfc" id="L148" title="All 2 branches covered.">        if (!isPowerOfTwo(size)) {</span>
+<span class="fc" id="L149">            return &quot;Invalid size (not power of 2)&quot;;</span>
+        }
+        
+<span class="fc" id="L152">        List&lt;ImplementationEntry&gt; entries = implementations.get(size);</span>
+<span class="pc bpc" id="L153" title="2 of 4 branches missed.">        if (entries != null &amp;&amp; !entries.isEmpty()) {</span>
+<span class="fc" id="L154">            ImplementationEntry best = entries.get(0); // Already sorted by priority</span>
+<span class="fc" id="L155">            FFT instance = best.supplier.get();</span>
+<span class="fc" id="L156">            return String.format(&quot;%s (priority: %d)&quot;, instance.getDescription(), best.priority);</span>
+        }
+        
+<span class="nc" id="L159">        return &quot;FFTBase (generic fallback implementation for size &quot; + size + &quot;)&quot;;</span>
+    }
+    
+    @Override
+    public synchronized boolean unregisterImplementations(int size) {
+<span class="pc bpc" id="L164" title="1 of 2 branches missed.">        return implementations.remove(size) != null;</span>
+    }
+    
+    @Override
+    public int getImplementationCount(int size) {
+<span class="fc" id="L169">        List&lt;ImplementationEntry&gt; entries = implementations.get(size);</span>
+<span class="fc bfc" id="L170" title="All 2 branches covered.">        return entries != null ? entries.size() : 0;</span>
+    }
+    
+    /**
+     * Checks if a number is a power of 2.
+     * 
+     * @param n the number to check
+     * @return true if n is a power of 2, false otherwise
+     */
+    private static boolean isPowerOfTwo(int n) {
+<span class="fc bfc" id="L180" title="All 4 branches covered.">        return n &gt; 0 &amp;&amp; (n &amp; (n - 1)) == 0;</span>
+    }
+    
+    /**
+     * Returns a detailed report of all registered implementations.
+     * 
+     * @return string containing implementation registry details
+     */
+    public String getRegistryReport() {
+<span class="fc" id="L189">        StringBuilder report = new StringBuilder();</span>
+<span class="fc" id="L190">        report.append(&quot;FFT Factory Implementation Registry:\n&quot;);</span>
+<span class="fc" id="L191">        report.append(&quot;=====================================\n&quot;);</span>
+        
+<span class="fc" id="L193">        List&lt;Integer&gt; sizes = getSupportedSizes();</span>
+<span class="fc bfc" id="L194" title="All 2 branches covered.">        for (Integer size : sizes) {</span>
+<span class="fc" id="L195">            report.append(String.format(&quot;Size %d: %s\n&quot;, size, getImplementationInfo(size)));</span>
+            
+<span class="fc" id="L197">            List&lt;ImplementationEntry&gt; entries = implementations.get(size);</span>
+<span class="pc bpc" id="L198" title="1 of 4 branches missed.">            if (entries != null &amp;&amp; entries.size() &gt; 1) {</span>
+<span class="fc" id="L199">                report.append(&quot;  Alternative implementations:\n&quot;);</span>
+<span class="fc bfc" id="L200" title="All 2 branches covered.">                for (int i = 1; i &lt; entries.size(); i++) {</span>
+<span class="fc" id="L201">                    ImplementationEntry entry = entries.get(i);</span>
+<span class="fc" id="L202">                    FFT instance = entry.supplier.get();</span>
+<span class="fc" id="L203">                    report.append(String.format(&quot;    - %s (priority: %d)\n&quot;, </span>
+<span class="fc" id="L204">                                               instance.getDescription(), entry.priority));</span>
+                }
+            }
+<span class="fc" id="L207">        }</span>
+        
+<span class="fc" id="L209">        return report.toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

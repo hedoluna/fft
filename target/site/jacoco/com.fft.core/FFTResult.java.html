@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FFTResult.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Fast Fourier Transform Library</a> &gt; <a href="index.source.html" class="el_package">com.fft.core</a> &gt; <span class="el_source">FFTResult.java</span></div><h1>FFTResult.java</h1><pre class="source lang-java linenums">package com.fft.core;
+
+import java.util.Arrays;
+
+/**
+ * FFT result wrapper class providing convenient access to transform results.
+ * 
+ * &lt;p&gt;This class encapsulates the results of an FFT operation and provides convenient 
+ * methods for extracting different representations of the frequency domain data.
+ * The internal storage uses an interleaved format for efficiency, but provides
+ * clean accessor methods for different use cases.&lt;/p&gt;
+ * 
+ * &lt;h3&gt;Storage Format:&lt;/h3&gt;
+ * &lt;p&gt;Internally stores data as interleaved real and imaginary components:
+ * [real0, imag0, real1, imag1, real2, imag2, ...]&lt;/p&gt;
+ * 
+ * &lt;h3&gt;Thread Safety:&lt;/h3&gt;
+ * &lt;p&gt;This class is immutable and thread-safe. All accessor methods return new arrays
+ * to prevent external modification of the internal state.&lt;/p&gt;
+ * 
+ * @author Engine AI Assistant  
+ * @since 2.0.0
+ * @see FFT for transform operations
+ */
+public class FFTResult {
+    
+    private final double[] interleavedResult;
+    private final int size;
+    
+    /**
+     * Creates a new FFT result from interleaved real/imaginary data.
+     * 
+     * @param interleavedResult the interleaved result array [real0, imag0, real1, imag1, ...]
+     * @throws IllegalArgumentException if the result array length is not even
+     */
+<span class="fc" id="L36">    public FFTResult(double[] interleavedResult) {</span>
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        if (interleavedResult.length % 2 != 0) {</span>
+<span class="fc" id="L38">            throw new IllegalArgumentException(&quot;Interleaved result array length must be even&quot;);</span>
+        }
+        // Create defensive copy to ensure immutability
+<span class="fc" id="L41">        this.interleavedResult = Arrays.copyOf(interleavedResult, interleavedResult.length);</span>
+<span class="fc" id="L42">        this.size = interleavedResult.length / 2;</span>
+<span class="fc" id="L43">    }</span>
+    
+    /**
+     * Creates a new FFT result from separate real and imaginary arrays.
+     * 
+     * @param realParts the real parts array
+     * @param imaginaryParts the imaginary parts array
+     * @throws IllegalArgumentException if arrays have different lengths
+     */
+<span class="fc" id="L52">    public FFTResult(double[] realParts, double[] imaginaryParts) {</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        if (realParts.length != imaginaryParts.length) {</span>
+<span class="fc" id="L54">            throw new IllegalArgumentException(&quot;Real and imaginary arrays must have same length&quot;);</span>
+        }
+        
+<span class="fc" id="L57">        this.size = realParts.length;</span>
+<span class="fc" id="L58">        this.interleavedResult = new double[size * 2];</span>
+        
+        // Interleave the data
+<span class="fc bfc" id="L61" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L62">            interleavedResult[2 * i] = realParts[i];</span>
+<span class="fc" id="L63">            interleavedResult[2 * i + 1] = imaginaryParts[i];</span>
+        }
+<span class="fc" id="L65">    }</span>
+    
+    /**
+     * Returns the number of frequency bins in the result.
+     * 
+     * @return the size (number of complex values)
+     */
+    public int size() {
+<span class="fc" id="L73">        return size;</span>
+    }
+    
+    /**
+     * Extracts the real parts from the FFT result.
+     * 
+     * @return new array containing only the real parts
+     */
+    public double[] getRealParts() {
+<span class="fc" id="L82">        double[] real = new double[size];</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L84">            real[i] = interleavedResult[2 * i];</span>
+        }
+<span class="fc" id="L86">        return real;</span>
+    }
+    
+    /**
+     * Extracts the imaginary parts from the FFT result.
+     * 
+     * @return new array containing only the imaginary parts
+     */
+    public double[] getImaginaryParts() {
+<span class="fc" id="L95">        double[] imaginary = new double[size];</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L97">            imaginary[i] = interleavedResult[2 * i + 1];</span>
+        }
+<span class="fc" id="L99">        return imaginary;</span>
+    }
+    
+    /**
+     * Computes the magnitude (absolute value) of each complex frequency bin.
+     * 
+     * @return array containing the magnitudes
+     */
+    public double[] getMagnitudes() {
+<span class="fc" id="L108">        double[] magnitudes = new double[size];</span>
+<span class="fc bfc" id="L109" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L110">            double real = interleavedResult[2 * i];</span>
+<span class="fc" id="L111">            double imaginary = interleavedResult[2 * i + 1];</span>
+<span class="fc" id="L112">            magnitudes[i] = Math.sqrt(real * real + imaginary * imaginary);</span>
+        }
+<span class="fc" id="L114">        return magnitudes;</span>
+    }
+    
+    /**
+     * Computes the phase angles of each complex frequency bin.
+     * 
+     * @return array containing the phase angles in radians
+     */
+    public double[] getPhases() {
+<span class="fc" id="L123">        double[] phases = new double[size];</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L125">            double real = interleavedResult[2 * i];</span>
+<span class="fc" id="L126">            double imaginary = interleavedResult[2 * i + 1];</span>
+<span class="fc" id="L127">            phases[i] = Math.atan2(imaginary, real);</span>
+        }
+<span class="fc" id="L129">        return phases;</span>
+    }
+    
+    /**
+     * Returns the power spectrum (squared magnitudes).
+     * 
+     * @return array containing the power spectrum values
+     */
+    public double[] getPowerSpectrum() {
+<span class="fc" id="L138">        double[] power = new double[size];</span>
+<span class="fc bfc" id="L139" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L140">            double real = interleavedResult[2 * i];</span>
+<span class="fc" id="L141">            double imaginary = interleavedResult[2 * i + 1];</span>
+<span class="fc" id="L142">            power[i] = real * real + imaginary * imaginary;</span>
+        }
+<span class="fc" id="L144">        return power;</span>
+    }
+    
+    /**
+     * Returns the raw interleaved result array.
+     * This is provided for compatibility with legacy code.
+     * 
+     * @return copy of the interleaved result array [real0, imag0, real1, imag1, ...]
+     */
+    public double[] getInterleavedResult() {
+<span class="fc" id="L154">        return Arrays.copyOf(interleavedResult, interleavedResult.length);</span>
+    }
+    
+    /**
+     * Gets the real part at the specified index.
+     * 
+     * @param index the frequency bin index
+     * @return the real part at the given index
+     * @throws IndexOutOfBoundsException if index is out of bounds
+     */
+    public double getRealAt(int index) {
+<span class="fc bfc" id="L165" title="All 4 branches covered.">        if (index &lt; 0 || index &gt;= size) {</span>
+<span class="fc" id="L166">            throw new IndexOutOfBoundsException(&quot;Index &quot; + index + &quot; out of bounds for size &quot; + size);</span>
+        }
+<span class="fc" id="L168">        return interleavedResult[2 * index];</span>
+    }
+    
+    /**
+     * Gets the imaginary part at the specified index.
+     * 
+     * @param index the frequency bin index
+     * @return the imaginary part at the given index
+     * @throws IndexOutOfBoundsException if index is out of bounds
+     */
+    public double getImaginaryAt(int index) {
+<span class="pc bpc" id="L179" title="1 of 4 branches missed.">        if (index &lt; 0 || index &gt;= size) {</span>
+<span class="fc" id="L180">            throw new IndexOutOfBoundsException(&quot;Index &quot; + index + &quot; out of bounds for size &quot; + size);</span>
+        }
+<span class="fc" id="L182">        return interleavedResult[2 * index + 1];</span>
+    }
+    
+    /**
+     * Gets the magnitude at the specified index.
+     * 
+     * @param index the frequency bin index
+     * @return the magnitude at the given index
+     * @throws IndexOutOfBoundsException if index is out of bounds
+     */
+    public double getMagnitudeAt(int index) {
+<span class="pc bpc" id="L193" title="1 of 4 branches missed.">        if (index &lt; 0 || index &gt;= size) {</span>
+<span class="fc" id="L194">            throw new IndexOutOfBoundsException(&quot;Index &quot; + index + &quot; out of bounds for size &quot; + size);</span>
+        }
+<span class="fc" id="L196">        double real = interleavedResult[2 * index];</span>
+<span class="fc" id="L197">        double imaginary = interleavedResult[2 * index + 1];</span>
+<span class="fc" id="L198">        return Math.sqrt(real * real + imaginary * imaginary);</span>
+    }
+    
+    /**
+     * Gets the phase at the specified index.
+     * 
+     * @param index the frequency bin index
+     * @return the phase angle in radians at the given index
+     * @throws IndexOutOfBoundsException if index is out of bounds
+     */
+    public double getPhaseAt(int index) {
+<span class="pc bpc" id="L209" title="1 of 4 branches missed.">        if (index &lt; 0 || index &gt;= size) {</span>
+<span class="fc" id="L210">            throw new IndexOutOfBoundsException(&quot;Index &quot; + index + &quot; out of bounds for size &quot; + size);</span>
+        }
+<span class="fc" id="L212">        double real = interleavedResult[2 * index];</span>
+<span class="fc" id="L213">        double imaginary = interleavedResult[2 * index + 1];</span>
+<span class="fc" id="L214">        return Math.atan2(imaginary, real);</span>
+    }
+    
+    @Override
+    public String toString() {
+<span class="fc" id="L219">        return String.format(&quot;FFTResult[size=%d, first_magnitude=%.3f]&quot;, </span>
+<span class="fc" id="L220">                           size, </span>
+<span class="pc bpc" id="L221" title="1 of 2 branches missed.">                           size &gt; 0 ? getMagnitudeAt(0) : 0.0);</span>
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+<span class="pc bpc" id="L226" title="1 of 2 branches missed.">        if (this == obj) return true;</span>
+<span class="pc bpc" id="L227" title="2 of 4 branches missed.">        if (obj == null || getClass() != obj.getClass()) return false;</span>
+        
+<span class="fc" id="L229">        FFTResult other = (FFTResult) obj;</span>
+<span class="fc" id="L230">        return Arrays.equals(interleavedResult, other.interleavedResult);</span>
+    }
+    
+    @Override
+    public int hashCode() {
+<span class="fc" id="L235">        return Arrays.hashCode(interleavedResult);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
