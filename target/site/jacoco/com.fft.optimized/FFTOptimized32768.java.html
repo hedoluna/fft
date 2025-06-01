@@ -57,12 +57,12 @@ import com.fft.factory.FFTImplementation;
     
     @Override
     public FFTResult transform(double[] real, boolean forward) {
-<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (real.length != SIZE) {</span>
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">        if (real.length != SIZE) {</span>
 <span class="nc" id="L61">            throw new IllegalArgumentException(&quot;Array must be of length &quot; + SIZE);</span>
         }
         
-<span class="nc" id="L64">        double[] imaginary = new double[SIZE];</span>
-<span class="nc" id="L65">        return transform(real, imaginary, forward);</span>
+<span class="fc" id="L64">        double[] imaginary = new double[SIZE];</span>
+<span class="fc" id="L65">        return transform(real, imaginary, forward);</span>
     }
     
     @Override

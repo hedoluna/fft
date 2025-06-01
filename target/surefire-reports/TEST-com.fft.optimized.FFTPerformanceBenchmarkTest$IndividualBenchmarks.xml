@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.fft.optimized.FFTPerformanceBenchmarkTest$IndividualBenchmarks" time="56.616" tests="13" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.fft.optimized.FFTPerformanceBenchmarkTest$IndividualBenchmarks" time="56.54" tests="13" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="17"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -12,7 +12,7 @@
     <property name="java.vm.specification.version" value="17"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="sun.boot.library.path" value="/usr/lib/jvm/java-17-openjdk-amd64/lib"/>
-    <property name="sun.java.command" value="/home/engine/project/target/surefire/surefirebooter-20250601201111504_3.jar /home/engine/project/target/surefire 2025-06-01T20-11-11_305-jvmRun1 surefire-20250601201111504_1tmp surefire_0-20250601201111504_2tmp"/>
+    <property name="sun.java.command" value="/home/engine/project/target/surefire/surefirebooter-20250601213557953_3.jar /home/engine/project/target/surefire 2025-06-01T21-35-57_758-jvmRun1 surefire-20250601213557953_1tmp surefire_0-20250601213557953_2tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="/home/engine/project/target/test-classes:/home/engine/project/target/classes:/home/engine/.m2/repository/org/junit/jupiter/junit-jupiter/5.9.2/junit-jupiter-5.9.2.jar:/home/engine/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.9.2/junit-jupiter-api-5.9.2.jar:/home/engine/.m2/repository/org/opentest4j/opentest4j/1.2.0/opentest4j-1.2.0.jar:/home/engine/.m2/repository/org/junit/platform/junit-platform-commons/1.9.2/junit-platform-commons-1.9.2.jar:/home/engine/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/home/engine/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.9.2/junit-jupiter-params-5.9.2.jar:/home/engine/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.9.2/junit-jupiter-engine-5.9.2.jar:/home/engine/.m2/repository/org/junit/platform/junit-platform-engine/1.9.2/junit-platform-engine-1.9.2.jar:/home/engine/.m2/repository/org/assertj/assertj-core/3.24.2/assertj-core-3.24.2.jar:/home/engine/.m2/repository/net/bytebuddy/byte-buddy/1.12.21/byte-buddy-1.12.21.jar:/home/engine/.m2/repository/org/mockito/mockito-core/5.1.1/mockito-core-5.1.1.jar:/home/engine/.m2/repository/net/bytebuddy/byte-buddy-agent/1.12.22/byte-buddy-agent-1.12.22.jar:/home/engine/.m2/repository/org/objenesis/objenesis/3.3/objenesis-3.3.jar:/home/engine/.m2/repository/org/mockito/mockito-junit-jupiter/5.1.1/mockito-junit-jupiter-5.1.1.jar:"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -27,7 +27,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="/home/engine/project/target/surefire/surefirebooter-20250601201111504_3.jar"/>
+    <property name="surefire.real.class.path" value="/home/engine/project/target/surefire/surefirebooter-20250601213557953_3.jar"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="17.0.15+6-Ubuntu-0ubuntu124.04"/>
     <property name="user.name" value="engine"/>
@@ -52,170 +52,171 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="61.0"/>
   </properties>
-  <testcase name="shouldBenchmarkFFTOptimized256Performance" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$IndividualBenchmarks" time="0.083">
+  <testcase name="shouldBenchmarkFFTOptimized256Performance" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$IndividualBenchmarks" time="0.065">
     <system-out><![CDATA[
 FFT Size 256 Performance Results:
-  Base Implementation:      67,836 ns
-  Optimized Implementation: 60,719 ns
-  Speedup:                  1.12x
-  Efficiency:               10.5%
+  Base Implementation:      46,465 ns
+  Optimized Implementation: 64,348 ns
+  Speedup:                  0.72x
+  Efficiency:               -38.5%
+  Note: Implementation likely using fallback (speedup=0.72x)
 ]]></system-out>
-    <system-err><![CDATA[Jun 01, 2025 8:12:11 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+    <system-err><![CDATA[Jun 01, 2025 9:36:59 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
 INFO: Auto-registration completed for 13 implementations
 ]]></system-err>
   </testcase>
-  <testcase name="shouldBenchmarkFFTOptimized4096Performance" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$IndividualBenchmarks" time="1.199">
+  <testcase name="shouldBenchmarkFFTOptimized4096Performance" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$IndividualBenchmarks" time="1.198">
     <system-out><![CDATA[
 FFT Size 4096 Performance Results:
-  Base Implementation:      1,062,554 ns
-  Optimized Implementation: 1,108,573 ns
+  Base Implementation:      1,059,501 ns
+  Optimized Implementation: 1,105,424 ns
   Speedup:                  0.96x
   Efficiency:               -4.3%
   Note: Implementation likely using fallback (speedup=0.96x)
 ]]></system-out>
-    <system-err><![CDATA[Jun 01, 2025 8:12:11 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+    <system-err><![CDATA[Jun 01, 2025 9:36:59 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
 INFO: Auto-registration completed for 13 implementations
 ]]></system-err>
   </testcase>
-  <testcase name="shouldBenchmarkFFTOptimized8192Performance" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$IndividualBenchmarks" time="2.58">
+  <testcase name="shouldBenchmarkFFTOptimized8192Performance" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$IndividualBenchmarks" time="2.579">
     <system-out><![CDATA[
 FFT Size 8192 Performance Results:
-  Base Implementation:      2,306,656 ns
-  Optimized Implementation: 2,372,422 ns
+  Base Implementation:      2,302,979 ns
+  Optimized Implementation: 2,367,792 ns
   Speedup:                  0.97x
-  Efficiency:               -2.9%
+  Efficiency:               -2.8%
   Note: Implementation likely using fallback (speedup=0.97x)
 ]]></system-out>
-    <system-err><![CDATA[Jun 01, 2025 8:12:12 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+    <system-err><![CDATA[Jun 01, 2025 9:37:00 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
 INFO: Auto-registration completed for 13 implementations
 ]]></system-err>
   </testcase>
-  <testcase name="shouldBenchmarkFFTOptimized128Performance" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$IndividualBenchmarks" time="0.03">
+  <testcase name="shouldBenchmarkFFTOptimized128Performance" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$IndividualBenchmarks" time="0.031">
     <system-out><![CDATA[
 FFT Size 128 Performance Results:
-  Base Implementation:      17,347 ns
-  Optimized Implementation: 32,891 ns
-  Speedup:                  0.53x
-  Efficiency:               -89.6%
-  Note: Implementation likely using fallback (speedup=0.53x)
+  Base Implementation:      17,484 ns
+  Optimized Implementation: 35,323 ns
+  Speedup:                  0.49x
+  Efficiency:               -102.0%
+  Note: Implementation likely using fallback (speedup=0.49x)
 ]]></system-out>
-    <system-err><![CDATA[Jun 01, 2025 8:12:14 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+    <system-err><![CDATA[Jun 01, 2025 9:37:03 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
 INFO: Auto-registration completed for 13 implementations
 ]]></system-err>
   </testcase>
-  <testcase name="shouldBenchmarkFFTOptimized1024Performance" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$IndividualBenchmarks" time="0.247">
+  <testcase name="shouldBenchmarkFFTOptimized1024Performance" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$IndividualBenchmarks" time="0.242">
     <system-out><![CDATA[
 FFT Size 1024 Performance Results:
-  Base Implementation:      207,056 ns
-  Optimized Implementation: 228,598 ns
-  Speedup:                  0.91x
-  Efficiency:               -10.4%
-  Note: Implementation likely using fallback (speedup=0.91x)
+  Base Implementation:      208,124 ns
+  Optimized Implementation: 225,753 ns
+  Speedup:                  0.92x
+  Efficiency:               -8.5%
+  Note: Implementation likely using fallback (speedup=0.92x)
 ]]></system-out>
-    <system-err><![CDATA[Jun 01, 2025 8:12:15 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+    <system-err><![CDATA[Jun 01, 2025 9:37:03 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
 INFO: Auto-registration completed for 13 implementations
 ]]></system-err>
   </testcase>
-  <testcase name="shouldBenchmarkFFTOptimized64Performance" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$IndividualBenchmarks" time="0.009">
+  <testcase name="shouldBenchmarkFFTOptimized64Performance" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$IndividualBenchmarks" time="0.01">
     <system-out><![CDATA[
 FFT Size 64 Performance Results:
-  Base Implementation:      7,292 ns
-  Optimized Implementation: 7,672 ns
-  Speedup:                  0.95x
-  Efficiency:               -5.2%
-  Note: Implementation likely using fallback (speedup=0.95x)
+  Base Implementation:      7,284 ns
+  Optimized Implementation: 7,162 ns
+  Speedup:                  1.02x
+  Efficiency:               1.7%
+  Note: Implementation likely using fallback (speedup=1.02x)
 ]]></system-out>
-    <system-err><![CDATA[Jun 01, 2025 8:12:15 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+    <system-err><![CDATA[Jun 01, 2025 9:37:03 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
 INFO: Auto-registration completed for 13 implementations
 ]]></system-err>
   </testcase>
-  <testcase name="shouldBenchmarkFFTOptimized16384Performance" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$IndividualBenchmarks" time="5.595">
+  <testcase name="shouldBenchmarkFFTOptimized16384Performance" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$IndividualBenchmarks" time="5.582">
     <system-out><![CDATA[
 FFT Size 16384 Performance Results:
-  Base Implementation:      5,026,329 ns
-  Optimized Implementation: 5,133,399 ns
-  Speedup:                  0.98x
-  Efficiency:               -2.1%
-  Note: Implementation likely using fallback (speedup=0.98x)
+  Base Implementation:      5,034,814 ns
+  Optimized Implementation: 5,109,406 ns
+  Speedup:                  0.99x
+  Efficiency:               -1.5%
+  Note: Implementation likely using fallback (speedup=0.99x)
 ]]></system-out>
-    <system-err><![CDATA[Jun 01, 2025 8:12:15 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+    <system-err><![CDATA[Jun 01, 2025 9:37:03 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
 INFO: Auto-registration completed for 13 implementations
 ]]></system-err>
   </testcase>
-  <testcase name="shouldBenchmarkFFTOptimized8Performance" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$IndividualBenchmarks" time="0.002">
+  <testcase name="shouldBenchmarkFFTOptimized8Performance" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$IndividualBenchmarks" time="0.001">
     <system-out><![CDATA[
 FFT Size 8 Performance Results:
-  Base Implementation:      504 ns
-  Optimized Implementation: 148 ns
-  Speedup:                  3.41x
-  Efficiency:               70.6%
+  Base Implementation:      466 ns
+  Optimized Implementation: 82 ns
+  Speedup:                  5.72x
+  Efficiency:               82.5%
 ]]></system-out>
-    <system-err><![CDATA[Jun 01, 2025 8:12:20 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+    <system-err><![CDATA[Jun 01, 2025 9:37:09 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
 INFO: Auto-registration completed for 13 implementations
 ]]></system-err>
   </testcase>
-  <testcase name="shouldBenchmarkFFTOptimized32Performance" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$IndividualBenchmarks" time="0.005">
+  <testcase name="shouldBenchmarkFFTOptimized32Performance" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$IndividualBenchmarks" time="0.004">
     <system-out><![CDATA[
 FFT Size 32 Performance Results:
-  Base Implementation:      3,031 ns
-  Optimized Implementation: 3,466 ns
-  Speedup:                  0.87x
-  Efficiency:               -14.4%
-  Note: Implementation likely using fallback (speedup=0.87x)
+  Base Implementation:      2,890 ns
+  Optimized Implementation: 3,212 ns
+  Speedup:                  0.90x
+  Efficiency:               -11.2%
+  Note: Implementation likely using fallback (speedup=0.90x)
 ]]></system-out>
-    <system-err><![CDATA[Jun 01, 2025 8:12:20 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+    <system-err><![CDATA[Jun 01, 2025 9:37:09 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
 INFO: Auto-registration completed for 13 implementations
 ]]></system-err>
   </testcase>
-  <testcase name="shouldBenchmarkFFTOptimized512Performance" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$IndividualBenchmarks" time="0.114">
+  <testcase name="shouldBenchmarkFFTOptimized512Performance" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$IndividualBenchmarks" time="0.115">
     <system-out><![CDATA[
 FFT Size 512 Performance Results:
-  Base Implementation:      93,343 ns
-  Optimized Implementation: 110,121 ns
+  Base Implementation:      95,797 ns
+  Optimized Implementation: 112,358 ns
   Speedup:                  0.85x
-  Efficiency:               -18.0%
+  Efficiency:               -17.3%
   Note: Implementation likely using fallback (speedup=0.85x)
 ]]></system-out>
-    <system-err><![CDATA[Jun 01, 2025 8:12:20 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+    <system-err><![CDATA[Jun 01, 2025 9:37:09 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
 INFO: Auto-registration completed for 13 implementations
 ]]></system-err>
   </testcase>
-  <testcase name="shouldBenchmarkFFTOptimized2048Performance" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$IndividualBenchmarks" time="0.537">
+  <testcase name="shouldBenchmarkFFTOptimized2048Performance" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$IndividualBenchmarks" time="0.534">
     <system-out><![CDATA[
 FFT Size 2048 Performance Results:
-  Base Implementation:      478,432 ns
-  Optimized Implementation: 494,905 ns
+  Base Implementation:      474,208 ns
+  Optimized Implementation: 490,489 ns
   Speedup:                  0.97x
   Efficiency:               -3.4%
   Note: Implementation likely using fallback (speedup=0.97x)
 ]]></system-out>
-    <system-err><![CDATA[Jun 01, 2025 8:12:20 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+    <system-err><![CDATA[Jun 01, 2025 9:37:09 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
 INFO: Auto-registration completed for 13 implementations
 ]]></system-err>
   </testcase>
-  <testcase name="shouldBenchmarkFFTOptimized32768Performance" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$IndividualBenchmarks" time="13.302">
+  <testcase name="shouldBenchmarkFFTOptimized32768Performance" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$IndividualBenchmarks" time="13.289">
     <system-out><![CDATA[
 FFT Size 32768 Performance Results:
-  Base Implementation:      10,937,362 ns
-  Optimized Implementation: 13,227,220 ns
+  Base Implementation:      10,932,984 ns
+  Optimized Implementation: 13,204,640 ns
   Speedup:                  0.83x
-  Efficiency:               -20.9%
+  Efficiency:               -20.8%
   Note: Implementation likely using fallback (speedup=0.83x)
 ]]></system-out>
-    <system-err><![CDATA[Jun 01, 2025 8:12:21 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+    <system-err><![CDATA[Jun 01, 2025 9:37:09 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
 INFO: Auto-registration completed for 13 implementations
 ]]></system-err>
   </testcase>
-  <testcase name="shouldBenchmarkFFTOptimized65536Performance" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$IndividualBenchmarks" time="32.897">
+  <testcase name="shouldBenchmarkFFTOptimized65536Performance" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$IndividualBenchmarks" time="32.865">
     <system-out><![CDATA[
 FFT Size 65536 Performance Results:
-  Base Implementation:      24,112,496 ns
-  Optimized Implementation: 35,667,070 ns
+  Base Implementation:      24,158,545 ns
+  Optimized Implementation: 35,568,545 ns
   Speedup:                  0.68x
-  Efficiency:               -47.9%
+  Efficiency:               -47.2%
   Note: Implementation likely using fallback (speedup=0.68x)
 ]]></system-out>
-    <system-err><![CDATA[Jun 01, 2025 8:12:34 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+    <system-err><![CDATA[Jun 01, 2025 9:37:22 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
 INFO: Auto-registration completed for 13 implementations
 ]]></system-err>
   </testcase>
