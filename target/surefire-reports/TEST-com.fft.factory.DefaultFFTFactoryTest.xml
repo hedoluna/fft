@@ -12,7 +12,7 @@
     <property name="java.vm.specification.version" value="17"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="sun.boot.library.path" value="/usr/lib/jvm/java-17-openjdk-amd64/lib"/>
-    <property name="sun.java.command" value="/home/engine/project/target/surefire/surefirebooter-20250601213557953_3.jar /home/engine/project/target/surefire 2025-06-01T21-35-57_758-jvmRun1 surefire-20250601213557953_1tmp surefire_0-20250601213557953_2tmp"/>
+    <property name="sun.java.command" value="/home/engine/project/target/surefire/surefirebooter-20250601220522987_3.jar /home/engine/project/target/surefire 2025-06-01T22-05-22_818-jvmRun1 surefire-20250601220522987_1tmp surefire_0-20250601220522987_2tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="/home/engine/project/target/test-classes:/home/engine/project/target/classes:/home/engine/.m2/repository/org/junit/jupiter/junit-jupiter/5.9.2/junit-jupiter-5.9.2.jar:/home/engine/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.9.2/junit-jupiter-api-5.9.2.jar:/home/engine/.m2/repository/org/opentest4j/opentest4j/1.2.0/opentest4j-1.2.0.jar:/home/engine/.m2/repository/org/junit/platform/junit-platform-commons/1.9.2/junit-platform-commons-1.9.2.jar:/home/engine/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/home/engine/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.9.2/junit-jupiter-params-5.9.2.jar:/home/engine/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.9.2/junit-jupiter-engine-5.9.2.jar:/home/engine/.m2/repository/org/junit/platform/junit-platform-engine/1.9.2/junit-platform-engine-1.9.2.jar:/home/engine/.m2/repository/org/assertj/assertj-core/3.24.2/assertj-core-3.24.2.jar:/home/engine/.m2/repository/net/bytebuddy/byte-buddy/1.12.21/byte-buddy-1.12.21.jar:/home/engine/.m2/repository/org/mockito/mockito-core/5.1.1/mockito-core-5.1.1.jar:/home/engine/.m2/repository/net/bytebuddy/byte-buddy-agent/1.12.22/byte-buddy-agent-1.12.22.jar:/home/engine/.m2/repository/org/objenesis/objenesis/3.3/objenesis-3.3.jar:/home/engine/.m2/repository/org/mockito/mockito-junit-jupiter/5.1.1/mockito-junit-jupiter-5.1.1.jar:"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -27,7 +27,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="/home/engine/project/target/surefire/surefirebooter-20250601213557953_3.jar"/>
+    <property name="surefire.real.class.path" value="/home/engine/project/target/surefire/surefirebooter-20250601220522987_3.jar"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="17.0.15+6-Ubuntu-0ubuntu124.04"/>
     <property name="user.name" value="engine"/>
@@ -52,58 +52,58 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="61.0"/>
   </properties>
-  <testcase name="testImplementationCount" classname="com.fft.factory.DefaultFFTFactoryTest" time="0.002">
-    <system-err><![CDATA[Jun 01, 2025 9:36:00 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+  <testcase name="testImplementationCount" classname="com.fft.factory.DefaultFFTFactoryTest" time="0.001">
+    <system-err><![CDATA[Jun 01, 2025 10:07:19 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
 INFO: Auto-registration completed for 13 implementations
 ]]></system-err>
   </testcase>
-  <testcase name="testImplementationPriority" classname="com.fft.factory.DefaultFFTFactoryTest" time="0.002">
-    <system-err><![CDATA[Jun 01, 2025 9:36:00 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+  <testcase name="testImplementationPriority" classname="com.fft.factory.DefaultFFTFactoryTest" time="0.003">
+    <system-err><![CDATA[Jun 01, 2025 10:07:19 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
 INFO: Auto-registration completed for 13 implementations
 ]]></system-err>
   </testcase>
-  <testcase name="testGetSupportedSizes" classname="com.fft.factory.DefaultFFTFactoryTest" time="0.001">
-    <system-err><![CDATA[Jun 01, 2025 9:36:00 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+  <testcase name="testGetSupportedSizes" classname="com.fft.factory.DefaultFFTFactoryTest" time="0.002">
+    <system-err><![CDATA[Jun 01, 2025 10:07:19 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
 INFO: Auto-registration completed for 13 implementations
 ]]></system-err>
   </testcase>
-  <testcase name="testNonPowerOfTwoSize" classname="com.fft.factory.DefaultFFTFactoryTest" time="0.003">
-    <system-err><![CDATA[Jun 01, 2025 9:36:00 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+  <testcase name="testNonPowerOfTwoSize" classname="com.fft.factory.DefaultFFTFactoryTest" time="0.001">
+    <system-err><![CDATA[Jun 01, 2025 10:07:19 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
 INFO: Auto-registration completed for 13 implementations
 ]]></system-err>
   </testcase>
   <testcase name="testNullImplementation" classname="com.fft.factory.DefaultFFTFactoryTest" time="0.002">
-    <system-err><![CDATA[Jun 01, 2025 9:36:00 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+    <system-err><![CDATA[Jun 01, 2025 10:07:19 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
 INFO: Auto-registration completed for 13 implementations
 ]]></system-err>
   </testcase>
   <testcase name="testImplementationInfo" classname="com.fft.factory.DefaultFFTFactoryTest" time="0.001">
-    <system-err><![CDATA[Jun 01, 2025 9:36:00 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+    <system-err><![CDATA[Jun 01, 2025 10:07:19 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
 INFO: Auto-registration completed for 13 implementations
 ]]></system-err>
   </testcase>
   <testcase name="testSupportedSizes" classname="com.fft.factory.DefaultFFTFactoryTest" time="0.001">
-    <system-err><![CDATA[Jun 01, 2025 9:36:00 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+    <system-err><![CDATA[Jun 01, 2025 10:07:19 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
 INFO: Auto-registration completed for 13 implementations
 ]]></system-err>
   </testcase>
-  <testcase name="testCreateFFT" classname="com.fft.factory.DefaultFFTFactoryTest" time="0.002">
-    <system-err><![CDATA[Jun 01, 2025 9:36:00 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+  <testcase name="testCreateFFT" classname="com.fft.factory.DefaultFFTFactoryTest" time="0.001">
+    <system-err><![CDATA[Jun 01, 2025 10:07:19 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
 INFO: Auto-registration completed for 13 implementations
 ]]></system-err>
   </testcase>
-  <testcase name="testRegistryReport" classname="com.fft.factory.DefaultFFTFactoryTest" time="0.003">
-    <system-err><![CDATA[Jun 01, 2025 9:36:00 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+  <testcase name="testRegistryReport" classname="com.fft.factory.DefaultFFTFactoryTest" time="0.002">
+    <system-err><![CDATA[Jun 01, 2025 10:07:19 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
 INFO: Auto-registration completed for 13 implementations
 ]]></system-err>
   </testcase>
   <testcase name="testUnregisterImplementations" classname="com.fft.factory.DefaultFFTFactoryTest" time="0.001">
-    <system-err><![CDATA[Jun 01, 2025 9:36:00 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+    <system-err><![CDATA[Jun 01, 2025 10:07:19 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
 INFO: Auto-registration completed for 13 implementations
 ]]></system-err>
   </testcase>
-  <testcase name="testRegisterImplementation" classname="com.fft.factory.DefaultFFTFactoryTest" time="0.002">
-    <system-err><![CDATA[Jun 01, 2025 9:36:00 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+  <testcase name="testRegisterImplementation" classname="com.fft.factory.DefaultFFTFactoryTest" time="0.001">
+    <system-err><![CDATA[Jun 01, 2025 10:07:19 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
 INFO: Auto-registration completed for 13 implementations
 ]]></system-err>
   </testcase>

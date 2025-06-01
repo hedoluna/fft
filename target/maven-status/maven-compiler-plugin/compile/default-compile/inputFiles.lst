@@ -1,10 +1,10 @@
 /home/engine/project/src/main/java/com/fft/demo/SimulatedPitchDetectionDemo.java
 /home/engine/project/src/main/java/com/fft/factory/FFTFactory.java
-/home/engine/project/src/main/java/com/fft/core/FFTResult.java
 /home/engine/project/src/main/java/com/fft/optimized/FFTOptimized2048.java
+/home/engine/project/src/main/java/com/fft/core/FFTResult.java
 /home/engine/project/src/main/java/com/fft/optimized/FFTOptimized128.java
-/home/engine/project/src/main/java/com/fft/demo/RefactoringDemo.java
 /home/engine/project/src/main/java/com/fft/demo/ParsonsCodeUtils.java
+/home/engine/project/src/main/java/com/fft/demo/RefactoringDemo.java
 /home/engine/project/src/main/java/com/fft/demo/SongRecognitionDemo.java
 /home/engine/project/src/main/java/com/fft/optimized/FFTOptimized32768.java
 /home/engine/project/src/main/java/com/fft/optimized/FFTOptimized16384.java

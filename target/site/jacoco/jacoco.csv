@@ -12,9 +12,9 @@ Fast Fourier Transform Library,com.fft.demo,PitchDetectionDemo.PitchChange,12,0,
 Fast Fourier Transform Library,com.fft.demo,RefactoringDemo,504,0,2,0,73,0,8,0,7,0
 Fast Fourier Transform Library,com.fft.optimized,FFTOptimized65536,35,295,8,22,7,45,9,13,2,5
 Fast Fourier Transform Library,com.fft.optimized,FFTOptimized8,738,67,5,9,113,15,4,10,1,6
-Fast Fourier Transform Library,com.fft.optimized,FFTOptimized16384,48,259,9,11,10,37,10,7,3,4
 Fast Fourier Transform Library,com.fft.optimized,FFTOptimized128,66,63,5,7,8,15,5,8,0,7
 Fast Fourier Transform Library,com.fft.optimized,OptimizedFFTUtils,29,673,4,6,6,65,5,4,1,3
+Fast Fourier Transform Library,com.fft.optimized,FFTOptimized16384,48,259,9,11,10,37,10,7,3,4
 Fast Fourier Transform Library,com.fft.optimized,FFTOptimized2048,75,54,7,5,10,13,8,5,2,5
 Fast Fourier Transform Library,com.fft.optimized,FFTOptimized64,15,66,2,10,3,15,2,11,0,7
 Fast Fourier Transform Library,com.fft.optimized,FFTOptimized4096,75,54,7,5,10,13,8,5,2,5
