@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.fft.factory.FFTFactoryIntegrationTest
 -------------------------------------------------------------------------------
-Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.498 s - in com.fft.factory.FFTFactoryIntegrationTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.308 s - in com.fft.factory.FFTFactoryIntegrationTest

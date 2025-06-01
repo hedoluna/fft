@@ -9,7 +9,7 @@
 /home/engine/project/src/test/java/com/fft/core/FFTResultTest.java
 /home/engine/project/src/test/java/com/fft/demo/ParsonsCodeUtilsTest.java
 /home/engine/project/src/test/java/com/fft/demo/PitchDetectionTest.java
-/home/engine/project/src/test/java/com/fft/factory/FFTFactoryIntegrationTest.java
 /home/engine/project/src/test/java/com/fft/optimized/FFTOptimized128Test.java
+/home/engine/project/src/test/java/com/fft/factory/FFTFactoryIntegrationTest.java
 /home/engine/project/src/test/java/com/fft/optimized/FFTOptimized8Test.java
 /home/engine/project/src/test/java/com/fft/factory/DefaultFFTFactoryTest.java

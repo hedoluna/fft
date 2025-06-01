@@ -3,8 +3,8 @@ com/fft/factory/FFTImplementationDiscovery$DiscoveredImplementation.class
 com/fft/optimized/FFTOptimized8192.class
 com/fft/optimized/FFTOptimized32.class
 com/fft/optimized/FFTOptimized32768.class
-com/fft/demo/PitchDetectionDemo$PitchDetectionResult.class
 com/fft/demo/SongRecognitionDemo$RecognitionResult.class
+com/fft/demo/PitchDetectionDemo$PitchDetectionResult.class
 com/fft/demo/ParsonsCodeUtils.class
 com/fft/optimized/FFTOptimized16384.class
 com/fft/demo/RefactoringDemo.class
@@ -23,8 +23,8 @@ com/fft/demo/PitchDetectionDemo$ParsonsDirection.class
 com/fft/demo/SongRecognitionDemo.class
 com/fft/demo/PitchDetectionDemo.class
 com/fft/optimized/FFTOptimized1024.class
-com/fft/core/FFTBase.class
 com/fft/optimized/FFTOptimized512.class
+com/fft/core/FFTBase.class
 com/fft/optimized/FFTOptimized8.class
 com/fft/factory/FFTImplementation.class
 com/fft/demo/ParsonsCodeUtils$ParsonsAnalysis.class

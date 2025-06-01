@@ -2,8 +2,8 @@ com/fft/optimized/FFTPerformanceBenchmarkTest$IndividualBenchmarks.class
 com/fft/optimized/FFTOptimized64Test$CorrectnessTests.class
 com/fft/demo/ParsonsCodeUtilsTest$ValidationTests.class
 com/fft/demo/PitchDetectionTest$SignalProcessingTests.class
-com/fft/optimized/PerformanceComparisonTest.class
 com/fft/optimized/FFTOptimized32Test.class
+com/fft/optimized/PerformanceComparisonTest.class
 com/fft/optimized/FFTOptimized64Test.class
 com/fft/optimized/FFTPerformanceBenchmarkTest.class
 com/fft/demo/ParsonsCodeUtilsTest$AnalysisTests.class
@@ -17,8 +17,8 @@ com/fft/utils/FFTUtilsTest.class
 com/fft/optimized/FFTOptimized64Test$InputValidationTests.class
 com/fft/demo/ParsonsCodeUtilsTest$BestMatchFindingTests.class
 com/fft/demo/ParsonsCodeUtilsTest$ParsonsCodeGenerationTests.class
-com/fft/core/FFTResultTest.class
 com/fft/optimized/FFTOptimized8Test.class
+com/fft/core/FFTResultTest.class
 com/fft/demo/PitchDetectionTest.class
 com/fft/optimized/FFTOptimized64Test$PerformanceTests.class
 com/fft/demo/PitchDetectionTest$MultipleFrequencyTests.class
