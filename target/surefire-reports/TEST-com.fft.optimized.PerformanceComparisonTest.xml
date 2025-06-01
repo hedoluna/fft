@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.fft.factory.FFTImplementationDiscoveryTest" time="0.045" tests="9" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.fft.optimized.PerformanceComparisonTest" time="0.208" tests="4" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="17"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -52,21 +52,30 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="61.0"/>
   </properties>
-  <testcase name="testCharacteristicsDetection" classname="com.fft.factory.FFTImplementationDiscoveryTest" time="0.014"/>
-  <testcase name="testPrioritySorting" classname="com.fft.factory.FFTImplementationDiscoveryTest" time="0"/>
-  <testcase name="testAutoRegistration" classname="com.fft.factory.FFTImplementationDiscoveryTest" time="0.001">
-    <system-err><![CDATA[Jun 01, 2025 8:13:08 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+  <testcase name="compareFFT8Performance" classname="com.fft.optimized.PerformanceComparisonTest" time="0.022">
+    <system-out><![CDATA[FFT Size 8 - Base: 4,817,699 ns, Optimized: 12,103,569 ns, Speedup: 0.40x
+]]></system-out>
+    <system-err><![CDATA[Jun 01, 2025 8:13:07 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
 INFO: Auto-registration completed for 13 implementations
 ]]></system-err>
   </testcase>
-  <testcase name="testEmptyDiscovery" classname="com.fft.factory.FFTImplementationDiscoveryTest" time="0.009"/>
-  <testcase name="testPriorityRegistration" classname="com.fft.factory.FFTImplementationDiscoveryTest" time="0.005">
-    <system-err><![CDATA[Jun 01, 2025 8:13:08 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+  <testcase name="compareFFT64Performance" classname="com.fft.optimized.PerformanceComparisonTest" time="0.101">
+    <system-out><![CDATA[FFT Size 64 - Base: 35,571,817 ns, Optimized: 46,915,642 ns, Speedup: 0.76x
+]]></system-out>
+    <system-err><![CDATA[Jun 01, 2025 8:13:07 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
 INFO: Auto-registration completed for 13 implementations
 ]]></system-err>
   </testcase>
-  <testcase name="testDiscoveryReport" classname="com.fft.factory.FFTImplementationDiscoveryTest" time="0.002"/>
-  <testcase name="testDiscoverImplementations" classname="com.fft.factory.FFTImplementationDiscoveryTest" time="0.001"/>
-  <testcase name="testAnnotationMetadata" classname="com.fft.factory.FFTImplementationDiscoveryTest" time="0.002"/>
-  <testcase name="testSupplierCreation" classname="com.fft.factory.FFTImplementationDiscoveryTest" time="0.001"/>
+  <testcase name="validateCorrectness" classname="com.fft.optimized.PerformanceComparisonTest" time="0.001">
+    <system-err><![CDATA[Jun 01, 2025 8:13:07 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+INFO: Auto-registration completed for 13 implementations
+]]></system-err>
+  </testcase>
+  <testcase name="compareFFT32Performance" classname="com.fft.optimized.PerformanceComparisonTest" time="0.074">
+    <system-out><![CDATA[FFT Size 32 - Base: 29,750,240 ns, Optimized: 34,577,715 ns, Speedup: 0.86x
+]]></system-out>
+    <system-err><![CDATA[Jun 01, 2025 8:13:07 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+INFO: Auto-registration completed for 13 implementations
+]]></system-err>
+  </testcase>
 </testsuite>

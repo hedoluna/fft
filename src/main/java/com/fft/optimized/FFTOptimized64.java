@@ -103,16 +103,8 @@ public class FFTOptimized64 implements FFT {
         if (inputReal.length != SIZE) {
             throw new IllegalArgumentException("Input arrays must be of length " + SIZE);
         }
-        
-        // For now, try to use the original FFToptim64 for correctness, fallback to base if not available
-        try {
-            Class<?> fftClass = Class.forName("FFToptim64");
-            java.lang.reflect.Method fftMethod = fftClass.getMethod("fft", double[].class, double[].class, boolean.class);
-            return (double[]) fftMethod.invoke(null, inputReal, inputImag, forward);
-        } catch (Exception e) {
-            // Fallback to base implementation if optimized class not available
-            com.fft.core.FFTBase fallback = new com.fft.core.FFTBase();
-            return fallback.transform(inputReal, inputImag, forward).getInterleavedResult();
-        }
+
+        // Delegate to the optimized utility implementation
+        return OptimizedFFTUtils.fft64(inputReal, inputImag, forward);
     }
 }
