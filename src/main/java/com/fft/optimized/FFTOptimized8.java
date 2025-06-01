@@ -64,7 +64,7 @@ public class FFTOptimized8 implements FFT {
             return fallback.transform(real, imaginary, forward);
         }
         
-        double[] result = fft(real, imaginary, forward);
+        double[] result = OptimizedFFTUtils.fft8(real, imaginary, forward);
         return new FFTResult(result);
     }
     

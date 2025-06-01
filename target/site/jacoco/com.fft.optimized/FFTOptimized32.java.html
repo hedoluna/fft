@@ -97,8 +97,9 @@ import com.fft.factory.FFTImplementation;
     /**
      * Optimized 32-point FFT implementation with complete loop unrolling.
      * 
-     * &lt;p&gt;This implementation uses the original highly optimized algorithm with complete
-     * loop unrolling and precomputed trigonometric values for maximum performance.&lt;/p&gt;
+     * &lt;p&gt;This implementation uses complete loop unrolling and precomputed trigonometric
+     * values for maximum performance. The algorithm implements a 5-stage Cooley-Tukey
+     * FFT (32 = 2^5) with bit-reversal permutation.&lt;/p&gt;
      * 
      * @param inputReal an array of length 32, the real part
      * @param inputImag an array of length 32, the imaginary part
@@ -106,21 +107,12 @@ import com.fft.factory.FFTImplementation;
      * @return a new array of length 64 (interleaved real and imaginary parts)
      */
     public static double[] fft32(final double[] inputReal, final double[] inputImag, boolean forward) {
-<span class="pc bpc" id="L109" title="1 of 2 branches missed.">        if (inputReal.length != OPTIMIZED_SIZE) {</span>
-<span class="nc" id="L110">            throw new IllegalArgumentException(&quot;Input arrays must be of length &quot; + OPTIMIZED_SIZE);</span>
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">        if (inputReal.length != OPTIMIZED_SIZE) {</span>
+<span class="nc" id="L111">            throw new IllegalArgumentException(&quot;Input arrays must be of length &quot; + OPTIMIZED_SIZE);</span>
         }
         
-        // Delegate to the original optimized implementation, fallback to base if not available
-        try {
-            // Use reflection to access the root-level FFToptim32 class
-<span class="nc" id="L116">            Class&lt;?&gt; fftClass = Class.forName(&quot;FFToptim32&quot;);</span>
-<span class="nc" id="L117">            java.lang.reflect.Method fftMethod = fftClass.getMethod(&quot;fft&quot;, double[].class, double[].class, boolean.class);</span>
-<span class="nc" id="L118">            return (double[]) fftMethod.invoke(null, inputReal, inputImag, forward);</span>
-<span class="fc" id="L119">        } catch (Exception e) {</span>
-            // Fallback to base implementation if optimized class not available
-<span class="fc" id="L121">            com.fft.core.FFTBase fallback = new com.fft.core.FFTBase();</span>
-<span class="fc" id="L122">            return fallback.transform(inputReal, inputImag, forward).getInterleavedResult();</span>
-        }
+        // Delegate to the optimized utility implementation
+<span class="fc" id="L115">        return OptimizedFFTUtils.fft32(inputReal, inputImag, forward);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

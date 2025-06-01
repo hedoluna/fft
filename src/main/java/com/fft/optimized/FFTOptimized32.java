@@ -97,8 +97,9 @@ public class FFTOptimized32 implements FFT {
     /**
      * Optimized 32-point FFT implementation with complete loop unrolling.
      * 
-     * <p>This implementation uses the original highly optimized algorithm with complete
-     * loop unrolling and precomputed trigonometric values for maximum performance.</p>
+     * <p>This implementation uses complete loop unrolling and precomputed trigonometric
+     * values for maximum performance. The algorithm implements a 5-stage Cooley-Tukey
+     * FFT (32 = 2^5) with bit-reversal permutation.</p>
      * 
      * @param inputReal an array of length 32, the real part
      * @param inputImag an array of length 32, the imaginary part
@@ -110,16 +111,7 @@ public class FFTOptimized32 implements FFT {
             throw new IllegalArgumentException("Input arrays must be of length " + OPTIMIZED_SIZE);
         }
         
-        // Delegate to the original optimized implementation, fallback to base if not available
-        try {
-            // Use reflection to access the root-level FFToptim32 class
-            Class<?> fftClass = Class.forName("FFToptim32");
-            java.lang.reflect.Method fftMethod = fftClass.getMethod("fft", double[].class, double[].class, boolean.class);
-            return (double[]) fftMethod.invoke(null, inputReal, inputImag, forward);
-        } catch (Exception e) {
-            // Fallback to base implementation if optimized class not available
-            com.fft.core.FFTBase fallback = new com.fft.core.FFTBase();
-            return fallback.transform(inputReal, inputImag, forward).getInterleavedResult();
-        }
+        // Delegate to the optimized utility implementation
+        return OptimizedFFTUtils.fft32(inputReal, inputImag, forward);
     }
 }

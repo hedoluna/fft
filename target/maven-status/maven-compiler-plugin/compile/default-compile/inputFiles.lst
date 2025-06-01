@@ -1,10 +1,10 @@
 /home/engine/project/src/main/java/com/fft/factory/FFTImplementation.java
 /home/engine/project/src/main/java/com/fft/core/FFT.java
 /home/engine/project/src/main/java/com/fft/factory/FFTFactory.java
-/home/engine/project/src/main/java/com/fft/optimized/FFTOptimized4096.java
 /home/engine/project/src/main/java/com/fft/optimized/FFTOptimized8.java
-/home/engine/project/src/main/java/com/fft/core/FFTResult.java
+/home/engine/project/src/main/java/com/fft/optimized/FFTOptimized4096.java
 /home/engine/project/src/main/java/com/fft/optimized/FFTOptimized2048.java
+/home/engine/project/src/main/java/com/fft/core/FFTResult.java
 /home/engine/project/src/main/java/com/fft/optimized/FFTOptimized128.java
 /home/engine/project/src/main/java/com/fft/optimized/FFTOptimized32.java
 /home/engine/project/src/main/java/com/fft/optimized/FFTOptimized65536.java
@@ -16,6 +16,7 @@
 /home/engine/project/src/main/java/com/fft/utils/FFTUtils.java
 /home/engine/project/src/main/java/com/fft/optimized/FFTOptimized16384.java
 /home/engine/project/src/main/java/com/fft/optimized/FFTOptimized256.java
+/home/engine/project/src/main/java/com/fft/optimized/OptimizedFFTUtils.java
 /home/engine/project/src/main/java/com/fft/optimized/FFTOptimized64.java
 /home/engine/project/src/main/java/com/fft/factory/DefaultFFTFactory.java
 /home/engine/project/src/main/java/com/fft/core/FFTBase.java
