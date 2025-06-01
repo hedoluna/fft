@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.fft.optimized.FFTPerformanceBenchmarkTest$ComprehensiveAnalysis" time="56.788" tests="2" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.fft.optimized.FFTPerformanceBenchmarkTest$ComprehensiveAnalysis" time="56.87" tests="2" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="17"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -12,7 +12,7 @@
     <property name="java.vm.specification.version" value="17"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="sun.boot.library.path" value="/usr/lib/jvm/java-17-openjdk-amd64/lib"/>
-    <property name="sun.java.command" value="/home/engine/project/target/surefire/surefirebooter-20250601201111504_3.jar /home/engine/project/target/surefire 2025-06-01T20-11-11_305-jvmRun1 surefire-20250601201111504_1tmp surefire_0-20250601201111504_2tmp"/>
+    <property name="sun.java.command" value="/home/engine/project/target/surefire/surefirebooter-20250601213557953_3.jar /home/engine/project/target/surefire 2025-06-01T21-35-57_758-jvmRun1 surefire-20250601213557953_1tmp surefire_0-20250601213557953_2tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="/home/engine/project/target/test-classes:/home/engine/project/target/classes:/home/engine/.m2/repository/org/junit/jupiter/junit-jupiter/5.9.2/junit-jupiter-5.9.2.jar:/home/engine/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.9.2/junit-jupiter-api-5.9.2.jar:/home/engine/.m2/repository/org/opentest4j/opentest4j/1.2.0/opentest4j-1.2.0.jar:/home/engine/.m2/repository/org/junit/platform/junit-platform-commons/1.9.2/junit-platform-commons-1.9.2.jar:/home/engine/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/home/engine/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.9.2/junit-jupiter-params-5.9.2.jar:/home/engine/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.9.2/junit-jupiter-engine-5.9.2.jar:/home/engine/.m2/repository/org/junit/platform/junit-platform-engine/1.9.2/junit-platform-engine-1.9.2.jar:/home/engine/.m2/repository/org/assertj/assertj-core/3.24.2/assertj-core-3.24.2.jar:/home/engine/.m2/repository/net/bytebuddy/byte-buddy/1.12.21/byte-buddy-1.12.21.jar:/home/engine/.m2/repository/org/mockito/mockito-core/5.1.1/mockito-core-5.1.1.jar:/home/engine/.m2/repository/net/bytebuddy/byte-buddy-agent/1.12.22/byte-buddy-agent-1.12.22.jar:/home/engine/.m2/repository/org/objenesis/objenesis/3.3/objenesis-3.3.jar:/home/engine/.m2/repository/org/mockito/mockito-junit-jupiter/5.1.1/mockito-junit-jupiter-5.1.1.jar:"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -27,7 +27,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="/home/engine/project/target/surefire/surefirebooter-20250601201111504_3.jar"/>
+    <property name="surefire.real.class.path" value="/home/engine/project/target/surefire/surefirebooter-20250601213557953_3.jar"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="17.0.15+6-Ubuntu-0ubuntu124.04"/>
     <property name="user.name" value="engine"/>
@@ -52,7 +52,7 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="61.0"/>
   </properties>
-  <testcase name="shouldVerifyCorrectnessOfAllOptimizedImplementations" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$ComprehensiveAnalysis" time="0.069">
+  <testcase name="shouldVerifyCorrectnessOfAllOptimizedImplementations" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$ComprehensiveAnalysis" time="0.065">
     <system-out><![CDATA[
 ============================================================
 FFT CORRECTNESS VERIFICATION
@@ -72,36 +72,36 @@ SUMMARY: 10/10 tests passed (100.0%)
 ============================================================
 
 ]]></system-out>
-    <system-err><![CDATA[Jun 01, 2025 8:11:14 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+    <system-err><![CDATA[Jun 01, 2025 9:36:02 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
 INFO: Auto-registration completed for 13 implementations
 ]]></system-err>
   </testcase>
-  <testcase name="shouldDemonstratePerformanceScaling" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$ComprehensiveAnalysis" time="56.711">
+  <testcase name="shouldDemonstratePerformanceScaling" classname="com.fft.optimized.FFTPerformanceBenchmarkTest$ComprehensiveAnalysis" time="56.799">
     <system-out><![CDATA[
 ================================================================================
 FFT PERFORMANCE SCALING ANALYSIS
 ================================================================================
 Size     Base (ns)       Optimized (ns)  Speedup    Efficiency   Status  
 --------------------------------------------------------------------------------
-8        1165            1865            0.62      x -60.2       % ✗ SLOW  
-32       3188            3623            0.88      x -13.6       % ✗ SLOW  
-64       7547            7943            0.95      x -5.2        % ✗ SLOW  
-128      17845           36737           0.49      x -105.9      % ✗ SLOW  
-256      41325           60974           0.68      x -47.5       % ✗ SLOW  
-512      119012          115529          1.03      x 2.9         % ~ OK    
-1024     218391          234663          0.93      x -7.5        % ✗ SLOW  
-2048     470964          492972          0.96      x -4.7        % ✗ SLOW  
-4096     1058496         1110679         0.95      x -4.9        % ✗ SLOW  
-8192     2300335         2376378         0.97      x -3.3        % ✗ SLOW  
-16384    5075008         5128166         0.99      x -1.0        % ✗ SLOW  
-32768    10963824        13296430        0.82      x -21.3       % ✗ SLOW  
-65536    24119497        35766596        0.67      x -48.3       % ✗ SLOW  
+8        474             156             3.04      x 67.1        % ✓ GOOD  
+32       8032            3308            2.43      x 58.8        % ✓ GOOD  
+64       7266            7631            0.95      x -5.0        % ✗ SLOW  
+128      17485           35316           0.50      x -102.0      % ✗ SLOW  
+256      41782           59978           0.70      x -43.6       % ✗ SLOW  
+512      91816           113888          0.81      x -24.0       % ✗ SLOW  
+1024     211320          236760          0.89      x -12.0       % ✗ SLOW  
+2048     477198          493174          0.97      x -3.3        % ✗ SLOW  
+4096     1064503         1101470         0.97      x -3.5        % ✗ SLOW  
+8192     2318461         2367798         0.98      x -2.1        % ✗ SLOW  
+16384    5083866         5125804         0.99      x -0.8        % ✗ SLOW  
+32768    11004753        13258803        0.83      x -20.5       % ✗ SLOW  
+65536    24357628        35688749        0.68      x -46.5       % ✗ SLOW  
 --------------------------------------------------------------------------------
-SUMMARY: Avg=0.84x, Min=0.49x, Max=1.03x, Implementations=13
+SUMMARY: Avg=1.13x, Min=0.50x, Max=3.04x, Implementations=13
 ================================================================================
 
 ]]></system-out>
-    <system-err><![CDATA[Jun 01, 2025 8:11:14 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
+    <system-err><![CDATA[Jun 01, 2025 9:36:02 PM com.fft.factory.FFTImplementationDiscovery registerDiscoveredImplementations
 INFO: Auto-registration completed for 13 implementations
 ]]></system-err>
   </testcase>

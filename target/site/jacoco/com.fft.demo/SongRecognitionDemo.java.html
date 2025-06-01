@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SongRecognitionDemo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Fast Fourier Transform Library</a> &gt; <a href="index.source.html" class="el_package">com.fft.demo</a> &gt; <span class="el_source">SongRecognitionDemo.java</span></div><h1>SongRecognitionDemo.java</h1><pre class="source lang-java linenums">package com.fft.demo;
+
+import com.fft.core.FFTResult;
+import com.fft.utils.FFTUtils;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+/**
+ * Advanced song recognition demo using FFT-based pitch detection and Parsons code matching.
+ * 
+ * &lt;p&gt;This demo demonstrates the second goal: recognizing full songs using the Parsons code
+ * methodology. It combines the pitch detection capabilities with melody pattern matching
+ * to identify songs from hummed or played melodies.&lt;/p&gt;
+ * 
+ * &lt;h3&gt;Recognition Process:&lt;/h3&gt;
+ * &lt;ol&gt;
+ * &lt;li&gt;&lt;b&gt;Pitch Detection:&lt;/b&gt; Extract fundamental frequencies from audio signal&lt;/li&gt;
+ * &lt;li&gt;&lt;b&gt;Melody Segmentation:&lt;/b&gt; Group frequencies into discrete notes&lt;/li&gt;
+ * &lt;li&gt;&lt;b&gt;Parsons Code Generation:&lt;/b&gt; Convert pitch sequence to directional code&lt;/li&gt;
+ * &lt;li&gt;&lt;b&gt;Pattern Matching:&lt;/b&gt; Compare against database of known melodies&lt;/li&gt;
+ * &lt;li&gt;&lt;b&gt;Ranking:&lt;/b&gt; Score matches and return most likely candidates&lt;/li&gt;
+ * &lt;/ol&gt;
+ * 
+ * &lt;h3&gt;Features:&lt;/h3&gt;
+ * &lt;ul&gt;
+ * &lt;li&gt;&lt;b&gt;Robust Melody Database:&lt;/b&gt; Extensive collection of well-known songs&lt;/li&gt;
+ * &lt;li&gt;&lt;b&gt;Partial Matching:&lt;/b&gt; Can identify songs from melody fragments&lt;/li&gt;
+ * &lt;li&gt;&lt;b&gt;Noise Tolerance:&lt;/b&gt; Works with imperfect pitch detection&lt;/li&gt;
+ * &lt;li&gt;&lt;b&gt;Multiple Algorithms:&lt;/b&gt; Various matching strategies for different use cases&lt;/li&gt;
+ * &lt;li&gt;&lt;b&gt;Performance Analysis:&lt;/b&gt; Real-time processing capabilities&lt;/li&gt;
+ * &lt;/ul&gt;
+ * 
+ * @author Engine AI Assistant
+ * @since 2.0.0
+ */
+public class SongRecognitionDemo {
+    
+    private static final double SAMPLE_RATE = 44100.0;
+    private static final int FFT_SIZE = 4096;
+    private static final double NOTE_DURATION = 0.4; // seconds per note
+    private static final double FREQUENCY_TOLERANCE = 25.0; // Hz for grouping notes
+    
+    // Enhanced melody database with more songs and variations
+    private final Map&lt;String, MelodyEntry&gt; melodyDatabase;
+    
+<span class="nc" id="L47">    public SongRecognitionDemo() {</span>
+<span class="nc" id="L48">        this.melodyDatabase = createEnhancedMelodyDatabase();</span>
+<span class="nc" id="L49">    }</span>
+    
+    public static void main(String[] args) {
+<span class="nc" id="L52">        System.out.println(&quot;=== FFT-Based Song Recognition Demo ===\n&quot;);</span>
+        
+<span class="nc" id="L54">        SongRecognitionDemo demo = new SongRecognitionDemo();</span>
+<span class="nc" id="L55">        demo.runAllDemos();</span>
+<span class="nc" id="L56">    }</span>
+    
+    public void runAllDemos() {
+<span class="nc" id="L59">        demonstrateBasicSongRecognition();</span>
+<span class="nc" id="L60">        demonstratePartialMelodyMatching();</span>
+<span class="nc" id="L61">        demonstrateNoisyMelodyRecognition();</span>
+<span class="nc" id="L62">        demonstrateVariationTolerance();</span>
+<span class="nc" id="L63">        demonstrateRealTimeRecognition();</span>
+<span class="nc" id="L64">        demonstratePerformanceAnalysis();</span>
+<span class="nc" id="L65">    }</span>
+    
+    private void demonstrateBasicSongRecognition() {
+<span class="nc" id="L68">        System.out.println(&quot;1. Basic Song Recognition:&quot;);</span>
+<span class="nc" id="L69">        System.out.println(&quot;-------------------------&quot;);</span>
+        
+        // Test with complete melody of &quot;Twinkle, Twinkle, Little Star&quot;
+<span class="nc" id="L72">        String[] twinkleMelody = {&quot;C4&quot;, &quot;C4&quot;, &quot;G4&quot;, &quot;G4&quot;, &quot;A4&quot;, &quot;A4&quot;, &quot;G4&quot;, &quot;F4&quot;, &quot;F4&quot;, &quot;E4&quot;, &quot;E4&quot;, &quot;D4&quot;, &quot;D4&quot;, &quot;C4&quot;};</span>
+<span class="nc" id="L73">        testMelodyRecognition(&quot;Twinkle, Twinkle, Little Star (complete)&quot;, twinkleMelody);</span>
+        
+        // Test with &quot;Mary Had a Little Lamb&quot;
+<span class="nc" id="L76">        String[] maryMelody = {&quot;E4&quot;, &quot;D4&quot;, &quot;C4&quot;, &quot;D4&quot;, &quot;E4&quot;, &quot;E4&quot;, &quot;E4&quot;, &quot;D4&quot;, &quot;D4&quot;, &quot;D4&quot;, &quot;E4&quot;, &quot;G4&quot;, &quot;G4&quot;};</span>
+<span class="nc" id="L77">        testMelodyRecognition(&quot;Mary Had a Little Lamb&quot;, maryMelody);</span>
+        
+<span class="nc" id="L79">        System.out.println();</span>
+<span class="nc" id="L80">    }</span>
+    
+    private void demonstratePartialMelodyMatching() {
+<span class="nc" id="L83">        System.out.println(&quot;2. Partial Melody Matching:&quot;);</span>
+<span class="nc" id="L84">        System.out.println(&quot;---------------------------&quot;);</span>
+        
+        // Test with just the beginning of &quot;Twinkle, Twinkle&quot;
+<span class="nc" id="L87">        String[] partialTwinkle = {&quot;C4&quot;, &quot;C4&quot;, &quot;G4&quot;, &quot;G4&quot;, &quot;A4&quot;};</span>
+<span class="nc" id="L88">        testMelodyRecognition(&quot;Twinkle, Twinkle (partial)&quot;, partialTwinkle);</span>
+        
+        // Test with middle section of &quot;Happy Birthday&quot;
+<span class="nc" id="L91">        String[] partialBirthday = {&quot;C4&quot;, &quot;C4&quot;, &quot;D4&quot;, &quot;C4&quot;, &quot;F4&quot;};</span>
+<span class="nc" id="L92">        testMelodyRecognition(&quot;Happy Birthday (partial)&quot;, partialBirthday);</span>
+        
+<span class="nc" id="L94">        System.out.println();</span>
+<span class="nc" id="L95">    }</span>
+    
+    private void demonstrateNoisyMelodyRecognition() {
+<span class="nc" id="L98">        System.out.println(&quot;3. Noisy Melody Recognition:&quot;);</span>
+<span class="nc" id="L99">        System.out.println(&quot;----------------------------&quot;);</span>
+        
+<span class="nc" id="L101">        String[] melody = {&quot;C4&quot;, &quot;C4&quot;, &quot;G4&quot;, &quot;G4&quot;, &quot;A4&quot;, &quot;A4&quot;, &quot;G4&quot;};</span>
+        
+        // Test with different noise levels
+<span class="nc" id="L104">        double[] noiseLevels = {0.0, 0.1, 0.2, 0.3};</span>
+        
+<span class="nc bnc" id="L106" title="All 2 branches missed.">        for (double noiseLevel : noiseLevels) {</span>
+<span class="nc" id="L107">            System.out.printf(&quot;Testing with noise level %.1f:\n&quot;, noiseLevel);</span>
+<span class="nc" id="L108">            testNoisyMelodyRecognition(melody, noiseLevel);</span>
+        }
+        
+<span class="nc" id="L111">        System.out.println();</span>
+<span class="nc" id="L112">    }</span>
+    
+    private void demonstrateVariationTolerance() {
+<span class="nc" id="L115">        System.out.println(&quot;4. Variation Tolerance:&quot;);</span>
+<span class="nc" id="L116">        System.out.println(&quot;----------------------&quot;);</span>
+        
+        // Test transposed version (different key)
+<span class="nc" id="L119">        String[] originalMelody = {&quot;C4&quot;, &quot;C4&quot;, &quot;G4&quot;, &quot;G4&quot;, &quot;A4&quot;, &quot;A4&quot;, &quot;G4&quot;};</span>
+<span class="nc" id="L120">        String[] transposedMelody = {&quot;D4&quot;, &quot;D4&quot;, &quot;A4&quot;, &quot;A4&quot;, &quot;B4&quot;, &quot;B4&quot;, &quot;A4&quot;}; // Up one tone</span>
+        
+<span class="nc" id="L122">        System.out.println(&quot;Original melody in C:&quot;);</span>
+<span class="nc" id="L123">        testMelodyRecognition(&quot;Twinkle (original)&quot;, originalMelody);</span>
+        
+<span class="nc" id="L125">        System.out.println(&quot;Transposed melody in D:&quot;);</span>
+<span class="nc" id="L126">        testMelodyRecognition(&quot;Twinkle (transposed)&quot;, transposedMelody);</span>
+        
+        // Test with rhythmic variations (doubled notes)
+<span class="nc" id="L129">        String[] rhythmicVariation = {&quot;C4&quot;, &quot;C4&quot;, &quot;C4&quot;, &quot;C4&quot;, &quot;G4&quot;, &quot;G4&quot;, &quot;G4&quot;, &quot;G4&quot;};</span>
+<span class="nc" id="L130">        System.out.println(&quot;Rhythmic variation:&quot;);</span>
+<span class="nc" id="L131">        testMelodyRecognition(&quot;Twinkle (rhythmic variation)&quot;, rhythmicVariation);</span>
+        
+<span class="nc" id="L133">        System.out.println();</span>
+<span class="nc" id="L134">    }</span>
+    
+    private void demonstrateRealTimeRecognition() {
+<span class="nc" id="L137">        System.out.println(&quot;5. Real-Time Recognition Simulation:&quot;);</span>
+<span class="nc" id="L138">        System.out.println(&quot;------------------------------------&quot;);</span>
+        
+<span class="nc" id="L140">        String[] melody = {&quot;C4&quot;, &quot;C4&quot;, &quot;G4&quot;, &quot;G4&quot;, &quot;A4&quot;, &quot;A4&quot;, &quot;G4&quot;, &quot;F4&quot;, &quot;F4&quot;, &quot;E4&quot;, &quot;E4&quot;, &quot;D4&quot;, &quot;D4&quot;, &quot;C4&quot;};</span>
+        
+<span class="nc" id="L142">        System.out.println(&quot;Simulating incremental recognition:&quot;);</span>
+        
+<span class="nc bnc" id="L144" title="All 2 branches missed.">        for (int length = 3; length &lt;= melody.length; length += 2) {</span>
+<span class="nc" id="L145">            String[] partialMelody = Arrays.copyOf(melody, length);</span>
+<span class="nc" id="L146">            System.out.printf(&quot;After %d notes: &quot;, length);</span>
+            
+<span class="nc" id="L148">            List&lt;RecognitionResult&gt; results = recognizeMelody(partialMelody, false);</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">            if (!results.isEmpty()) {</span>
+<span class="nc" id="L150">                RecognitionResult best = results.get(0);</span>
+<span class="nc" id="L151">                System.out.printf(&quot;Best match: %s (%.1f%% confidence)\n&quot;, </span>
+<span class="nc" id="L152">                    best.songTitle, best.confidence * 100);</span>
+<span class="nc" id="L153">            } else {</span>
+<span class="nc" id="L154">                System.out.println(&quot;No strong matches yet&quot;);</span>
+            }
+        }
+        
+<span class="nc" id="L158">        System.out.println();</span>
+<span class="nc" id="L159">    }</span>
+    
+    private void demonstratePerformanceAnalysis() {
+<span class="nc" id="L162">        System.out.println(&quot;6. Performance Analysis:&quot;);</span>
+<span class="nc" id="L163">        System.out.println(&quot;-----------------------&quot;);</span>
+        
+<span class="nc" id="L165">        String[] testMelody = {&quot;C4&quot;, &quot;C4&quot;, &quot;G4&quot;, &quot;G4&quot;, &quot;A4&quot;, &quot;A4&quot;, &quot;G4&quot;};</span>
+<span class="nc" id="L166">        int iterations = 100;</span>
+        
+<span class="nc" id="L168">        long totalTime = 0;</span>
+        
+<span class="nc bnc" id="L170" title="All 2 branches missed.">        for (int i = 0; i &lt; iterations; i++) {</span>
+<span class="nc" id="L171">            long startTime = System.nanoTime();</span>
+<span class="nc" id="L172">            recognizeMelody(testMelody, false);</span>
+<span class="nc" id="L173">            long endTime = System.nanoTime();</span>
+<span class="nc" id="L174">            totalTime += (endTime - startTime);</span>
+        }
+        
+<span class="nc" id="L177">        double averageTime = totalTime / (double) iterations / 1_000_000.0; // Convert to milliseconds</span>
+        
+<span class="nc" id="L179">        System.out.printf(&quot;Recognition performance (%d iterations):\n&quot;, iterations);</span>
+<span class="nc" id="L180">        System.out.printf(&quot;Average recognition time: %.2f ms\n&quot;, averageTime);</span>
+<span class="nc" id="L181">        System.out.printf(&quot;Database size: %d melodies\n&quot;, melodyDatabase.size());</span>
+<span class="nc" id="L182">        System.out.printf(&quot;Recognition rate: %.1f recognitions/second\n&quot;, 1000.0 / averageTime);</span>
+        
+        // Analyze FFT performance contribution
+<span class="nc" id="L185">        double[] signal = generateMelodySignal(testMelody);</span>
+        
+<span class="nc" id="L187">        long fftStartTime = System.nanoTime();</span>
+<span class="nc bnc" id="L188" title="All 2 branches missed.">        for (int i = 0; i &lt; iterations; i++) {</span>
+<span class="nc" id="L189">            extractPitchSequence(signal);</span>
+        }
+<span class="nc" id="L191">        long fftEndTime = System.nanoTime();</span>
+        
+<span class="nc" id="L193">        double fftTime = (fftEndTime - fftStartTime) / (double) iterations / 1_000_000.0;</span>
+<span class="nc" id="L194">        System.out.printf(&quot;FFT analysis time: %.2f ms (%.1f%% of total)\n&quot;, </span>
+<span class="nc" id="L195">            fftTime, (fftTime / averageTime) * 100);</span>
+        
+<span class="nc" id="L197">        System.out.println();</span>
+<span class="nc" id="L198">    }</span>
+    
+    private void testMelodyRecognition(String description, String[] melody) {
+<span class="nc" id="L201">        System.out.printf(&quot;Testing: %s\n&quot;, description);</span>
+        
+<span class="nc" id="L203">        List&lt;RecognitionResult&gt; results = recognizeMelody(melody, true);</span>
+        
+<span class="nc bnc" id="L205" title="All 2 branches missed.">        if (results.isEmpty()) {</span>
+<span class="nc" id="L206">            System.out.println(&quot;  No matches found&quot;);</span>
+        } else {
+<span class="nc" id="L208">            System.out.println(&quot;  Top matches:&quot;);</span>
+<span class="nc bnc" id="L209" title="All 2 branches missed.">            for (int i = 0; i &lt; Math.min(3, results.size()); i++) {</span>
+<span class="nc" id="L210">                RecognitionResult result = results.get(i);</span>
+<span class="nc" id="L211">                System.out.printf(&quot;    %d. %s (%.1f%% confidence)\n&quot;, </span>
+<span class="nc" id="L212">                    i + 1, result.songTitle, result.confidence * 100);</span>
+            }
+        }
+<span class="nc" id="L215">        System.out.println();</span>
+<span class="nc" id="L216">    }</span>
+    
+    private void testNoisyMelodyRecognition(String[] melody, double noiseLevel) {
+        // Generate signal with noise
+<span class="nc" id="L220">        double[] signal = generateMelodySignal(melody);</span>
+<span class="nc" id="L221">        addNoise(signal, noiseLevel);</span>
+        
+        // Extract pitches from noisy signal
+<span class="nc" id="L224">        double[] noisyPitches = extractPitchSequence(signal);</span>
+<span class="nc" id="L225">        String noisyParsons = ParsonsCodeUtils.generateParsonsCode(noisyPitches);</span>
+        
+<span class="nc" id="L227">        List&lt;RecognitionResult&gt; results = findBestMatches(noisyParsons, 3);</span>
+        
+<span class="nc bnc" id="L229" title="All 2 branches missed.">        if (!results.isEmpty()) {</span>
+<span class="nc" id="L230">            RecognitionResult best = results.get(0);</span>
+<span class="nc" id="L231">            System.out.printf(&quot;  Best match: %s (%.1f%% confidence)\n&quot;, </span>
+<span class="nc" id="L232">                best.songTitle, best.confidence * 100);</span>
+<span class="nc" id="L233">        } else {</span>
+<span class="nc" id="L234">            System.out.println(&quot;  No matches found&quot;);</span>
+        }
+<span class="nc" id="L236">    }</span>
+    
+    private List&lt;RecognitionResult&gt; recognizeMelody(String[] melody, boolean verbose) {
+        // Convert note names to frequencies
+<span class="nc" id="L240">        double[] frequencies = new double[melody.length];</span>
+<span class="nc bnc" id="L241" title="All 2 branches missed.">        for (int i = 0; i &lt; melody.length; i++) {</span>
+<span class="nc" id="L242">            frequencies[i] = noteToFrequency(melody[i]);</span>
+        }
+        
+        // Generate Parsons code
+<span class="nc" id="L246">        String parsonsCode = ParsonsCodeUtils.generateParsonsCode(frequencies);</span>
+        
+<span class="nc bnc" id="L248" title="All 2 branches missed.">        if (verbose) {</span>
+<span class="nc" id="L249">            System.out.printf(&quot;  Generated Parsons code: %s\n&quot;, parsonsCode);</span>
+        }
+        
+        // Find matches
+<span class="nc" id="L253">        return findBestMatches(parsonsCode, 5);</span>
+    }
+    
+    private List&lt;RecognitionResult&gt; findBestMatches(String queryCode, int maxResults) {
+<span class="nc" id="L257">        List&lt;RecognitionResult&gt; results = new ArrayList&lt;&gt;();</span>
+        
+<span class="nc bnc" id="L259" title="All 2 branches missed.">        for (Map.Entry&lt;String, MelodyEntry&gt; entry : melodyDatabase.entrySet()) {</span>
+<span class="nc" id="L260">            String songTitle = entry.getKey();</span>
+<span class="nc" id="L261">            MelodyEntry melodyEntry = entry.getValue();</span>
+            
+            // Calculate similarity using different strategies
+<span class="nc" id="L264">            double exactSimilarity = ParsonsCodeUtils.calculateSimilarity(queryCode, melodyEntry.parsonsCode);</span>
+<span class="nc" id="L265">            double partialSimilarity = calculatePartialSimilarity(queryCode, melodyEntry.parsonsCode);</span>
+<span class="nc" id="L266">            double variationSimilarity = calculateVariationSimilarity(queryCode, melodyEntry);</span>
+            
+            // Combine scores with weights
+<span class="nc" id="L269">            double combinedScore = 0.5 * exactSimilarity + 0.3 * partialSimilarity + 0.2 * variationSimilarity;</span>
+            
+<span class="nc bnc" id="L271" title="All 2 branches missed.">            if (combinedScore &gt; 0.3) { // Minimum threshold</span>
+<span class="nc" id="L272">                results.add(new RecognitionResult(songTitle, combinedScore, melodyEntry.parsonsCode));</span>
+            }
+<span class="nc" id="L274">        }</span>
+        
+        // Sort by confidence and return top results
+<span class="nc" id="L277">        return results.stream()</span>
+<span class="nc" id="L278">            .sorted((r1, r2) -&gt; Double.compare(r2.confidence, r1.confidence))</span>
+<span class="nc" id="L279">            .limit(maxResults)</span>
+<span class="nc" id="L280">            .collect(Collectors.toList());</span>
+    }
+    
+    private double calculatePartialSimilarity(String query, String target) {
+        // Check if query is a substring of target or vice versa
+<span class="nc bnc" id="L285" title="All 4 branches missed.">        if (target.contains(query) || query.contains(target)) {</span>
+<span class="nc" id="L286">            return 0.8; // High score for substring matches</span>
+        }
+        
+        // Check for partial overlaps
+<span class="nc" id="L290">        int maxOverlap = 0;</span>
+<span class="nc" id="L291">        int minLength = Math.min(query.length(), target.length());</span>
+        
+<span class="nc bnc" id="L293" title="All 2 branches missed.">        for (int i = 0; i &lt;= query.length() - 3; i++) {</span>
+<span class="nc bnc" id="L294" title="All 2 branches missed.">            for (int j = 0; j &lt;= target.length() - 3; j++) {</span>
+<span class="nc" id="L295">                int overlap = 0;</span>
+<span class="nc bnc" id="L296" title="All 2 branches missed.">                while (i + overlap &lt; query.length() &amp;&amp; </span>
+<span class="nc bnc" id="L297" title="All 2 branches missed.">                       j + overlap &lt; target.length() &amp;&amp; </span>
+<span class="nc bnc" id="L298" title="All 2 branches missed.">                       query.charAt(i + overlap) == target.charAt(j + overlap)) {</span>
+<span class="nc" id="L299">                    overlap++;</span>
+                }
+<span class="nc" id="L301">                maxOverlap = Math.max(maxOverlap, overlap);</span>
+            }
+        }
+        
+<span class="nc" id="L305">        return (double) maxOverlap / minLength;</span>
+    }
+    
+    private double calculateVariationSimilarity(String query, MelodyEntry entry) {
+<span class="nc" id="L309">        double maxSimilarity = 0.0;</span>
+        
+        // Check against variations
+<span class="nc bnc" id="L312" title="All 2 branches missed.">        for (String variation : entry.variations) {</span>
+<span class="nc" id="L313">            double similarity = ParsonsCodeUtils.calculateSimilarity(query, variation);</span>
+<span class="nc" id="L314">            maxSimilarity = Math.max(maxSimilarity, similarity);</span>
+<span class="nc" id="L315">        }</span>
+        
+<span class="nc" id="L317">        return maxSimilarity;</span>
+    }
+    
+    private double[] generateMelodySignal(String[] melody) {
+<span class="nc" id="L321">        List&lt;Double&gt; signal = new ArrayList&lt;&gt;();</span>
+        
+<span class="nc bnc" id="L323" title="All 2 branches missed.">        for (String note : melody) {</span>
+<span class="nc" id="L324">            double frequency = noteToFrequency(note);</span>
+<span class="nc" id="L325">            double[] noteSignal = generateTone(frequency, NOTE_DURATION, 1.0);</span>
+            
+<span class="nc bnc" id="L327" title="All 2 branches missed.">            for (double sample : noteSignal) {</span>
+<span class="nc" id="L328">                signal.add(sample);</span>
+            }
+        }
+        
+<span class="nc" id="L332">        return signal.stream().mapToDouble(Double::doubleValue).toArray();</span>
+    }
+    
+    private double[] extractPitchSequence(double[] signal) {
+<span class="nc" id="L336">        List&lt;Double&gt; pitches = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L337">        int samplesPerNote = (int) (SAMPLE_RATE * NOTE_DURATION);</span>
+        
+<span class="nc bnc" id="L339" title="All 2 branches missed.">        for (int start = 0; start &lt; signal.length - samplesPerNote; start += samplesPerNote) {</span>
+<span class="nc" id="L340">            double[] segment = Arrays.copyOfRange(signal, start, start + samplesPerNote);</span>
+<span class="nc" id="L341">            double pitch = detectPitch(segment);</span>
+<span class="nc bnc" id="L342" title="All 2 branches missed.">            if (pitch &gt; 0) {</span>
+<span class="nc" id="L343">                pitches.add(pitch);</span>
+            }
+        }
+        
+<span class="nc" id="L347">        return pitches.stream().mapToDouble(Double::doubleValue).toArray();</span>
+    }
+    
+    private double[] generateTone(double frequency, double duration, double amplitude) {
+<span class="nc" id="L351">        int samples = (int) (SAMPLE_RATE * duration);</span>
+<span class="nc" id="L352">        double[] signal = new double[samples];</span>
+        
+<span class="nc bnc" id="L354" title="All 2 branches missed.">        for (int i = 0; i &lt; samples; i++) {</span>
+<span class="nc" id="L355">            double t = i / SAMPLE_RATE;</span>
+<span class="nc" id="L356">            signal[i] = amplitude * Math.sin(2.0 * Math.PI * frequency * t);</span>
+        }
+        
+<span class="nc" id="L359">        return signal;</span>
+    }
+    
+    private void addNoise(double[] signal, double noiseLevel) {
+<span class="nc" id="L363">        Random random = new Random(42);</span>
+<span class="nc bnc" id="L364" title="All 2 branches missed.">        for (int i = 0; i &lt; signal.length; i++) {</span>
+<span class="nc" id="L365">            signal[i] += noiseLevel * random.nextGaussian();</span>
+        }
+<span class="nc" id="L367">    }</span>
+    
+    private double detectPitch(double[] signal) {
+<span class="nc" id="L370">        double[] paddedSignal = FFTUtils.zeroPadToPowerOfTwo(signal);</span>
+<span class="nc" id="L371">        FFTResult spectrum = FFTUtils.fft(paddedSignal);</span>
+<span class="nc" id="L372">        double[] magnitudes = spectrum.getMagnitudes();</span>
+        
+<span class="nc" id="L374">        int peakBin = 0;</span>
+<span class="nc" id="L375">        double maxMagnitude = 0.0;</span>
+        
+<span class="nc" id="L377">        int minBin = frequencyToBin(80.0, paddedSignal.length);</span>
+<span class="nc" id="L378">        int maxBin = Math.min(frequencyToBin(2000.0, paddedSignal.length), magnitudes.length / 2);</span>
+        
+<span class="nc bnc" id="L380" title="All 2 branches missed.">        for (int i = minBin; i &lt; maxBin; i++) {</span>
+<span class="nc bnc" id="L381" title="All 2 branches missed.">            if (magnitudes[i] &gt; maxMagnitude) {</span>
+<span class="nc" id="L382">                maxMagnitude = magnitudes[i];</span>
+<span class="nc" id="L383">                peakBin = i;</span>
+            }
+        }
+        
+<span class="nc bnc" id="L387" title="All 2 branches missed.">        return maxMagnitude &gt; 0.01 ? binToFrequency(peakBin, paddedSignal.length) : 0.0;</span>
+    }
+    
+    private int frequencyToBin(double frequency, int signalLength) {
+<span class="nc" id="L391">        return (int) Math.round(frequency * signalLength / SAMPLE_RATE);</span>
+    }
+    
+    private double binToFrequency(int bin, int signalLength) {
+<span class="nc" id="L395">        return (double) bin * SAMPLE_RATE / signalLength;</span>
+    }
+    
+    private double noteToFrequency(String note) {
+        // Map note names to frequencies (A4 = 440 Hz)
+<span class="nc" id="L400">        Map&lt;String, Double&gt; noteFreqs = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L401">        noteFreqs.put(&quot;C4&quot;, 261.63);</span>
+<span class="nc" id="L402">        noteFreqs.put(&quot;D4&quot;, 293.66);</span>
+<span class="nc" id="L403">        noteFreqs.put(&quot;E4&quot;, 329.63);</span>
+<span class="nc" id="L404">        noteFreqs.put(&quot;F4&quot;, 349.23);</span>
+<span class="nc" id="L405">        noteFreqs.put(&quot;G4&quot;, 392.00);</span>
+<span class="nc" id="L406">        noteFreqs.put(&quot;A4&quot;, 440.00);</span>
+<span class="nc" id="L407">        noteFreqs.put(&quot;B4&quot;, 493.88);</span>
+<span class="nc" id="L408">        noteFreqs.put(&quot;C5&quot;, 523.25);</span>
+        
+<span class="nc" id="L410">        return noteFreqs.getOrDefault(note, 440.0);</span>
+    }
+    
+    private Map&lt;String, MelodyEntry&gt; createEnhancedMelodyDatabase() {
+<span class="nc" id="L414">        Map&lt;String, MelodyEntry&gt; database = new HashMap&lt;&gt;();</span>
+        
+        // Add entries with variations for better recognition
+<span class="nc" id="L417">        database.put(&quot;Twinkle, Twinkle, Little Star&quot;, </span>
+            new MelodyEntry(&quot;*RURURDRRURURDR&quot;, 
+<span class="nc" id="L419">                Arrays.asList(&quot;*RURUR&quot;, &quot;*RDRRUR&quot;, &quot;*RURURDRRUR&quot;)));</span>
+        
+<span class="nc" id="L421">        database.put(&quot;Mary Had a Little Lamb&quot;, </span>
+            new MelodyEntry(&quot;*DRRRRDDDRRU&quot;, 
+<span class="nc" id="L423">                Arrays.asList(&quot;*DRRRR&quot;, &quot;*DDDRRU&quot;, &quot;*DRRRRDDD&quot;)));</span>
+        
+<span class="nc" id="L425">        database.put(&quot;Happy Birthday&quot;, </span>
+            new MelodyEntry(&quot;*RRUURURURU&quot;, 
+<span class="nc" id="L427">                Arrays.asList(&quot;*RRURU&quot;, &quot;*RURURU&quot;, &quot;*RRURUURU&quot;)));</span>
+        
+<span class="nc" id="L429">        database.put(&quot;Ode to Joy&quot;, </span>
+            new MelodyEntry(&quot;*RRURURDRUR&quot;, 
+<span class="nc" id="L431">                Arrays.asList(&quot;*RRURU&quot;, &quot;*RURDR&quot;, &quot;*URURDR&quot;)));</span>
+        
+<span class="nc" id="L433">        database.put(&quot;Amazing Grace&quot;, </span>
+            new MelodyEntry(&quot;*URDURDRDUR&quot;, 
+<span class="nc" id="L435">                Arrays.asList(&quot;*URDU&quot;, &quot;*RDURD&quot;, &quot;*URDURD&quot;)));</span>
+        
+<span class="nc" id="L437">        database.put(&quot;Silent Night&quot;, </span>
+            new MelodyEntry(&quot;*RDURDURDRU&quot;, 
+<span class="nc" id="L439">                Arrays.asList(&quot;*RDUR&quot;, &quot;*DURDR&quot;, &quot;*RDURDU&quot;)));</span>
+        
+<span class="nc" id="L441">        database.put(&quot;Jingle Bells&quot;, </span>
+            new MelodyEntry(&quot;*RRRUURURURU&quot;, 
+<span class="nc" id="L443">                Arrays.asList(&quot;*RRRU&quot;, &quot;*RURURU&quot;, &quot;*RRRUURU&quot;)));</span>
+        
+<span class="nc" id="L445">        database.put(&quot;London Bridge&quot;, </span>
+            new MelodyEntry(&quot;*RDRRURDRUR&quot;, 
+<span class="nc" id="L447">                Arrays.asList(&quot;*RDRR&quot;, &quot;*RURDR&quot;, &quot;*RDRRUR&quot;)));</span>
+        
+<span class="nc" id="L449">        database.put(&quot;Row, Row, Row Your Boat&quot;, </span>
+            new MelodyEntry(&quot;*RRURURDRUR&quot;, 
+<span class="nc" id="L451">                Arrays.asList(&quot;*RRUR&quot;, &quot;*URURDR&quot;, &quot;*RURURD&quot;)));</span>
+        
+<span class="nc" id="L453">        database.put(&quot;Frère Jacques&quot;, </span>
+            new MelodyEntry(&quot;*URUURURDRUR&quot;, 
+<span class="nc" id="L455">                Arrays.asList(&quot;*URUR&quot;, &quot;*RURUR&quot;, &quot;*URUURU&quot;)));</span>
+        
+<span class="nc" id="L457">        return database;</span>
+    }
+    
+    // Data classes
+    private static class MelodyEntry {
+        final String parsonsCode;
+        final List&lt;String&gt; variations;
+        
+<span class="nc" id="L465">        MelodyEntry(String parsonsCode, List&lt;String&gt; variations) {</span>
+<span class="nc" id="L466">            this.parsonsCode = parsonsCode;</span>
+<span class="nc" id="L467">            this.variations = variations;</span>
+<span class="nc" id="L468">        }</span>
+    }
+    
+    private static class RecognitionResult {
+        final String songTitle;
+        final double confidence;
+        final String matchedCode;
+        
+<span class="nc" id="L476">        RecognitionResult(String songTitle, double confidence, String matchedCode) {</span>
+<span class="nc" id="L477">            this.songTitle = songTitle;</span>
+<span class="nc" id="L478">            this.confidence = confidence;</span>
+<span class="nc" id="L479">            this.matchedCode = matchedCode;</span>
+<span class="nc" id="L480">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

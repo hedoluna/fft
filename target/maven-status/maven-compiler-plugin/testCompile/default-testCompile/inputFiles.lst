@@ -1,13 +1,15 @@
 /home/engine/project/src/test/java/com/fft/optimized/FFTOptimized32Test.java
 /home/engine/project/src/test/java/com/fft/optimized/FFTOptimized64Test.java
 /home/engine/project/src/test/java/com/fft/optimized/FFTPerformanceBenchmarkTest.java
-/home/engine/project/src/test/java/com/fft/utils/FFTUtilsTest.java
 /home/engine/project/src/test/java/com/fft/core/FFTBaseTest.java
+/home/engine/project/src/test/java/com/fft/utils/FFTUtilsTest.java
 /home/engine/project/src/test/java/com/fft/factory/FFTImplementationDiscoveryTest.java
 /home/engine/project/src/test/java/com/fft/demo/AutoDiscoveryDemo.java
 /home/engine/project/src/test/java/com/fft/optimized/PerformanceComparisonTest.java
 /home/engine/project/src/test/java/com/fft/core/FFTResultTest.java
-/home/engine/project/src/test/java/com/fft/optimized/FFTOptimized128Test.java
+/home/engine/project/src/test/java/com/fft/demo/ParsonsCodeUtilsTest.java
+/home/engine/project/src/test/java/com/fft/demo/PitchDetectionTest.java
 /home/engine/project/src/test/java/com/fft/factory/FFTFactoryIntegrationTest.java
+/home/engine/project/src/test/java/com/fft/optimized/FFTOptimized128Test.java
 /home/engine/project/src/test/java/com/fft/optimized/FFTOptimized8Test.java
 /home/engine/project/src/test/java/com/fft/factory/DefaultFFTFactoryTest.java

@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PitchDetectionDemo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Fast Fourier Transform Library</a> &gt; <a href="index.source.html" class="el_package">com.fft.demo</a> &gt; <span class="el_source">PitchDetectionDemo.java</span></div><h1>PitchDetectionDemo.java</h1><pre class="source lang-java linenums">package com.fft.demo;
+
+import com.fft.core.FFTResult;
+import com.fft.utils.FFTUtils;
+
+import javax.sound.sampled.*;
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+/**
+ * Real-time pitch and frequency detection demo using optimized FFTs.
+ * 
+ * &lt;p&gt;This demo captures live audio from the microphone, analyzes it using FFT,
+ * and detects the fundamental frequency (pitch) in real-time. It provides the
+ * foundation for the second goal of song recognition using Parsons code.&lt;/p&gt;
+ * 
+ * &lt;h3&gt;Features:&lt;/h3&gt;
+ * &lt;ul&gt;
+ * &lt;li&gt;&lt;b&gt;Real-time Audio Capture:&lt;/b&gt; Uses Java Sound API to capture microphone input&lt;/li&gt;
+ * &lt;li&gt;&lt;b&gt;FFT-based Analysis:&lt;/b&gt; Leverages optimized FFT implementations for frequency analysis&lt;/li&gt;
+ * &lt;li&gt;&lt;b&gt;Pitch Detection:&lt;/b&gt; Identifies fundamental frequency and musical note&lt;/li&gt;
+ * &lt;li&gt;&lt;b&gt;Frequency Visualization:&lt;/b&gt; Displays frequency spectrum and peak detection&lt;/li&gt;
+ * &lt;li&gt;&lt;b&gt;Musical Note Recognition:&lt;/b&gt; Converts frequencies to musical notes&lt;/li&gt;
+ * &lt;li&gt;&lt;b&gt;Parsons Code Preparation:&lt;/b&gt; Tracks pitch changes for melody analysis&lt;/li&gt;
+ * &lt;/ul&gt;
+ * 
+ * &lt;h3&gt;Algorithm Overview:&lt;/h3&gt;
+ * &lt;pre&gt;
+ * 1. Capture audio samples from microphone
+ * 2. Apply windowing function (Hamming window) to reduce spectral leakage
+ * 3. Perform FFT using optimized implementation
+ * 4. Find frequency bin with maximum magnitude (fundamental frequency)
+ * 5. Apply harmonic analysis to improve pitch accuracy
+ * 6. Convert frequency to musical note
+ * 7. Track pitch changes for Parsons code generation
+ * &lt;/pre&gt;
+ * 
+ * @author Engine AI Assistant
+ * @since 2.0.0
+ */
+<span class="nc" id="L42">public class PitchDetectionDemo {</span>
+    
+    // Audio configuration
+    private static final float SAMPLE_RATE = 44100.0f;
+    private static final int SAMPLE_SIZE_IN_BITS = 16;
+    private static final int CHANNELS = 1;
+    private static final boolean SIGNED = true;
+    private static final boolean BIG_ENDIAN = false;
+    
+    // FFT configuration
+    private static final int FFT_SIZE = 4096;  // Good balance of frequency resolution and real-time performance
+    private static final int OVERLAP_SIZE = FFT_SIZE / 2;  // 50% overlap for better temporal resolution
+    private static final double MIN_FREQUENCY = 80.0;   // Lowest guitar string (E2)
+    private static final double MAX_FREQUENCY = 2000.0; // Upper harmonics range
+    
+    // Pitch detection parameters
+    private static final double MAGNITUDE_THRESHOLD = 0.01;  // Minimum magnitude to consider as valid signal
+    private static final int SMOOTHING_WINDOW = 5;  // Number of frames to average for stability
+    
+    // Musical note data
+<span class="nc" id="L62">    private static final String[] NOTE_NAMES = {</span>
+        &quot;C&quot;, &quot;C#&quot;, &quot;D&quot;, &quot;D#&quot;, &quot;E&quot;, &quot;F&quot;, &quot;F#&quot;, &quot;G&quot;, &quot;G#&quot;, &quot;A&quot;, &quot;A#&quot;, &quot;B&quot;
+    };
+    private static final double A4_FREQUENCY = 440.0;  // A4 reference frequency
+    private static final int A4_NOTE_NUMBER = 69;      // MIDI note number for A4
+    
+<span class="nc" id="L68">    private final AtomicBoolean running = new AtomicBoolean(false);</span>
+<span class="nc" id="L69">    private final Queue&lt;Double&gt; recentPitches = new ArrayDeque&lt;&gt;();</span>
+<span class="nc" id="L70">    private final List&lt;PitchChange&gt; parsonsSequence = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L71">    private double lastStablePitch = 0.0;</span>
+    
+    public static void main(String[] args) {
+<span class="nc" id="L74">        System.out.println(&quot;=== FFT-Based Pitch Detection Demo ===\n&quot;);</span>
+        
+<span class="nc" id="L76">        PitchDetectionDemo demo = new PitchDetectionDemo();</span>
+<span class="nc" id="L77">        demo.runDemo();</span>
+<span class="nc" id="L78">    }</span>
+    
+    public void runDemo() {
+<span class="nc" id="L81">        System.out.println(&quot;Setting up audio capture...&quot;);</span>
+        
+<span class="nc" id="L83">        AudioFormat format = new AudioFormat(</span>
+            SAMPLE_RATE, SAMPLE_SIZE_IN_BITS, CHANNELS, SIGNED, BIG_ENDIAN
+        );
+        
+<span class="nc" id="L87">        DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);</span>
+        
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (!AudioSystem.isLineSupported(info)) {</span>
+<span class="nc" id="L90">            System.err.println(&quot;Audio line not supported!&quot;);</span>
+<span class="nc" id="L91">            return;</span>
+        }
+        
+<span class="nc" id="L94">        try (TargetDataLine microphone = (TargetDataLine) AudioSystem.getLine(info)) {</span>
+<span class="nc" id="L95">            microphone.open(format);</span>
+<span class="nc" id="L96">            microphone.start();</span>
+            
+<span class="nc" id="L98">            System.out.println(&quot;Audio capture started!&quot;);</span>
+<span class="nc" id="L99">            System.out.println(&quot;Optimized FFT implementation: &quot; + FFTUtils.getImplementationInfo(FFT_SIZE));</span>
+<span class="nc" id="L100">            System.out.println(&quot;Sample rate: &quot; + SAMPLE_RATE + &quot; Hz&quot;);</span>
+<span class="nc" id="L101">            System.out.println(&quot;FFT size: &quot; + FFT_SIZE + &quot; samples&quot;);</span>
+<span class="nc" id="L102">            System.out.printf(&quot;Frequency resolution: %.2f Hz\n&quot;, SAMPLE_RATE / FFT_SIZE);</span>
+<span class="nc" id="L103">            System.out.println(&quot;\nPress Enter to stop...\n&quot;);</span>
+            
+            // Start background thread to detect Enter key
+<span class="nc" id="L106">            Thread stopThread = new Thread(() -&gt; {</span>
+                try {
+<span class="nc" id="L108">                    System.in.read();</span>
+<span class="nc" id="L109">                    running.set(false);</span>
+<span class="nc" id="L110">                } catch (IOException e) {</span>
+                    // Ignore
+<span class="nc" id="L112">                }</span>
+<span class="nc" id="L113">            });</span>
+<span class="nc" id="L114">            stopThread.setDaemon(true);</span>
+<span class="nc" id="L115">            stopThread.start();</span>
+            
+<span class="nc" id="L117">            running.set(true);</span>
+<span class="nc" id="L118">            processAudioStream(microphone);</span>
+            
+<span class="nc" id="L120">        } catch (LineUnavailableException e) {</span>
+<span class="nc" id="L121">            System.err.println(&quot;Could not open microphone: &quot; + e.getMessage());</span>
+<span class="nc" id="L122">        }</span>
+        
+<span class="nc" id="L124">        printParsonsCode();</span>
+<span class="nc" id="L125">    }</span>
+    
+    private void processAudioStream(TargetDataLine microphone) {
+<span class="nc" id="L128">        byte[] buffer = new byte[FFT_SIZE * 2]; // 16-bit samples</span>
+<span class="nc" id="L129">        double[] audioSamples = new double[FFT_SIZE];</span>
+<span class="nc" id="L130">        double[] previousSamples = new double[OVERLAP_SIZE];</span>
+        
+<span class="nc" id="L132">        int frameCount = 0;</span>
+        
+<span class="nc bnc" id="L134" title="All 2 branches missed.">        while (running.get()) {</span>
+            // Read audio data
+<span class="nc" id="L136">            int bytesRead = microphone.read(buffer, 0, buffer.length);</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">            if (bytesRead &lt;= 0) continue;</span>
+            
+            // Convert bytes to double samples
+<span class="nc" id="L140">            convertBytesToSamples(buffer, audioSamples, bytesRead);</span>
+            
+            // Apply overlap from previous frame
+<span class="nc bnc" id="L143" title="All 2 branches missed.">            if (frameCount &gt; 0) {</span>
+<span class="nc" id="L144">                System.arraycopy(previousSamples, 0, audioSamples, 0, OVERLAP_SIZE);</span>
+            }
+            
+            // Store samples for next overlap
+<span class="nc" id="L148">            System.arraycopy(audioSamples, FFT_SIZE - OVERLAP_SIZE, previousSamples, 0, OVERLAP_SIZE);</span>
+            
+            // Apply windowing function
+<span class="nc" id="L151">            applyHammingWindow(audioSamples);</span>
+            
+            // Perform FFT analysis
+<span class="nc" id="L154">            FFTResult spectrum = FFTUtils.fft(audioSamples);</span>
+            
+            // Detect pitch
+<span class="nc" id="L157">            PitchDetectionResult pitchResult = detectPitch(spectrum);</span>
+            
+            // Display results
+<span class="nc" id="L160">            displayResults(frameCount, pitchResult);</span>
+            
+            // Track for Parsons code
+<span class="nc" id="L163">            updateParsonsSequence(pitchResult);</span>
+            
+<span class="nc" id="L165">            frameCount++;</span>
+            
+            // Small delay to make output readable
+            try {
+<span class="nc" id="L169">                Thread.sleep(100);</span>
+<span class="nc" id="L170">            } catch (InterruptedException e) {</span>
+<span class="nc" id="L171">                break;</span>
+<span class="nc" id="L172">            }</span>
+<span class="nc" id="L173">        }</span>
+<span class="nc" id="L174">    }</span>
+    
+    private void convertBytesToSamples(byte[] buffer, double[] samples, int bytesRead) {
+<span class="nc" id="L177">        int sampleCount = Math.min(bytesRead / 2, samples.length);</span>
+        
+<span class="nc bnc" id="L179" title="All 2 branches missed.">        for (int i = 0; i &lt; sampleCount; i++) {</span>
+            // Convert 16-bit little-endian to double
+<span class="nc" id="L181">            int sample = (buffer[i * 2 + 1] &lt;&lt; 8) | (buffer[i * 2] &amp; 0xFF);</span>
+<span class="nc" id="L182">            samples[i] = sample / 32768.0; // Normalize to [-1, 1]</span>
+        }
+        
+        // Zero-pad if necessary
+<span class="nc bnc" id="L186" title="All 2 branches missed.">        for (int i = sampleCount; i &lt; samples.length; i++) {</span>
+<span class="nc" id="L187">            samples[i] = 0.0;</span>
+        }
+<span class="nc" id="L189">    }</span>
+    
+    private void applyHammingWindow(double[] samples) {
+<span class="nc" id="L192">        int n = samples.length;</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">        for (int i = 0; i &lt; n; i++) {</span>
+<span class="nc" id="L194">            double window = 0.54 - 0.46 * Math.cos(2.0 * Math.PI * i / (n - 1));</span>
+<span class="nc" id="L195">            samples[i] *= window;</span>
+        }
+<span class="nc" id="L197">    }</span>
+    
+    private PitchDetectionResult detectPitch(FFTResult spectrum) {
+<span class="nc" id="L200">        double[] magnitudes = spectrum.getMagnitudes();</span>
+<span class="nc" id="L201">        int maxBin = 0;</span>
+<span class="nc" id="L202">        double maxMagnitude = 0.0;</span>
+        
+        // Find frequency range of interest
+<span class="nc" id="L205">        int minBin = frequencyToBin(MIN_FREQUENCY);</span>
+<span class="nc" id="L206">        int maxBinIndex = Math.min(frequencyToBin(MAX_FREQUENCY), magnitudes.length / 2);</span>
+        
+        // Find peak in frequency domain
+<span class="nc bnc" id="L209" title="All 2 branches missed.">        for (int i = minBin; i &lt; maxBinIndex; i++) {</span>
+<span class="nc bnc" id="L210" title="All 2 branches missed.">            if (magnitudes[i] &gt; maxMagnitude) {</span>
+<span class="nc" id="L211">                maxMagnitude = magnitudes[i];</span>
+<span class="nc" id="L212">                maxBin = i;</span>
+            }
+        }
+        
+<span class="nc bnc" id="L216" title="All 2 branches missed.">        if (maxMagnitude &lt; MAGNITUDE_THRESHOLD) {</span>
+<span class="nc" id="L217">            return new PitchDetectionResult(0.0, 0.0, &quot;Silence&quot;, 0);</span>
+        }
+        
+        // Improve frequency accuracy using parabolic interpolation
+<span class="nc" id="L221">        double refinedFrequency = refineFrequencyEstimate(magnitudes, maxBin);</span>
+        
+        // Apply harmonic analysis for better pitch detection
+<span class="nc" id="L224">        double fundamentalFreq = findFundamentalFrequency(magnitudes, refinedFrequency);</span>
+        
+        // Convert to musical note
+<span class="nc" id="L227">        String noteName = frequencyToNote(fundamentalFreq);</span>
+<span class="nc" id="L228">        int octave = frequencyToOctave(fundamentalFreq);</span>
+        
+<span class="nc" id="L230">        return new PitchDetectionResult(fundamentalFreq, maxMagnitude, noteName, octave);</span>
+    }
+    
+    private double refineFrequencyEstimate(double[] magnitudes, int peakBin) {
+<span class="nc bnc" id="L234" title="All 4 branches missed.">        if (peakBin &lt;= 0 || peakBin &gt;= magnitudes.length - 1) {</span>
+<span class="nc" id="L235">            return binToFrequency(peakBin);</span>
+        }
+        
+        // Parabolic interpolation for sub-bin accuracy
+<span class="nc" id="L239">        double y1 = magnitudes[peakBin - 1];</span>
+<span class="nc" id="L240">        double y2 = magnitudes[peakBin];</span>
+<span class="nc" id="L241">        double y3 = magnitudes[peakBin + 1];</span>
+        
+<span class="nc" id="L243">        double a = (y1 - 2 * y2 + y3) / 2;</span>
+<span class="nc" id="L244">        double b = (y3 - y1) / 2;</span>
+        
+<span class="nc bnc" id="L246" title="All 2 branches missed.">        double xPeak = a != 0 ? -b / (2 * a) : 0;</span>
+        
+<span class="nc" id="L248">        return binToFrequency(peakBin + xPeak);</span>
+    }
+    
+    private double findFundamentalFrequency(double[] magnitudes, double candidateFreq) {
+        // Simple harmonic analysis - check if this might be a harmonic
+        // Look for a potential fundamental at half, third, quarter, etc.
+        
+<span class="nc" id="L255">        double[] candidates = {candidateFreq, candidateFreq / 2, candidateFreq / 3, candidateFreq / 4};</span>
+<span class="nc" id="L256">        double bestScore = 0;</span>
+<span class="nc" id="L257">        double bestFreq = candidateFreq;</span>
+        
+<span class="nc bnc" id="L259" title="All 2 branches missed.">        for (double testFreq : candidates) {</span>
+<span class="nc bnc" id="L260" title="All 2 branches missed.">            if (testFreq &lt; MIN_FREQUENCY) continue;</span>
+            
+<span class="nc" id="L262">            double score = calculateHarmonicScore(magnitudes, testFreq);</span>
+<span class="nc bnc" id="L263" title="All 2 branches missed.">            if (score &gt; bestScore) {</span>
+<span class="nc" id="L264">                bestScore = score;</span>
+<span class="nc" id="L265">                bestFreq = testFreq;</span>
+            }
+        }
+        
+<span class="nc" id="L269">        return bestFreq;</span>
+    }
+    
+    private double calculateHarmonicScore(double[] magnitudes, double fundamentalFreq) {
+<span class="nc" id="L273">        double score = 0;</span>
+        
+        // Check strength of fundamental and first few harmonics
+<span class="nc bnc" id="L276" title="All 2 branches missed.">        for (int harmonic = 1; harmonic &lt;= 4; harmonic++) {</span>
+<span class="nc" id="L277">            double harmonicFreq = fundamentalFreq * harmonic;</span>
+<span class="nc bnc" id="L278" title="All 2 branches missed.">            if (harmonicFreq &gt; MAX_FREQUENCY) break;</span>
+            
+<span class="nc" id="L280">            int bin = frequencyToBin(harmonicFreq);</span>
+<span class="nc bnc" id="L281" title="All 2 branches missed.">            if (bin &lt; magnitudes.length) {</span>
+<span class="nc" id="L282">                score += magnitudes[bin] / harmonic; // Weight by inverse of harmonic number</span>
+            }
+        }
+        
+<span class="nc" id="L286">        return score;</span>
+    }
+    
+    private int frequencyToBin(double frequency) {
+<span class="nc" id="L290">        return (int) Math.round(frequency * FFT_SIZE / SAMPLE_RATE);</span>
+    }
+    
+    private double binToFrequency(double bin) {
+<span class="nc" id="L294">        return bin * SAMPLE_RATE / FFT_SIZE;</span>
+    }
+    
+    private String frequencyToNote(double frequency) {
+<span class="nc bnc" id="L298" title="All 2 branches missed.">        if (frequency &lt;= 0) return &quot;N/A&quot;;</span>
+        
+<span class="nc" id="L300">        int noteNumber = (int) Math.round(A4_NOTE_NUMBER + 12 * Math.log(frequency / A4_FREQUENCY) / Math.log(2));</span>
+<span class="nc" id="L301">        return NOTE_NAMES[noteNumber % 12];</span>
+    }
+    
+    private int frequencyToOctave(double frequency) {
+<span class="nc bnc" id="L305" title="All 2 branches missed.">        if (frequency &lt;= 0) return 0;</span>
+        
+<span class="nc" id="L307">        int noteNumber = (int) Math.round(A4_NOTE_NUMBER + 12 * Math.log(frequency / A4_FREQUENCY) / Math.log(2));</span>
+<span class="nc" id="L308">        return (noteNumber / 12) - 1;</span>
+    }
+    
+    private void displayResults(int frameCount, PitchDetectionResult result) {
+<span class="nc bnc" id="L312" title="All 2 branches missed.">        if (frameCount % 10 == 0) { // Display every 10th frame to avoid overwhelming output</span>
+<span class="nc" id="L313">            System.out.printf(&quot;Frame %d: &quot;, frameCount);</span>
+            
+<span class="nc bnc" id="L315" title="All 2 branches missed.">            if (result.frequency &gt; 0) {</span>
+<span class="nc" id="L316">                System.out.printf(&quot;Pitch: %s%d (%.1f Hz) | Magnitude: %.3f\n&quot;,</span>
+<span class="nc" id="L317">                    result.noteName, result.octave, result.frequency, result.magnitude);</span>
+            } else {
+<span class="nc" id="L319">                System.out.println(&quot;No pitch detected&quot;);</span>
+            }
+        }
+<span class="nc" id="L322">    }</span>
+    
+    private void updateParsonsSequence(PitchDetectionResult result) {
+<span class="nc bnc" id="L325" title="All 2 branches missed.">        if (result.frequency &lt;= 0) return;</span>
+        
+        // Add to recent pitches for smoothing
+<span class="nc" id="L328">        recentPitches.offer(result.frequency);</span>
+<span class="nc bnc" id="L329" title="All 2 branches missed.">        if (recentPitches.size() &gt; SMOOTHING_WINDOW) {</span>
+<span class="nc" id="L330">            recentPitches.poll();</span>
+        }
+        
+        // Calculate smoothed pitch
+<span class="nc" id="L334">        double smoothedPitch = recentPitches.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);</span>
+        
+        // Determine pitch change for Parsons code
+<span class="nc bnc" id="L337" title="All 2 branches missed.">        if (lastStablePitch &gt; 0) {</span>
+<span class="nc" id="L338">            double threshold = 50.0; // Hz threshold for considering a pitch change</span>
+            ParsonsDirection direction;
+            
+<span class="nc bnc" id="L341" title="All 2 branches missed.">            if (Math.abs(smoothedPitch - lastStablePitch) &lt; threshold) {</span>
+<span class="nc" id="L342">                direction = ParsonsDirection.REPEAT;</span>
+<span class="nc bnc" id="L343" title="All 2 branches missed.">            } else if (smoothedPitch &gt; lastStablePitch) {</span>
+<span class="nc" id="L344">                direction = ParsonsDirection.UP;</span>
+            } else {
+<span class="nc" id="L346">                direction = ParsonsDirection.DOWN;</span>
+            }
+            
+            // Only add if it's different from the last direction (to avoid repetition)
+<span class="nc bnc" id="L350" title="All 2 branches missed.">            if (parsonsSequence.isEmpty() || </span>
+<span class="nc bnc" id="L351" title="All 2 branches missed.">                parsonsSequence.get(parsonsSequence.size() - 1).direction != direction) {</span>
+<span class="nc" id="L352">                parsonsSequence.add(new PitchChange(smoothedPitch, direction, System.currentTimeMillis()));</span>
+            }
+        }
+        
+<span class="nc" id="L356">        lastStablePitch = smoothedPitch;</span>
+<span class="nc" id="L357">    }</span>
+    
+    private void printParsonsCode() {
+<span class="nc" id="L360">        System.out.println(&quot;\n=== Captured Parsons Code Sequence ===&quot;);</span>
+        
+<span class="nc bnc" id="L362" title="All 2 branches missed.">        if (parsonsSequence.isEmpty()) {</span>
+<span class="nc" id="L363">            System.out.println(&quot;No pitch changes detected.&quot;);</span>
+<span class="nc" id="L364">            return;</span>
+        }
+        
+<span class="nc" id="L367">        StringBuilder parsonsCode = new StringBuilder(&quot;*&quot;); // Start symbol</span>
+        
+<span class="nc bnc" id="L369" title="All 2 branches missed.">        for (PitchChange change : parsonsSequence) {</span>
+<span class="nc bnc" id="L370" title="All 4 branches missed.">            switch (change.direction) {</span>
+                case UP:
+<span class="nc" id="L372">                    parsonsCode.append(&quot;U&quot;);</span>
+<span class="nc" id="L373">                    break;</span>
+                case DOWN:
+<span class="nc" id="L375">                    parsonsCode.append(&quot;D&quot;);</span>
+<span class="nc" id="L376">                    break;</span>
+                case REPEAT:
+<span class="nc" id="L378">                    parsonsCode.append(&quot;R&quot;);</span>
+                    break;
+            }
+<span class="nc" id="L381">        }</span>
+        
+<span class="nc" id="L383">        System.out.println(&quot;Parsons Code: &quot; + parsonsCode.toString());</span>
+<span class="nc" id="L384">        System.out.println(&quot;\nDetailed Sequence:&quot;);</span>
+        
+<span class="nc bnc" id="L386" title="All 2 branches missed.">        for (int i = 0; i &lt; parsonsSequence.size(); i++) {</span>
+<span class="nc" id="L387">            PitchChange change = parsonsSequence.get(i);</span>
+<span class="nc" id="L388">            String note = frequencyToNote(change.frequency);</span>
+<span class="nc" id="L389">            int octave = frequencyToOctave(change.frequency);</span>
+            
+<span class="nc" id="L391">            System.out.printf(&quot;%d. %s → %s%d (%.1f Hz)\n&quot;, </span>
+<span class="nc" id="L392">                i + 1, change.direction, note, octave, change.frequency);</span>
+        }
+        
+<span class="nc" id="L395">        System.out.println(&quot;\nThis Parsons code can be used for melody matching and song identification!&quot;);</span>
+<span class="nc" id="L396">    }</span>
+    
+    // Data classes
+    private static class PitchDetectionResult {
+        final double frequency;
+        final double magnitude;
+        final String noteName;
+        final int octave;
+        
+<span class="nc" id="L405">        PitchDetectionResult(double frequency, double magnitude, String noteName, int octave) {</span>
+<span class="nc" id="L406">            this.frequency = frequency;</span>
+<span class="nc" id="L407">            this.magnitude = magnitude;</span>
+<span class="nc" id="L408">            this.noteName = noteName;</span>
+<span class="nc" id="L409">            this.octave = octave;</span>
+<span class="nc" id="L410">        }</span>
+    }
+    
+    private static class PitchChange {
+        final double frequency;
+        final ParsonsDirection direction;
+        final long timestamp;
+        
+<span class="nc" id="L418">        PitchChange(double frequency, ParsonsDirection direction, long timestamp) {</span>
+<span class="nc" id="L419">            this.frequency = frequency;</span>
+<span class="nc" id="L420">            this.direction = direction;</span>
+<span class="nc" id="L421">            this.timestamp = timestamp;</span>
+<span class="nc" id="L422">        }</span>
+    }
+    
+<span class="nc" id="L425">    private enum ParsonsDirection {</span>
+<span class="nc" id="L426">        UP(&quot;↑&quot;), DOWN(&quot;↓&quot;), REPEAT(&quot;→&quot;);</span>
+        
+        private final String symbol;
+        
+<span class="nc" id="L430">        ParsonsDirection(String symbol) {</span>
+<span class="nc" id="L431">            this.symbol = symbol;</span>
+<span class="nc" id="L432">        }</span>
+        
+        @Override
+        public String toString() {
+<span class="nc" id="L436">            return symbol;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

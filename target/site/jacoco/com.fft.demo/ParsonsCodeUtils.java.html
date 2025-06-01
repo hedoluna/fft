@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ParsonsCodeUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Fast Fourier Transform Library</a> &gt; <a href="index.source.html" class="el_package">com.fft.demo</a> &gt; <span class="el_source">ParsonsCodeUtils.java</span></div><h1>ParsonsCodeUtils.java</h1><pre class="source lang-java linenums">package com.fft.demo;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+/**
+ * Utility class for Parsons code generation, manipulation, and song matching.
+ * 
+ * &lt;p&gt;Parsons code is a simple notation system that represents melodies using only
+ * the direction of pitch changes, making it useful for melody recognition and
+ * music information retrieval.&lt;/p&gt;
+ * 
+ * &lt;h3&gt;Parsons Code Symbols:&lt;/h3&gt;
+ * &lt;ul&gt;
+ * &lt;li&gt;&lt;b&gt;*&lt;/b&gt; - Start of melody (always the first symbol)&lt;/li&gt;
+ * &lt;li&gt;&lt;b&gt;U&lt;/b&gt; - Up (pitch increases)&lt;/li&gt;
+ * &lt;li&gt;&lt;b&gt;D&lt;/b&gt; - Down (pitch decreases)&lt;/li&gt;
+ * &lt;li&gt;&lt;b&gt;R&lt;/b&gt; - Repeat (pitch stays approximately the same)&lt;/li&gt;
+ * &lt;/ul&gt;
+ * 
+ * &lt;h3&gt;Example:&lt;/h3&gt;
+ * &lt;p&gt;The melody C-E-E-G-F would be encoded as &quot;*URDU&quot;:&lt;/p&gt;
+ * &lt;ul&gt;
+ * &lt;li&gt;C to E: Up (U)&lt;/li&gt;
+ * &lt;li&gt;E to E: Repeat (R)&lt;/li&gt;
+ * &lt;li&gt;E to G: Up (U)&lt;/li&gt;
+ * &lt;li&gt;G to F: Down (D)&lt;/li&gt;
+ * &lt;/ul&gt;
+ * 
+ * @author Engine AI Assistant
+ * @since 2.0.0
+ * @see &lt;a href=&quot;https://en.wikipedia.org/wiki/Parsons_code&quot;&gt;Parsons code on Wikipedia&lt;/a&gt;
+ */
+<span class="nc" id="L34">public class ParsonsCodeUtils {</span>
+    
+    /**
+     * Default frequency threshold for determining if two pitches are the same.
+     * Frequencies within this threshold are considered &quot;repeat&quot; (R).
+     */
+    public static final double DEFAULT_FREQUENCY_THRESHOLD = 20.0; // Hz
+    
+    /**
+     * Default percentage threshold for determining if two pitches are the same.
+     * Used as an alternative to absolute frequency threshold.
+     */
+    public static final double DEFAULT_PERCENTAGE_THRESHOLD = 3.0; // percent
+    
+    /**
+     * Generates Parsons code from a sequence of frequencies.
+     * 
+     * @param frequencies array of frequencies in Hz
+     * @param threshold frequency threshold for determining repeats
+     * @return Parsons code string starting with '*'
+     */
+    public static String generateParsonsCode(double[] frequencies, double threshold) {
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        if (frequencies.length == 0) {</span>
+<span class="fc" id="L57">            return &quot;*&quot;;</span>
+        }
+        
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (frequencies.length == 1) {</span>
+<span class="fc" id="L61">            return &quot;*&quot;;</span>
+        }
+        
+<span class="fc" id="L64">        StringBuilder code = new StringBuilder(&quot;*&quot;);</span>
+        
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        for (int i = 1; i &lt; frequencies.length; i++) {</span>
+<span class="fc" id="L67">            double prevFreq = frequencies[i - 1];</span>
+<span class="fc" id="L68">            double currFreq = frequencies[i];</span>
+            
+<span class="fc bfc" id="L70" title="All 2 branches covered.">            if (Math.abs(currFreq - prevFreq) &lt;= threshold) {</span>
+<span class="fc" id="L71">                code.append(&quot;R&quot;);</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">            } else if (currFreq &gt; prevFreq) {</span>
+<span class="fc" id="L73">                code.append(&quot;U&quot;);</span>
+            } else {
+<span class="fc" id="L75">                code.append(&quot;D&quot;);</span>
+            }
+        }
+        
+<span class="fc" id="L79">        return code.toString();</span>
+    }
+    
+    /**
+     * Generates Parsons code using default frequency threshold.
+     * 
+     * @param frequencies array of frequencies in Hz
+     * @return Parsons code string starting with '*'
+     */
+    public static String generateParsonsCode(double[] frequencies) {
+<span class="fc" id="L89">        return generateParsonsCode(frequencies, DEFAULT_FREQUENCY_THRESHOLD);</span>
+    }
+    
+    /**
+     * Generates Parsons code using percentage-based threshold.
+     * 
+     * @param frequencies array of frequencies in Hz
+     * @param percentageThreshold percentage threshold (e.g., 3.0 for 3%)
+     * @return Parsons code string starting with '*'
+     */
+    public static String generateParsonsCodeWithPercentageThreshold(double[] frequencies, 
+                                                                   double percentageThreshold) {
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">        if (frequencies.length &lt;= 1) {</span>
+<span class="nc" id="L102">            return &quot;*&quot;;</span>
+        }
+        
+<span class="fc" id="L105">        StringBuilder code = new StringBuilder(&quot;*&quot;);</span>
+        
+<span class="fc bfc" id="L107" title="All 2 branches covered.">        for (int i = 1; i &lt; frequencies.length; i++) {</span>
+<span class="fc" id="L108">            double prevFreq = frequencies[i - 1];</span>
+<span class="fc" id="L109">            double currFreq = frequencies[i];</span>
+            
+<span class="fc" id="L111">            double threshold = Math.abs(prevFreq) * (percentageThreshold / 100.0);</span>
+            
+<span class="fc bfc" id="L113" title="All 2 branches covered.">            if (Math.abs(currFreq - prevFreq) &lt;= threshold) {</span>
+<span class="fc" id="L114">                code.append(&quot;R&quot;);</span>
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">            } else if (currFreq &gt; prevFreq) {</span>
+<span class="fc" id="L116">                code.append(&quot;U&quot;);</span>
+            } else {
+<span class="nc" id="L118">                code.append(&quot;D&quot;);</span>
+            }
+        }
+        
+<span class="fc" id="L122">        return code.toString();</span>
+    }
+    
+    /**
+     * Calculates similarity between two Parsons codes using edit distance.
+     * 
+     * @param code1 first Parsons code
+     * @param code2 second Parsons code
+     * @return similarity score between 0.0 (no similarity) and 1.0 (identical)
+     */
+    public static double calculateSimilarity(String code1, String code2) {
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        if (code1.equals(code2)) {</span>
+<span class="fc" id="L134">            return 1.0;</span>
+        }
+        
+<span class="fc" id="L137">        int editDistance = calculateEditDistance(code1, code2);</span>
+<span class="fc" id="L138">        int maxLength = Math.max(code1.length(), code2.length());</span>
+        
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">        if (maxLength == 0) {</span>
+<span class="nc" id="L141">            return 1.0;</span>
+        }
+        
+<span class="fc" id="L144">        return 1.0 - (double) editDistance / maxLength;</span>
+    }
+    
+    /**
+     * Finds the best matching Parsons code from a collection.
+     * 
+     * @param queryCode the Parsons code to match
+     * @param candidateCodes collection of candidate Parsons codes
+     * @return the best matching Parsons code, or null if collection is empty
+     */
+    public static String findBestMatch(String queryCode, Collection&lt;String&gt; candidateCodes) {
+<span class="fc" id="L155">        return candidateCodes.stream()</span>
+<span class="fc" id="L156">            .max(Comparator.comparingDouble(code -&gt; calculateSimilarity(queryCode, code)))</span>
+<span class="fc" id="L157">            .orElse(null);</span>
+    }
+    
+    /**
+     * Finds all Parsons codes that match above a given similarity threshold.
+     * 
+     * @param queryCode the Parsons code to match
+     * @param candidateCodes collection of candidate Parsons codes
+     * @param threshold minimum similarity threshold (0.0 to 1.0)
+     * @return list of matching codes sorted by similarity (best first)
+     */
+    public static List&lt;String&gt; findMatches(String queryCode, Collection&lt;String&gt; candidateCodes, 
+                                          double threshold) {
+<span class="fc" id="L170">        return candidateCodes.stream()</span>
+<span class="fc bfc" id="L171" title="All 2 branches covered.">            .filter(code -&gt; calculateSimilarity(queryCode, code) &gt;= threshold)</span>
+<span class="fc" id="L172">            .sorted((code1, code2) -&gt; Double.compare(</span>
+<span class="fc" id="L173">                calculateSimilarity(queryCode, code2), </span>
+<span class="fc" id="L174">                calculateSimilarity(queryCode, code1)))</span>
+<span class="fc" id="L175">            .collect(Collectors.toList());</span>
+    }
+    
+    /**
+     * Validates that a string is a valid Parsons code.
+     * 
+     * @param code the string to validate
+     * @return true if the code is valid, false otherwise
+     */
+    public static boolean isValidParsonsCode(String code) {
+<span class="fc bfc" id="L185" title="All 4 branches covered.">        if (code == null || code.isEmpty()) {</span>
+<span class="fc" id="L186">            return false;</span>
+        }
+        
+<span class="fc bfc" id="L189" title="All 2 branches covered.">        if (!code.startsWith(&quot;*&quot;)) {</span>
+<span class="fc" id="L190">            return false;</span>
+        }
+        
+<span class="fc bfc" id="L193" title="All 2 branches covered.">        for (int i = 1; i &lt; code.length(); i++) {</span>
+<span class="fc" id="L194">            char c = code.charAt(i);</span>
+<span class="fc bfc" id="L195" title="All 6 branches covered.">            if (c != 'U' &amp;&amp; c != 'D' &amp;&amp; c != 'R') {</span>
+<span class="fc" id="L196">                return false;</span>
+            }
+        }
+        
+<span class="fc" id="L200">        return true;</span>
+    }
+    
+    /**
+     * Simplifies a Parsons code by removing consecutive repeats.
+     * For example, &quot;*URRRD&quot; becomes &quot;*URD&quot;.
+     * 
+     * @param code the Parsons code to simplify
+     * @return simplified Parsons code
+     */
+    public static String simplifyParsonsCode(String code) {
+<span class="pc bpc" id="L211" title="1 of 2 branches missed.">        if (code.length() &lt;= 1) {</span>
+<span class="nc" id="L212">            return code;</span>
+        }
+        
+<span class="fc" id="L215">        StringBuilder simplified = new StringBuilder();</span>
+<span class="fc" id="L216">        simplified.append(code.charAt(0)); // Always keep the '*'</span>
+        
+<span class="fc" id="L218">        char lastChar = code.charAt(0);</span>
+<span class="fc bfc" id="L219" title="All 2 branches covered.">        for (int i = 1; i &lt; code.length(); i++) {</span>
+<span class="fc" id="L220">            char currentChar = code.charAt(i);</span>
+<span class="fc bfc" id="L221" title="All 2 branches covered.">            if (currentChar != lastChar) {</span>
+<span class="fc" id="L222">                simplified.append(currentChar);</span>
+<span class="fc" id="L223">                lastChar = currentChar;</span>
+            }
+        }
+        
+<span class="fc" id="L227">        return simplified.toString();</span>
+    }
+    
+    /**
+     * Extracts a subsequence of the Parsons code.
+     * 
+     * @param code the original Parsons code
+     * @param start start index (0 for the '*' symbol)
+     * @param length length of the subsequence
+     * @return subsequence of the Parsons code
+     */
+    public static String extractSubsequence(String code, int start, int length) {
+<span class="pc bpc" id="L239" title="3 of 6 branches missed.">        if (start &lt; 0 || start &gt;= code.length() || length &lt;= 0) {</span>
+<span class="nc" id="L240">            return &quot;&quot;;</span>
+        }
+        
+<span class="fc" id="L243">        int end = Math.min(start + length, code.length());</span>
+<span class="fc" id="L244">        String subsequence = code.substring(start, end);</span>
+        
+        // Ensure subsequence starts with '*' if it doesn't already
+<span class="pc bpc" id="L247" title="1 of 4 branches missed.">        if (!subsequence.startsWith(&quot;*&quot;) &amp;&amp; start == 0) {</span>
+<span class="nc" id="L248">            return subsequence;</span>
+<span class="fc bfc" id="L249" title="All 2 branches covered.">        } else if (!subsequence.startsWith(&quot;*&quot;)) {</span>
+<span class="fc" id="L250">            return &quot;*&quot; + subsequence;</span>
+        }
+        
+<span class="fc" id="L253">        return subsequence;</span>
+    }
+    
+    /**
+     * Analyzes the complexity of a Parsons code by counting direction changes.
+     * 
+     * @param code the Parsons code to analyze
+     * @return complexity analysis result
+     */
+    public static ParsonsAnalysis analyzeParsonsCode(String code) {
+<span class="fc bfc" id="L263" title="All 2 branches covered.">        if (!isValidParsonsCode(code)) {</span>
+<span class="fc" id="L264">            throw new IllegalArgumentException(&quot;Invalid Parsons code: &quot; + code);</span>
+        }
+        
+<span class="fc" id="L267">        int upCount = 0;</span>
+<span class="fc" id="L268">        int downCount = 0;</span>
+<span class="fc" id="L269">        int repeatCount = 0;</span>
+<span class="fc" id="L270">        int directionChanges = 0;</span>
+        
+<span class="fc" id="L272">        char lastDirection = '*';</span>
+        
+<span class="fc bfc" id="L274" title="All 2 branches covered.">        for (int i = 1; i &lt; code.length(); i++) {</span>
+<span class="fc" id="L275">            char current = code.charAt(i);</span>
+            
+<span class="pc bpc" id="L277" title="1 of 4 branches missed.">            switch (current) {</span>
+                case 'U':
+<span class="fc" id="L279">                    upCount++;</span>
+<span class="fc" id="L280">                    break;</span>
+                case 'D':
+<span class="fc" id="L282">                    downCount++;</span>
+<span class="fc" id="L283">                    break;</span>
+                case 'R':
+<span class="fc" id="L285">                    repeatCount++;</span>
+                    break;
+            }
+            
+            // Count direction changes (ignoring repeats)
+<span class="pc bpc" id="L290" title="1 of 8 branches missed.">            if (current != 'R' &amp;&amp; lastDirection != '*' &amp;&amp; lastDirection != 'R' &amp;&amp; current != lastDirection) {</span>
+<span class="fc" id="L291">                directionChanges++;</span>
+            }
+            
+<span class="fc bfc" id="L294" title="All 2 branches covered.">            if (current != 'R') {</span>
+<span class="fc" id="L295">                lastDirection = current;</span>
+            }
+        }
+        
+<span class="fc" id="L299">        return new ParsonsAnalysis(code, upCount, downCount, repeatCount, directionChanges);</span>
+    }
+    
+    /**
+     * Creates a database of well-known melodies and their Parsons codes.
+     * This can be used for song recognition and testing.
+     * 
+     * @return map of song names to their Parsons codes
+     */
+    public static Map&lt;String, String&gt; createWellKnownMelodyDatabase() {
+<span class="fc" id="L309">        Map&lt;String, String&gt; database = new HashMap&lt;&gt;();</span>
+        
+        // Famous melodies and their Parsons codes
+<span class="fc" id="L312">        database.put(&quot;Twinkle, Twinkle, Little Star&quot;, &quot;*RUURDDR&quot;);</span>
+<span class="fc" id="L313">        database.put(&quot;Mary Had a Little Lamb&quot;, &quot;*DRURURDR&quot;);</span>
+<span class="fc" id="L314">        database.put(&quot;Happy Birthday&quot;, &quot;*RURURURU&quot;);</span>
+<span class="fc" id="L315">        database.put(&quot;Ode to Joy&quot;, &quot;*RRURURDR&quot;);</span>
+<span class="fc" id="L316">        database.put(&quot;Amazing Grace&quot;, &quot;*URDURDRD&quot;);</span>
+<span class="fc" id="L317">        database.put(&quot;Silent Night&quot;, &quot;*RDURDURD&quot;);</span>
+<span class="fc" id="L318">        database.put(&quot;Jingle Bells&quot;, &quot;*RRRUURU&quot;);</span>
+<span class="fc" id="L319">        database.put(&quot;London Bridge&quot;, &quot;*RDRRURDR&quot;);</span>
+<span class="fc" id="L320">        database.put(&quot;Row, Row, Row Your Boat&quot;, &quot;*RRURURDR&quot;);</span>
+<span class="fc" id="L321">        database.put(&quot;Frère Jacques&quot;, &quot;*URURDRUR&quot;);</span>
+        
+        // Scale patterns
+<span class="fc" id="L324">        database.put(&quot;C Major Scale (ascending)&quot;, &quot;*URURURU&quot;);</span>
+<span class="fc" id="L325">        database.put(&quot;C Major Scale (descending)&quot;, &quot;*DRDRDRD&quot;);</span>
+<span class="fc" id="L326">        database.put(&quot;Chromatic Scale (ascending)&quot;, &quot;*UUUUUUUUUUU&quot;);</span>
+        
+<span class="fc" id="L328">        return database;</span>
+    }
+    
+    // Helper method for calculating edit distance (Levenshtein distance)
+    private static int calculateEditDistance(String s1, String s2) {
+<span class="fc" id="L333">        int[][] dp = new int[s1.length() + 1][s2.length() + 1];</span>
+        
+<span class="fc bfc" id="L335" title="All 2 branches covered.">        for (int i = 0; i &lt;= s1.length(); i++) {</span>
+<span class="fc" id="L336">            dp[i][0] = i;</span>
+        }
+        
+<span class="fc bfc" id="L339" title="All 2 branches covered.">        for (int j = 0; j &lt;= s2.length(); j++) {</span>
+<span class="fc" id="L340">            dp[0][j] = j;</span>
+        }
+        
+<span class="fc bfc" id="L343" title="All 2 branches covered.">        for (int i = 1; i &lt;= s1.length(); i++) {</span>
+<span class="fc bfc" id="L344" title="All 2 branches covered.">            for (int j = 1; j &lt;= s2.length(); j++) {</span>
+<span class="fc bfc" id="L345" title="All 2 branches covered.">                if (s1.charAt(i - 1) == s2.charAt(j - 1)) {</span>
+<span class="fc" id="L346">                    dp[i][j] = dp[i - 1][j - 1];</span>
+                } else {
+<span class="fc" id="L348">                    dp[i][j] = 1 + Math.min(Math.min(dp[i - 1][j], dp[i][j - 1]), dp[i - 1][j - 1]);</span>
+                }
+            }
+        }
+        
+<span class="fc" id="L353">        return dp[s1.length()][s2.length()];</span>
+    }
+    
+    /**
+     * Data class containing analysis results for a Parsons code.
+     */
+    public static class ParsonsAnalysis {
+        public final String originalCode;
+        public final int upCount;
+        public final int downCount;
+        public final int repeatCount;
+        public final int directionChanges;
+        public final int totalLength;
+        public final double complexity;
+        
+        public ParsonsAnalysis(String originalCode, int upCount, int downCount, 
+<span class="fc" id="L369">                              int repeatCount, int directionChanges) {</span>
+<span class="fc" id="L370">            this.originalCode = originalCode;</span>
+<span class="fc" id="L371">            this.upCount = upCount;</span>
+<span class="fc" id="L372">            this.downCount = downCount;</span>
+<span class="fc" id="L373">            this.repeatCount = repeatCount;</span>
+<span class="fc" id="L374">            this.directionChanges = directionChanges;</span>
+<span class="fc" id="L375">            this.totalLength = originalCode.length() - 1; // Exclude the '*'</span>
+<span class="pc bpc" id="L376" title="1 of 2 branches missed.">            this.complexity = totalLength &gt; 0 ? (double) directionChanges / totalLength : 0.0;</span>
+<span class="fc" id="L377">        }</span>
+        
+        @Override
+        public String toString() {
+<span class="nc" id="L381">            return String.format(</span>
+                &quot;ParsonsAnalysis{code='%s', up=%d, down=%d, repeat=%d, changes=%d, complexity=%.2f}&quot;,
+<span class="nc" id="L383">                originalCode, upCount, downCount, repeatCount, directionChanges, complexity);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
