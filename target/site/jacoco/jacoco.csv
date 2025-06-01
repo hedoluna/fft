@@ -2,8 +2,8 @@ GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_
 Fast Fourier Transform Library,com.fft.optimized,FFTOptimized65536,48,282,9,21,10,42,10,12,3,4
 Fast Fourier Transform Library,com.fft.optimized,FFTOptimized8,6,799,2,12,2,126,2,12,0,7
 Fast Fourier Transform Library,com.fft.optimized,FFTOptimized512,88,41,8,4,13,10,9,4,3,4
-Fast Fourier Transform Library,com.fft.optimized,FFTOptimized16384,48,259,9,11,10,37,10,7,3,4
 Fast Fourier Transform Library,com.fft.optimized,FFTOptimized128,79,50,6,6,11,12,6,7,1,6
+Fast Fourier Transform Library,com.fft.optimized,FFTOptimized16384,48,259,9,11,10,37,10,7,3,4
 Fast Fourier Transform Library,com.fft.optimized,FFTOptimized2048,88,41,8,4,13,10,9,4,3,4
 Fast Fourier Transform Library,com.fft.optimized,FFTOptimized1024,88,41,8,4,13,10,9,4,3,4
 Fast Fourier Transform Library,com.fft.optimized,FFTOptimized64,56,73,2,10,6,17,2,11,0,7
