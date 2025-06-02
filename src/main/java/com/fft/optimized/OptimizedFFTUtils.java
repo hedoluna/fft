@@ -164,22 +164,26 @@ public class OptimizedFFTUtils {
         -0.7071067812, -0.5555702330, -0.3826834324, -0.1950903220
     };
 
-    // Precomputed values for stage 4 cosine terms (Math.cos(i * Math.PI / 8))
+    // Valori combinati cos/sin per migliorare la località della cache
     @jdk.internal.vm.annotation.Contended
-    private static final double[] STAGE4_COS = {
-        1.0, 0.9238795325, 0.7071067812, 0.3826834324,
-        0.0, -0.3826834324, -0.7071067812, -0.9238795325,
-        -1.0, -0.9238795325, -0.7071067812, -0.3826834324,
-        0.0, 0.3826834324, 0.7071067812, 0.9238795325
-    };
-
-    // Precomputed values for stage 4 sine terms (Math.sin(i * Math.PI / 8))
-    @jdk.internal.vm.annotation.Contended 
-    private static final double[] STAGE4_SIN = {
-        0.0, 0.3826834324, 0.7071067812, 0.9238795325,
-        1.0, 0.9238795325, 0.7071067812, 0.3826834324,
-        0.0, -0.3826834324, -0.7071067812, -0.9238795325,
-        -1.0, -0.9238795325, -0.7071067812, -0.3826834324
+    private static final double[] STAGE4_TRIG = {
+        // Formato: cos0, sin0, cos1, sin1, ..., cos15, sin15
+        1.0, 0.0,
+        0.9238795325, 0.3826834324,
+        0.7071067812, 0.7071067812,
+        0.3826834324, 0.9238795325,
+        0.0, 1.0,
+        -0.3826834324, 0.9238795325,
+        -0.7071067812, 0.7071067812,
+        -0.9238795325, 0.3826834324,
+        -1.0, 0.0,
+        -0.9238795325, -0.3826834324,
+        -0.7071067812, -0.7071067812,
+        -0.3826834324, -0.9238795325,
+        0.0, -1.0,
+        0.3826834324, -0.9238795325,
+        0.7071067812, -0.7071067812,
+        0.9238795325, -0.3826834324
     };
 
     public static double[] fft32(final double[] inputReal, final double[] inputImag, boolean forward) {
@@ -262,8 +266,9 @@ public class OptimizedFFTUtils {
         // Stage 4: Distance 2 (with twiddle factors)
         for (int i = 0; i < 16; i += 2) {
             int j = i + 1;
-            double c = STAGE4_COS[i % 16];
-            double s = STAGE4_SIN[i % 16];
+            int trigIndex = (i % 16) * 2;
+            double c = STAGE4_TRIG[trigIndex];
+            double s = STAGE4_TRIG[trigIndex + 1];
             
             tReal = xReal[j] * c - xImag[j] * s;
             tImag = xImag[j] * c + xReal[j] * s;
