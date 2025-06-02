@@ -1,5 +1,7 @@
 package com.fft.core;
 
+import com.fft.factory.FFTImplementation;
+
 /**
  * Fast Fourier Transform (FFT) - Generic Reference Implementation
  * 
@@ -39,6 +41,12 @@ package com.fft.core;
  * @see FFT for interface details
  * @see "E. Oran Brigham, The Fast Fourier Transform, 1973"
  */
+@FFTImplementation(
+    size = -1, // Supports any power-of-2 size
+    priority = 1, // Lowest priority - used as fallback
+    description = "Generic FFT implementation (Cooley-Tukey algorithm)",
+    characteristics = {"generic", "reference-implementation", "fallback", "cooley-tukey", "unoptimized"}
+)
 public class FFTBase implements FFT {
     
     @Override
@@ -69,6 +77,11 @@ public class FFTBase implements FFT {
     @Override
     public boolean supportsSize(int size) {
         return isPowerOfTwo(size);
+    }
+    
+    @Override
+    public String getDescription() {
+        return "Generic FFT implementation (Cooley-Tukey algorithm)";
     }
     
     /**
