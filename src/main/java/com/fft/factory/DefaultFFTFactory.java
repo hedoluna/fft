@@ -60,12 +60,11 @@ public class DefaultFFTFactory implements FFTFactory {
      * This method registers known implementations and provides fallback implementations.
      */
     private void registerDefaultImplementations() {
-        // Register optimized implementations with high priority
+        // Registra implementazioni ottimizzate con alta priorità
         registerImplementation(8, com.fft.optimized.FFTOptimized8::new, 50);
         registerImplementation(32, com.fft.optimized.FFTOptimized32::new, 50);
-        registerImplementation(64, com.fft.optimized.FFTOptimized64::new, 50); // Ottimizzazione completata
         
-        // Register FFTBase as fallback for all power-of-2 sizes up to 8192
+        // Registra FFTBase come fallback per dimensioni potenza di 2 fino a 8192
         for (int size = 2; size <= 8192; size *= 2) {
             registerImplementation(size, FFTBase::new, 0); // Low priority fallback
         }
