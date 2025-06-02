@@ -223,7 +223,7 @@ public class FFTResult {
     
     @Override
     public String toString() {
-        return String.format("FFTResult[size=%d, first_magnitude=%.3f]", 
+        return String.format(java.util.Locale.US, "FFTResult[size=%d, first_magnitude=%.3f]", 
                            size, 
                            size > 0 ? getMagnitudeAt(0) : 0.0);
     }
