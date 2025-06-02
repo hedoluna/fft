@@ -17,6 +17,13 @@ import java.util.Arrays;
  * <h3>Thread Safety:</h3>
  * <p>This class is immutable and thread-safe. All accessor methods return new arrays
  * to prevent external modification of the internal state.</p>
+ *
+ * <h3>Example Usage:</h3>
+ * <pre>{@code
+ * FFTResult result = fft.transform(inputSignal);
+ * double[] powerSpectrum = result.getPowerSpectrum();
+ * double[] magnitudes = result.getMagnitudes();
+ * }</pre>
  * 
  * @author Engine AI Assistant  
  * @since 2.0.0
