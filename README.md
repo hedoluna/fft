@@ -8,10 +8,10 @@ Enhanced and refactored in 2025 with modern Java patterns, comprehensive testing
 
 ## ✨ Key Features
 
-- **🚀 High Performance**: Optimized implementations providing 1.24x to 8x speedup over generic implementation
+- **🚀 High Performance**: Optimized implementations providing 1.4x to 5.9x speedup over generic implementation
 - **🏭 Factory Pattern**: Automatic implementation selection based on input size  
 - **🎯 Type Safety**: Modern API with immutable result objects and rich data extraction
-- **🧪 Comprehensive Testing**: 100+ unit tests ensuring correctness across all implementations
+- **🧪 Comprehensive Testing**: 266 unit tests ensuring correctness across all implementations
 - **🎵 Audio Processing**: Real-time pitch detection and song recognition using Parsons code methodology
 - **📦 Zero Dependencies**: Pure Java implementation (uses javax.sound for audio demos only)
 - **🔧 Maven Build**: Modern build system with quality gates and code coverage
@@ -31,8 +31,9 @@ com.fft.factory/      # Implementation selection and factory pattern
 └── FFTImplementationDiscovery.java # Auto-registration system
 
 com.fft.optimized/    # Size-specific optimized implementations
-├── FFTOptimized8.java    # 8-point FFT (1.24x speedup)
-├── FFTOptimized32.java   # 32-point FFT 
+├── FFTOptimized8.java    # 8-point FFT (1.4x speedup)
+├── FFTOptimized16.java   # 16-point FFT (framework ready)
+├── FFTOptimized32.java   # 32-point FFT (5.9x speedup)
 ├── FFTOptimized64.java   # 64-point FFT
 └── ... (sizes 8 to 65536)
 

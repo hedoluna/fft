@@ -41,9 +41,9 @@ import com.fft.factory.FFTImplementation;
  */
 @FFTImplementation(
     size = 16,
-    priority = 50,
-    description = "Highly optimized implementation with complete loop unrolling for 16-element arrays",
-    characteristics = {"unrolled-loops", "precomputed-trig", "2x-speedup"}
+    priority = 10,
+    description = "Partial implementation - delegates to FFTBase for correctness",
+    characteristics = {"incomplete-optimization", "fallback-delegation", "development-in-progress"}
 )
 public class FFTOptimized16 implements FFT {
     
@@ -51,17 +51,25 @@ public class FFTOptimized16 implements FFT {
     
     @Override
     public FFTResult transform(double[] real, double[] imaginary, boolean forward) {
-        if (real.length != SIZE || imaginary.length != SIZE) {
-            throw new IllegalArgumentException("Arrays must be of length " + SIZE);
+        if (real.length != SIZE) {
+            throw new IllegalArgumentException("Real array must be of length " + SIZE);
+        }
+        
+        // Handle null imaginary array
+        double[] imag = imaginary;
+        if (imag == null) {
+            imag = new double[SIZE];  // Create zero array for null input
+        } else if (imag.length != SIZE) {
+            throw new IllegalArgumentException("Imaginary array length must be " + SIZE + ", got: " + imag.length);
         }
         
         if (!forward) {
             // Use optimized inverse transform
-            double[] result = OptimizedFFTUtils.ifft16(real, imaginary);
+            double[] result = OptimizedFFTUtils.ifft16(real, imag);
             return new FFTResult(result);
         }
         
-        double[] result = OptimizedFFTUtils.fft16(real, imaginary, forward);
+        double[] result = OptimizedFFTUtils.fft16(real, imag, forward);
         return new FFTResult(result);
     }
     

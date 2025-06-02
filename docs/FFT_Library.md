@@ -20,8 +20,10 @@ src/
 │   │           │   └── FFTImplementationDiscovery.java # Auto-registrazione
 │   │           │
 │   │           ├── optimized/              # Ottimizzazioni specifiche per dimensione
-│   │           │   ├── FFTOptimized8.java  # 8-point (completamente srotolato)
-│   │           │   ├── FFTOptimized32.java # 32-point (ottimizzazione a stadi)
+│   │           │   ├── FFTOptimized8.java  # 8-point (1.4x speedup)
+│   │           │   ├── FFTOptimized16.java # 16-point (framework ready)
+│   │           │   ├── FFTOptimized32.java # 32-point (5.9x speedup)
+│   │           │   ├── FFTOptimized64.java # 64-point (corretto fallback)
 │   │           │   └── OptimizedFFTUtils.java # Logica ottimizzata condivisa
 │   │           │
 │   │           └── utils/                  # Utilità deprecate

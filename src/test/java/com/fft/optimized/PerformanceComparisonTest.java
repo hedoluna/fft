@@ -55,6 +55,39 @@ public class PerformanceComparisonTest {
     }
     
     @Test
+    void compareFFT16Performance() {
+        double[] real = generateTestSignal(16);
+        double[] imag = new double[16];
+        
+        // Warm up
+        for (int i = 0; i < 1000; i++) {
+            new FFTBase().transform(real, imag, true);
+            factory.createFFT(16).transform(real, imag, true);
+        }
+        
+        // Benchmark base implementation
+        long baseStart = System.nanoTime();
+        for (int i = 0; i < 10000; i++) {
+            new FFTBase().transform(real, imag, true);
+        }
+        long baseTime = System.nanoTime() - baseStart;
+        
+        // Benchmark optimized implementation
+        long optimizedStart = System.nanoTime();
+        for (int i = 0; i < 10000; i++) {
+            factory.createFFT(16).transform(real, imag, true);
+        }
+        long optimizedTime = System.nanoTime() - optimizedStart;
+        
+        double speedup = (double) baseTime / optimizedTime;
+        System.out.printf("FFT Size 16 - Base: %,d ns, Optimized: %,d ns, Speedup: %.2fx%n", 
+                         baseTime, optimizedTime, speedup);
+        
+        // FFTOptimized16 currently uses fallback, allow performance similar to base
+        assertThat(speedup).isGreaterThan(0.5); // Allow overhead during transition
+    }
+    
+    @Test
     void compareFFT32Performance() {
         double[] real = generateTestSignal(32);
         double[] imag = new double[32];

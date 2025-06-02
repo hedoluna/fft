@@ -36,7 +36,7 @@ class FFTPerformanceBenchmarkTest {
     private static final double TOLERANCE = 1e-10;
     
     // Sizes to benchmark
-    private static final int[] SIZES = {8, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536};
+    private static final int[] SIZES = {8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536};
     
     @BeforeEach
     void setUp() {
@@ -52,6 +52,12 @@ class FFTPerformanceBenchmarkTest {
         @DisplayName("Should benchmark FFTOptimized8 performance")
         void shouldBenchmarkFFTOptimized8Performance() {
             benchmarkImplementation(8, new FFTOptimized8());
+        }
+        
+        @Test
+        @DisplayName("Should benchmark FFTOptimized16 performance")
+        void shouldBenchmarkFFTOptimized16Performance() {
+            benchmarkImplementation(16, new FFTOptimized16());
         }
         
         @Test
