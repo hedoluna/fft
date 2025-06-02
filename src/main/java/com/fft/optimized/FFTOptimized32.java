@@ -31,9 +31,9 @@ import com.fft.factory.FFTImplementation;
  */
 @FFTImplementation(
     size = 32,
-    priority = 50,
-    description = "Highly optimized implementation with complete loop unrolling for 32-element arrays",
-    characteristics = {"unrolled-loops", "precomputed-trig", "zero-overhead"}
+    priority = 10,
+    description = "Partial implementation - delegates to FFTBase for correctness",
+    characteristics = {"incomplete-optimization", "fallback-delegation", "development-in-progress"}
 )
 public class FFTOptimized32 implements FFT {
     

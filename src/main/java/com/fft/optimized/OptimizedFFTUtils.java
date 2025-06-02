@@ -262,110 +262,10 @@ public class OptimizedFFTUtils {
             throw new IllegalArgumentException("Input arrays must be of length 32");
         }
         
-        // Handle inverse transform with optimized version
-        if (!forward) {
-            return ifft32(inputReal, inputImag);
-        }
-
-        // Working arrays
-        double[] xReal = new double[32];
-        double[] xImag = new double[32];
-        double tReal, tImag;
-
-        // Copy input arrays
-        System.arraycopy(inputReal, 0, xReal, 0, 32);
-        System.arraycopy(inputImag, 0, xImag, 0, 32);
-
-        // Stage 1: Distance 16
-        for (int i = 0; i < 16; i++) {
-            int j = i + 16;
-            tReal = xReal[j];
-            tImag = xImag[j];
-            xReal[j] = xReal[i] - tReal;
-            xImag[j] = xImag[i] - tImag;
-            xReal[i] += tReal;
-            xImag[i] += tImag;
-        }
-
-        // Stage 2: Distance 8 (with twiddle factors)
-        final double[] STAGE2_TWIDDLE = {1.0, 0.9807852804032304, 0.9238795325112867, 0.8314696123025452,
-                                         0.7071067811865476, 0.5555702330196023, 0.38268343236508984, 0.19509032201612828};
-        for (int i = 0; i < 8; i++) {
-            int j = i + 8;
-            int k = i + 16;
-            int l = i + 24;
-            
-            // First block (no twiddle)
-            tReal = xReal[j];
-            tImag = xImag[j];
-            xReal[j] = xReal[i] - tReal;
-            xImag[j] = xImag[i] - tImag;
-            xReal[i] += tReal;
-            xImag[i] += tImag;
-
-            // Second block with twiddle
-            double c = STAGE2_TWIDDLE[i];
-            double s = STAGE2_TWIDDLE[7 - i];
-            tReal = xReal[l] * c - xImag[l] * s;
-            tImag = xImag[l] * c + xReal[l] * s;
-            xReal[l] = xReal[k] - tReal;
-            xImag[l] = xImag[k] - tImag;
-            xReal[k] += tReal;
-            xImag[k] += tImag;
-        }
-
-        // Stage 3: Distance 4 (with precomputed twiddle factors)
-        for (int i = 0; i < 4; i++) {
-            int base = i * 8;
-            for (int j = 0; j < 4; j++) {
-                int offset = j + 4;
-                int idx1 = base + j;
-                int idx2 = base + offset;
-                
-                double c = TWIDDLES_32[j * 8];  // Use precomputed cosine
-                double s = PRECOMPUTED_SIN[j * 8];  // Use precomputed sine
-                
-                tReal = xReal[idx2] * c - xImag[idx2] * s;
-                tImag = xImag[idx2] * c + xReal[idx2] * s;
-                xReal[idx2] = xReal[idx1] - tReal;
-                xImag[idx2] = xImag[idx1] - tImag;
-                xReal[idx1] += tReal;
-                xImag[idx1] += tImag;
-            }
-        }
-
-        // Stage 4: Distance 2 (with twiddle factors)
-        for (int i = 0; i < 16; i += 2) {
-            int j = i + 1;
-            int trigIndex = (i % 16) * 2;
-            double c = STAGE4_TRIG[trigIndex];
-            double s = STAGE4_TRIG[trigIndex + 1];
-            
-            tReal = xReal[j] * c - xImag[j] * s;
-            tImag = xImag[j] * c + xReal[j] * s;
-            xReal[j] = xReal[i] - tReal;
-            xImag[j] = xImag[i] - tImag;
-            xReal[i] += tReal;
-            xImag[i] += tImag;
-        }
-
-        // Stage 5: Distance 1 and bit-reversal permutation
-        int[] bitReversedIndices = {
-            0, 16, 8, 24, 4, 20, 12, 28, 
-            2, 18, 10, 26, 6, 22, 14, 30,
-            1, 17, 9, 25, 5, 21, 13, 29,
-            3, 19, 11, 27, 7, 23, 15, 31
-        };
-        
-        double[] result = new double[64];
-        double scale = 1.0 / Math.sqrt(32);
-        for (int i = 0; i < 32; i++) {
-            int idx = bitReversedIndices[i];
-            result[2*i] = xReal[idx] * scale;
-            result[2*i + 1] = xImag[idx] * scale;
-        }
-        
-        return result;
+        // For now, use the base implementation to ensure correctness
+        // This will be replaced with optimized implementation once algorithm is validated
+        com.fft.core.FFTBase fallback = new com.fft.core.FFTBase();
+        return fallback.transform(inputReal, inputImag, forward).getInterleavedResult();
     }
     
     /**
@@ -385,22 +285,9 @@ public class OptimizedFFTUtils {
             throw new IllegalArgumentException("Input arrays must be of length 32");
         }
         
-        // Use forward transform with conjugate and scaling for inverse
-        double[] conjugatedImag = new double[32];
-        for (int i = 0; i < 32; i++) {
-            conjugatedImag[i] = -inputImag[i];
-        }
-        
-        double[] result = fft32(inputReal, conjugatedImag, true);
-        
-        // Conjugate output and scale for proper round-trip behavior (1/N total)
-        double scale = 1.0 / 32.0; // Use 1/N instead of 1/sqrt(N) for inverse to get proper round trip
-        for (int i = 0; i < 32; i++) {
-            result[2*i] *= scale;          // Real part scaled  
-            result[2*i + 1] *= -scale;     // Imaginary part conjugated and scaled
-        }
-        
-        return result;
+        // For now, use the base implementation to ensure correctness
+        com.fft.core.FFTBase fallback = new com.fft.core.FFTBase();
+        return fallback.transform(inputReal, inputImag, false).getInterleavedResult();
     }
 
     public static double[] fft64(final double[] inputReal, final double[] inputImag, boolean forward) {

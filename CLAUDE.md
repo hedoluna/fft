@@ -8,7 +8,7 @@ This is a Java Fast Fourier Transform (FFT) library with modern architecture, fa
 
 **✅ BUILD STATUS**: Compiles successfully  
 **✅ TEST STATUS**: All 266 tests passing (100% pass rate)  
-**✅ PERFORMANCE**: Verified speedups: FFTOptimized8 (1.4x), FFTOptimized32 (5.9x); FFTOptimized16 & FFTOptimized64 use correct fallbacks
+**✅ PERFORMANCE**: Verified speedup: FFTOptimized8 (1.4x); FFTOptimized16, FFTOptimized32 & FFTOptimized64 use correct fallbacks
 
 **Key Architecture Principles:**
 - Factory pattern with auto-discovery for optimal implementation selection
@@ -108,7 +108,7 @@ mvn test -Dtest="FFTPerformanceBenchmarkTest"
 
 **Current Reality**:
 - ✅ **Core functionality working** (FFTBase, factory pattern, auto-discovery)
-- ✅ **Two genuine optimizations** (FFTOptimized8: 1.4x, FFTOptimized32: 5.9x) with correct fallbacks for FFTOptimized16 & FFTOptimized64
+- ✅ **One genuine optimization** (FFTOptimized8: 1.4x) with correct fallbacks for FFTOptimized16, FFTOptimized32 & FFTOptimized64
 - ✅ **Test suite stable** (266 tests passing, all implementations tested)
 - ✅ **Complete coverage** (All power-of-2 sizes 8-64 have optimized implementations)
 
