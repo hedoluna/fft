@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mvn test:*)",
+      "Bash(mvn clean:*)",
+      "Bash(rg:*)",
+      "Bash(mv:*)",
+      "mcp__sequential-thinking__sequentialthinking",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(git add:*)",
+      "Bash(git rm:*)"
+    ]
+  },
+  "enableAllProjectMcpServers": false
+}
