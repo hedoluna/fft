@@ -178,6 +178,7 @@ class DefaultFFTFactoryTest {
     /**
      * Mock FFT implementation for testing purposes.
      */
+    @FFTImplementation(size = 16, priority = 100, description = "Mock FFT for testing")
     private static class MockFFT implements FFT {
         private final int supportedSize;
         

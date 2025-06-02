@@ -152,6 +152,7 @@ class FFTFactoryIntegrationTest {
     /**
      * Mock FFT implementation for testing.
      */
+    @FFTImplementation(size = 8, priority = 100, description = "Mock FFT for integration testing")
     private static class MockFFT implements FFT {
         @Override
         public FFTResult transform(double[] real, double[] imaginary, boolean forward) {
