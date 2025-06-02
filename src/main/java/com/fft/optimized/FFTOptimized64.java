@@ -43,7 +43,7 @@ import com.fft.factory.FFTImplementation;
 @FFTImplementation(
     size = 64,
     priority = 10,
-    description = "Partial implementation - delegates to FFTBase for most operations",
+    description = "Partial implementation - delegates to FFTBase for correctness",
     characteristics = {"incomplete-optimization", "fallback-delegation", "development-in-progress"}
 )
 public class FFTOptimized64 implements FFT {
@@ -56,13 +56,7 @@ public class FFTOptimized64 implements FFT {
             throw new IllegalArgumentException("Arrays must be of length " + SIZE);
         }
         
-        if (!forward) {
-            // For inverse transform, delegate to base implementation
-            FFTBase fallback = new FFTBase();
-            return fallback.transform(real, imaginary, forward);
-        }
-        
-        double[] result = fft64(real, imaginary, forward);
+        double[] result = OptimizedFFTUtils.fft64(real, imaginary, forward);
         return new FFTResult(result);
     }
     
