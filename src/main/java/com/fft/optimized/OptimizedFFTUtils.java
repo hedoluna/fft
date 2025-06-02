@@ -140,6 +140,18 @@ public class OptimizedFFTUtils {
      * @param forward true for forward transform, false for inverse
      * @return array of length 64 with interleaved real and imaginary parts
      */
+    // Precomputed twiddle factors for n=32 (cosine values only, sin = cos(angle - PI/2))
+    private static final double[] TWIDDLES_32 = {
+        1.0, 0.9807852804, 0.9238795325, 0.8314696123,
+        0.7071067812, 0.5555702330, 0.3826834324, 0.1950903220,
+        -0.0, -0.1950903220, -0.3826834324, -0.5555702330,
+        -0.7071067812, -0.8314696123, -0.9238795325, -0.9807852804,
+        -1.0, -0.9807852804, -0.9238795325, -0.8314696123,
+        -0.7071067812, -0.5555702330, -0.3826834324, -0.1950903220,
+        0.0, 0.1950903220, 0.3826834324, 0.5555702330,
+        0.7071067812, 0.8314696123, 0.9238795325, 0.9807852804
+    };
+
     public static double[] fft32(final double[] inputReal, final double[] inputImag, boolean forward) {
         if (inputReal.length != 32) {
             throw new IllegalArgumentException("Input arrays must be of length 32");
@@ -198,8 +210,7 @@ public class OptimizedFFTUtils {
             xImag[k] += tImag;
         }
 
-        // Stage 3: Distance 4 (with twiddle factors)
-        final double SQRT2_2 = 0.7071067811865476;
+        // Stage 3: Distance 4 (with precomputed twiddle factors)
         for (int i = 0; i < 4; i++) {
             int base = i * 8;
             for (int j = 0; j < 4; j++) {
@@ -207,8 +218,7 @@ public class OptimizedFFTUtils {
                 int idx1 = base + j;
                 int idx2 = base + offset;
                 
-                double angle = j * Math.PI / 2;
-                double c = Math.cos(angle);
+                double c = TWIDDLES_32[j * 8];  // Use precomputed values
                 double s = Math.sin(angle);
                 
                 tReal = xReal[idx2] * c - xImag[idx2] * s;
