@@ -117,13 +117,43 @@ public class OptimizedFFTUtils {
         xReal[3] = xReal[6]; xImag[3] = xImag[6];
         xReal[6] = tReal; xImag[6] = tImag;
 
-        // Normalization and output
+        // Output with normalization consistent with FFTBase (1/sqrt(N))
         double[] result = new double[16];
         double scale = 1.0 / Math.sqrt(8);
         for (int i = 0; i < 8; i++) {
             result[2 * i] = xReal[i] * scale;
             result[2 * i + 1] = xImag[i] * scale;
         }
+        return result;
+    }
+    
+    /**
+     * Optimized 8-point inverse FFT implementation.
+     * 
+     * @param inputReal array of length 8, the real part
+     * @param inputImag array of length 8, the imaginary part
+     * @return array of length 16 with interleaved real and imaginary parts
+     */
+    public static double[] ifft8(final double[] inputReal, final double[] inputImag) {
+        if (inputReal.length != 8) {
+            throw new IllegalArgumentException("Input arrays must be of length 8");
+        }
+        
+        // Use forward transform with conjugate and scaling for inverse
+        double[] conjugatedImag = new double[8];
+        for (int i = 0; i < 8; i++) {
+            conjugatedImag[i] = -inputImag[i];
+        }
+        
+        double[] result = fft8(inputReal, conjugatedImag, true);
+        
+        // Conjugate output and scale for proper round-trip behavior (1/N total)
+        double scale = 1.0 / 8.0; // Use 1/N instead of 1/sqrt(N) for inverse to get proper round trip
+        for (int i = 0; i < 8; i++) {
+            result[2*i] *= scale;          // Real part scaled  
+            result[2*i + 1] *= -scale;     // Imaginary part conjugated and scaled
+        }
+        
         return result;
     }
     
@@ -165,7 +195,7 @@ public class OptimizedFFTUtils {
     };
 
     // Valori combinati cos/sin per migliorare la località della cache
-    @jdk.internal.vm.annotation.Contended
+    // Note: @Contended annotation removed for compatibility
     private static final double[] STAGE4_TRIG = {
         // Formato: cos0, sin0, cos1, sin1, ..., cos15, sin15
         1.0, 0.0,

@@ -35,9 +35,9 @@ import com.fft.factory.FFTImplementation;
  */
 @FFTImplementation(
     size = 65536,
-    priority = 35,
-    description = "Radix-8 optimized implementation for 65536-element arrays",
-    characteristics = {"radix-8", "extreme-scale", "hpc-optimized", "4.5x-speedup"}
+    priority = 1,
+    description = "Radix-8 decomposition using FFTBase for sub-transforms - no performance benefit",
+    characteristics = {"radix-8-decomposition", "delegates-to-base", "no-speedup", "same-as-base-performance"}
 )
 public class FFTOptimized65536 implements FFT {
     

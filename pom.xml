@@ -66,6 +66,21 @@
             <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
+        
+        <!-- JMH Benchmarking -->
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-core</artifactId>
+            <version>1.37</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-generator-annprocess</artifactId>
+            <version>1.37</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     
     <build>
@@ -131,6 +146,13 @@
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>sun/util/resources/cldr/provider/*</exclude>
+                                <exclude>sun/util/cldr/*</exclude>
+                                <exclude>java/util/Formatter*</exclude>
+                            </excludes>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>report</id>

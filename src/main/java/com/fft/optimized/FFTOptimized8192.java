@@ -35,9 +35,9 @@ import com.fft.factory.FFTImplementation;
  */
 @FFTImplementation(
     size = 8192,
-    priority = 50,
-    description = "Maximum performance implementation with extreme cache optimization for 8192-element arrays",
-    characteristics = {"extreme-cache-optimization", "memory-hierarchy-optimized", "hpc-grade", "8x-speedup"}
+    priority = 1,
+    description = "Fallback implementation - attempts reflection to non-existent class, then uses FFTBase",
+    characteristics = {"reflection-fallback", "no-optimization", "equivalent-to-base-performance"}
 )
 public class FFTOptimized8192 implements FFT {
     

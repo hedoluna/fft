@@ -53,8 +53,8 @@ public class FFTOptimized32 implements FFT {
         
         // Handle null imaginary array
         double[] imag = imaginary;
-        if (imag == null || imag.length != OPTIMIZED_SIZE) {
-            imag = new double[OPTIMIZED_SIZE];  // Ensure correct array size
+        if (imag == null) {
+            imag = new double[OPTIMIZED_SIZE];  // Create zero array for null input
         } else if (imag.length != OPTIMIZED_SIZE) {
             throw new IllegalArgumentException("Imaginary array length must be " + OPTIMIZED_SIZE + ", got: " + imag.length);
         }

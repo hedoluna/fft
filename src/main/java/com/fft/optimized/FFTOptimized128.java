@@ -35,9 +35,9 @@ import com.fft.factory.FFTImplementation;
  */
 @FFTImplementation(
     size = 128,
-    priority = 50,
-    description = "Optimized implementation with hybrid loop structure for 128-element arrays",
-    characteristics = {"hybrid-loops", "lookup-tables", "memory-optimized", "3x-speedup"}
+    priority = 1,
+    description = "Fallback implementation - attempts reflection to non-existent class, then uses FFTBase",
+    characteristics = {"reflection-fallback", "no-optimization", "equivalent-to-base-performance"}
 )
 public class FFTOptimized128 implements FFT {
     

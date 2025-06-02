@@ -42,9 +42,9 @@ import com.fft.factory.FFTImplementation;
  */
 @FFTImplementation(
     size = 64,
-    priority = 50,
-    description = "Highly optimized implementation with stage-specific optimizations for 64-element arrays",
-    characteristics = {"stage-optimized", "precomputed-trig", "efficient-bit-reversal", "2.5x-speedup"}
+    priority = 10,
+    description = "Partial implementation - delegates to FFTBase for most operations",
+    characteristics = {"incomplete-optimization", "fallback-delegation", "development-in-progress"}
 )
 public class FFTOptimized64 implements FFT {
     
@@ -106,109 +106,5 @@ public class FFTOptimized64 implements FFT {
 
         // Delegate to the optimized utility implementation
         return OptimizedFFTUtils.fft64(inputReal, inputImag, forward);
-    }
-}package com.fft.optimized;
-
-import com.fft.core.FFT;
-import com.fft.core.FFTResult;
-import com.fft.factory.FFTImplementation;
-
-@FFTImplementation(
-    size = 64,
-    priority = 50,
-    description = "Optimized implementation with partial loop unrolling for 64-element arrays",
-    characteristics = {"partial-unrolling", "cache-optimized", "1.8x-speedup"}
-)
-public class FFTOptimized64 implements FFT {
-    
-    private static final int OPTIMIZED_SIZE = 64;
-    
-    @Override
-    public FFTResult transform(double[] real, double[] imaginary, boolean forward) {
-        if (real.length != OPTIMIZED_SIZE) {
-            throw new IllegalArgumentException("Array length must be " + OPTIMIZED_SIZE);
-        }
-        
-        double[] result = OptimizedFFTUtils.fft64(real, imaginary, forward);
-        return new FFTResult(result);
-    }
-    
-    @Override
-    public FFTResult transform(double[] real, boolean forward) {
-        return transform(real, new double[OPTIMIZED_SIZE], forward);
-    }
-    
-    @Override
-    public int getSupportedSize() {
-        return OPTIMIZED_SIZE;
-    }
-    
-    @Override
-    public boolean supportsSize(int size) {
-        return size == OPTIMIZED_SIZE;
-    }
-    
-    @Override
-    public String getDescription() {
-        return "Optimized FFT implementation for size 64 with partial loop unrolling and cache optimization";
-    }
-}
-package com.fft.optimized;
-
-import com.fft.core.FFT;
-import com.fft.core.FFTResult;
-import com.fft.factory.FFTImplementation;
-
-/**
- * Implementazione ottimizzata FFT per array di 64 elementi con ottimizzazioni specifiche.
- * 
- * <p>Questa implementazione fornisce un miglioramento prestazionale attraverso:
- * <ul>
- * <li>Precalcolo dei fattori trigonometrici</li>
- * <li>Ottimizzazioni specifiche per la cache</li>
- * <li>Operazioni vettoriali ottimizzate</li>
- * </ul>
- * 
- * @author Engine AI Assistant
- * @since 2.0.0
- */
-@FFTImplementation(
-    size = 64,
-    priority = 50,
-    description = "Implementazione ottimizzata per array di 64 elementi con precalcolo trigonometrico",
-    characteristics = {"cache-optimized", "precomputed-trig", "2.5x-speedup"}
-)
-public class FFTOptimized64 implements FFT {
-    
-    private static final int SIZE = 64;
-
-    @Override
-    public FFTResult transform(double[] real, double[] imaginary, boolean forward) {
-        if (real.length != SIZE || imaginary.length != SIZE) {
-            throw new IllegalArgumentException("Gli array devono essere lunghi " + SIZE);
-        }
-        
-        double[] result = OptimizedFFTUtils.fft64(real, imaginary, forward);
-        return new FFTResult(result);
-    }
-
-    @Override
-    public FFTResult transform(double[] real, boolean forward) {
-        return transform(real, new double[SIZE], forward);
-    }
-
-    @Override
-    public int getSupportedSize() {
-        return SIZE;
-    }
-
-    @Override
-    public boolean supportsSize(int size) {
-        return size == SIZE;
-    }
-
-    @Override
-    public String getDescription() {
-        return "Implementazione FFT ottimizzata (dimensione " + SIZE + ", ~2.5x velocità)";
     }
 }

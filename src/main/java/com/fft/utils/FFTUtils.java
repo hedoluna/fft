@@ -49,7 +49,20 @@ import com.fft.factory.FFTFactory;
  */
 public class FFTUtils {
     
-    private static final FFTFactory DEFAULT_FACTORY = new DefaultFFTFactory();
+    private static volatile FFTFactory DEFAULT_FACTORY;
+    
+    private static FFTFactory getDefaultFactory() {
+        FFTFactory factory = DEFAULT_FACTORY;
+        if (factory == null) {
+            synchronized (FFTUtils.class) {
+                factory = DEFAULT_FACTORY;
+                if (factory == null) {
+                    DEFAULT_FACTORY = factory = new DefaultFFTFactory();
+                }
+            }
+        }
+        return factory;
+    }
     
     /**
      * Performs FFT using the most appropriate implementation for the given size.
@@ -70,7 +83,7 @@ public class FFTUtils {
             throw new IllegalArgumentException("Array length must be a power of 2");
         }
         
-        FFT fft = DEFAULT_FACTORY.createFFT(inputReal.length);
+        FFT fft = getDefaultFactory().createFFT(inputReal.length);
         return fft.transform(inputReal, inputImag, forward);
     }
     
@@ -87,7 +100,7 @@ public class FFTUtils {
             throw new IllegalArgumentException("Array length must be a power of 2");
         }
         
-        FFT fft = DEFAULT_FACTORY.createFFT(inputReal.length);
+        FFT fft = getDefaultFactory().createFFT(inputReal.length);
         return fft.transform(inputReal, forward);
     }
     
@@ -107,6 +120,10 @@ public class FFTUtils {
      */
     public static double[] generateTestSignal(int size, double sampleRate, 
                                             double[] frequencies, double[] amplitudes) {
+        if (frequencies.length != amplitudes.length) {
+            throw new IllegalArgumentException("Frequencies and amplitudes arrays must have the same length");
+        }
+        
         double[] signal = new double[size];
         double dt = 1.0 / sampleRate;
         
@@ -233,7 +250,7 @@ public class FFTUtils {
      * @return string describing the implementation that would be used
      */
     public static String getImplementationInfo(int size) {
-        return DEFAULT_FACTORY.getImplementationInfo(size);
+        return getDefaultFactory().getImplementationInfo(size);
     }
     
     /**
@@ -242,7 +259,7 @@ public class FFTUtils {
      * @return list of supported sizes
      */
     public static java.util.List<Integer> getSupportedSizes() {
-        return DEFAULT_FACTORY.getSupportedSizes();
+        return getDefaultFactory().getSupportedSizes();
     }
     
     /**
