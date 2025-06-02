@@ -149,8 +149,8 @@ System.out.println("Parsons code: " + parsonsCode); // e.g., "*UDUDRDU"
 |------|---------------|-----------------|-------------------|
 | 8 | FFTOptimized8 | 1.24x | Small filter kernels, embedded systems |
 | 32 | FFTOptimized32 | Testing phase | Short-time analysis, real-time processing |
-| 64 | FFTOptimized64 | Testing phase | Audio frames, sensor data analysis |
-| 128+ | FFTOptimized128+ | In development | Standard audio processing, spectral analysis |
+| 64     | `FFTBase`           | 1.0x    | Generic fallback (placeholder)        |
+| 128+   | `FFTBase`           | 1.0x    | Generic fallback                      |
 
 **Performance Notes:**
 - FFTOptimized8 shows consistent 1.24x speedup through complete loop unrolling
