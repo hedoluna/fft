@@ -140,7 +140,7 @@ public class OptimizedFFTUtils {
      * @param forward true for forward transform, false for inverse
      * @return array of length 64 with interleaved real and imaginary parts
      */
-    // Precomputed twiddle factors for n=32 (cosine values only, sin = cos(angle - PI/2))
+    // Precomputed twiddle factors for n=32 (cosine and sine values)
     private static final double[] TWIDDLES_32 = {
         1.0, 0.9807852804, 0.9238795325, 0.8314696123,
         0.7071067812, 0.5555702330, 0.3826834324, 0.1950903220,
@@ -150,6 +150,18 @@ public class OptimizedFFTUtils {
         -0.7071067812, -0.5555702330, -0.3826834324, -0.1950903220,
         0.0, 0.1950903220, 0.3826834324, 0.5555702330,
         0.7071067812, 0.8314696123, 0.9238795325, 0.9807852804
+    };
+
+    // Precomputed sine values for n=32
+    private static final double[] PRECOMPUTED_SIN = {
+        0.0, 0.1950903220, 0.3826834324, 0.5555702330,
+        0.7071067812, 0.8314696123, 0.9238795325, 0.9807852804,
+        1.0, 0.9807852804, 0.9238795325, 0.8314696123,
+        0.7071067812, 0.5555702330, 0.3826834324, 0.1950903220,
+        0.0, -0.1950903220, -0.3826834324, -0.5555702330,
+        -0.7071067812, -0.8314696123, -0.9238795325, -0.9807852804,
+        -1.0, -0.9807852804, -0.9238795325, -0.8314696123,
+        -0.7071067812, -0.5555702330, -0.3826834324, -0.1950903220
     };
 
     public static double[] fft32(final double[] inputReal, final double[] inputImag, boolean forward) {
@@ -218,8 +230,8 @@ public class OptimizedFFTUtils {
                 int idx1 = base + j;
                 int idx2 = base + offset;
                 
-                double c = TWIDDLES_32[j * 8];  // Use precomputed values
-                double s = Math.sin(angle);
+                double c = TWIDDLES_32[j * 8];  // Use precomputed cosine
+                double s = PRECOMPUTED_SIN[j * 8];  // Use precomputed sine
                 
                 tReal = xReal[idx2] * c - xImag[idx2] * s;
                 tImag = xImag[idx2] * c + xReal[idx2] * s;
