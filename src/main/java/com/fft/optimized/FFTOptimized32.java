@@ -61,11 +61,11 @@ public class FFTOptimized32 implements FFT {
         
         if (!forward) {
             // Use optimized inverse transform
-            double[] result = OptimizedFFTUtils.ifft32(real, imag);
+            double[] result = OptimizedFFTUtils.ifft32(real, imag != null ? imag : new double[OPTIMIZED_SIZE]);
             return new FFTResult(result);
         }
         
-        double[] result = fft32(real, imag, forward);
+        double[] result = OptimizedFFTUtils.fft32(real, imag, forward);
         return new FFTResult(result);
     }
     

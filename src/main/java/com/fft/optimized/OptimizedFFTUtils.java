@@ -185,10 +185,9 @@ public class OptimizedFFTUtils {
             throw new IllegalArgumentException("Input arrays must be of length 32");
         }
         
-        // For inverse transforms, delegate to base implementation for now
+        // Handle inverse transform with optimized version
         if (!forward) {
-            com.fft.core.FFTBase fallback = new com.fft.core.FFTBase();
-            return fallback.transform(inputReal, inputImag, forward).getInterleavedResult();
+            return ifft32(inputReal, inputImag);
         }
 
         // Working arrays
@@ -303,6 +302,28 @@ public class OptimizedFFTUtils {
      * @param forward true for forward transform, false for inverse
      * @return array of length 128 with interleaved real and imaginary parts
      */
+    public static double[] ifft32(final double[] inputReal, final double[] inputImag) {
+        // Create conjugated input
+        double[] conjugatedReal = new double[32];
+        double[] conjugatedImag = new double[32];
+        System.arraycopy(inputReal, 0, conjugatedReal, 0, 32);
+        for(int i=0; i<32; i++) {
+            conjugatedImag[i] = -inputImag[i];
+        }
+        
+        // Use forward transform with conjugated input
+        double[] tempResult = fft32(conjugatedReal, conjugatedImag, true);
+        
+        // Conjugate and scale the result
+        double[] finalResult = new double[64];
+        double scale = 1.0 / 32;
+        for(int i=0; i<64; i+=2) {
+            finalResult[i] = tempResult[i] * scale;
+            finalResult[i+1] = -tempResult[i+1] * scale;
+        }
+        return finalResult;
+    }
+
     public static double[] fft64(final double[] inputReal, final double[] inputImag, boolean forward) {
         if (inputReal.length != 64) {
             throw new IllegalArgumentException("Input arrays must be of length 64");
