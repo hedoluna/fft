@@ -239,6 +239,11 @@ public class FFTImplementationDiscovery {
                 Class<? extends FFT> fftClass = (Class<? extends FFT>) clazz;
                 FFTImplementation annotation = clazz.getAnnotation(FFTImplementation.class);
                 
+                LOGGER.info("Discovered FFT implementation: " + clazz.getName() 
+                    + " (size=" + annotation.size() 
+                    + ", priority=" + annotation.priority() 
+                    + ", characteristics=" + String.join(",", annotation.characteristics()) + ")");
+                
                 if (annotation.autoRegister()) {
                     DiscoveredImplementation discovered = new DiscoveredImplementation(fftClass, annotation);
                     implementations.computeIfAbsent(discovered.getSize(), k -> new ArrayList<>())

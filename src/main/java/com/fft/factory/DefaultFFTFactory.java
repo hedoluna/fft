@@ -130,6 +130,17 @@ public class DefaultFFTFactory implements FFTFactory {
         if (implementation == null) {
             throw new IllegalArgumentException("Implementation supplier cannot be null");
         }
+
+        // Verify annotation presence
+        try {
+            Class<?> clazz = implementation.get().getClass();
+            if (!clazz.isAnnotationPresent(FFTImplementation.class)) {
+                throw new IllegalArgumentException("FFT implementation " + clazz.getName() 
+                    + " must be annotated with @FFTImplementation");
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid implementation supplier", e);
+        }
         
         implementations.computeIfAbsent(size, k -> new ArrayList<>())
                       .add(new ImplementationEntry(implementation, priority));
