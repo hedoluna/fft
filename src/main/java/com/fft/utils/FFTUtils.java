@@ -103,29 +103,18 @@ public class FFTUtils {
     }
     
     /**
-     * Generates a test signal with multiple frequency components.
-     * 
-     * @param size size of the signal (should be power of 2)
-     * @param sampleRate sampling rate in Hz
-     * @param frequencies array of frequencies to include in the signal
-     * @param amplitudes array of amplitudes for each frequency
-     * @return generated signal
-     * @throws IllegalArgumentException if frequencies and amplitudes arrays have different lengths
+     * Generates a test signal with specified frequencies.
      */
     public static double[] generateTestSignal(int size, double sampleRate, 
                                             double[] frequencies, double[] amplitudes) {
-        if (frequencies.length != amplitudes.length) {
-            throw new IllegalArgumentException("Frequencies and amplitudes arrays must have same length");
-        }
-        
         double[] signal = new double[size];
+        double dt = 1.0 / sampleRate;
+        
         for (int i = 0; i < size; i++) {
-            double t = i / sampleRate;
-            double sample = 0.0;
+            double t = i * dt;
             for (int j = 0; j < frequencies.length; j++) {
-                sample += amplitudes[j] * Math.sin(2 * Math.PI * frequencies[j] * t);
+                signal[i] += amplitudes[j] * Math.sin(2 * Math.PI * frequencies[j] * t);
             }
-            signal[i] = sample;
         }
         return signal;
     }
@@ -215,13 +204,13 @@ public class FFTUtils {
      */
     public static int nextPowerOfTwo(int n) {
         if (n <= 0) return 1;
-        if (isPowerOfTwo(n)) return n;
-        
-        int power = 1;
-        while (power < n) {
-            power *= 2;
-        }
-        return power;
+        n--;
+        n |= n >> 1;
+        n |= n >> 2;
+        n |= n >> 4;
+        n |= n >> 8;
+        n |= n >> 16;
+        return n + 1;
     }
     
     /**
