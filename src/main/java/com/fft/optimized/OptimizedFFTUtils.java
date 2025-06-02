@@ -164,6 +164,22 @@ public class OptimizedFFTUtils {
         -0.7071067812, -0.5555702330, -0.3826834324, -0.1950903220
     };
 
+    // Precomputed values for stage 4 cosine terms (Math.cos(i * Math.PI / 8))
+    private static final double[] STAGE4_COS = {
+        1.0, 0.9238795325, 0.7071067812, 0.3826834324,
+        0.0, -0.3826834324, -0.7071067812, -0.9238795325,
+        -1.0, -0.9238795325, -0.7071067812, -0.3826834324,
+        0.0, 0.3826834324, 0.7071067812, 0.9238795325
+    };
+
+    // Precomputed values for stage 4 sine terms (Math.sin(i * Math.PI / 8)) 
+    private static final double[] STAGE4_SIN = {
+        0.0, 0.3826834324, 0.7071067812, 0.9238795325,
+        1.0, 0.9238795325, 0.7071067812, 0.3826834324,
+        0.0, -0.3826834324, -0.7071067812, -0.9238795325,
+        -1.0, -0.9238795325, -0.7071067812, -0.3826834324
+    };
+
     public static double[] fft32(final double[] inputReal, final double[] inputImag, boolean forward) {
         if (inputReal.length != 32) {
             throw new IllegalArgumentException("Input arrays must be of length 32");
@@ -245,8 +261,8 @@ public class OptimizedFFTUtils {
         // Stage 4: Distance 2 (with twiddle factors)
         for (int i = 0; i < 16; i += 2) {
             int j = i + 1;
-            double c = Math.cos(i * Math.PI / 8);
-            double s = Math.sin(i * Math.PI / 8);
+            double c = STAGE4_COS[i % 16];
+            double s = STAGE4_SIN[i % 16];
             
             tReal = xReal[j] * c - xImag[j] * s;
             tImag = xImag[j] * c + xReal[j] * s;

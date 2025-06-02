@@ -67,10 +67,9 @@ public class FFTOptimized8 implements FFT {
         }
         
         if (!forward) {
-            // For inverse transform, use the generic FFTBase implementation
-            // since the optimized version only supports forward transform
-            FFTBase fallback = new FFTBase();
-            return fallback.transform(real, imaginary, forward);
+            // Use optimized inverse transform
+            double[] result = OptimizedFFTUtils.ifft8(real, imaginary);
+            return new FFTResult(result);
         }
         
         double[] result = OptimizedFFTUtils.fft8(real, imaginary, forward);

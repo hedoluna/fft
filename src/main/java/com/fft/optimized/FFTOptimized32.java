@@ -60,9 +60,9 @@ public class FFTOptimized32 implements FFT {
         }
         
         if (!forward) {
-            // For inverse transform, delegate to base implementation for now
-            com.fft.core.FFTBase fallback = new com.fft.core.FFTBase();
-            return fallback.transform(real, imag, forward);
+            // Use optimized inverse transform
+            double[] result = OptimizedFFTUtils.ifft32(real, imag);
+            return new FFTResult(result);
         }
         
         double[] result = fft32(real, imag, forward);
