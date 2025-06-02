@@ -165,6 +165,7 @@ public class OptimizedFFTUtils {
     };
 
     // Precomputed values for stage 4 cosine terms (Math.cos(i * Math.PI / 8))
+    @jdk.internal.vm.annotation.Contended
     private static final double[] STAGE4_COS = {
         1.0, 0.9238795325, 0.7071067812, 0.3826834324,
         0.0, -0.3826834324, -0.7071067812, -0.9238795325,
@@ -172,7 +173,8 @@ public class OptimizedFFTUtils {
         0.0, 0.3826834324, 0.7071067812, 0.9238795325
     };
 
-    // Precomputed values for stage 4 sine terms (Math.sin(i * Math.PI / 8)) 
+    // Precomputed values for stage 4 sine terms (Math.sin(i * Math.PI / 8))
+    @jdk.internal.vm.annotation.Contended 
     private static final double[] STAGE4_SIN = {
         0.0, 0.3826834324, 0.7071067812, 0.9238795325,
         1.0, 0.9238795325, 0.7071067812, 0.3826834324,
@@ -303,24 +305,30 @@ public class OptimizedFFTUtils {
      * @return array of length 128 with interleaved real and imaginary parts
      */
     public static double[] ifft32(final double[] inputReal, final double[] inputImag) {
-        // Create conjugated input
-        double[] conjugatedReal = new double[32];
-        double[] conjugatedImag = new double[32];
-        System.arraycopy(inputReal, 0, conjugatedReal, 0, 32);
-        for(int i=0; i<32; i++) {
-            conjugatedImag[i] = -inputImag[i];
-        }
+        // Use optimized forward transform with type conversion
+        double[] tempResult = fft32(inputReal, inputImag, true);
         
-        // Use forward transform with conjugated input
-        double[] tempResult = fft32(conjugatedReal, conjugatedImag, true);
-        
-        // Conjugate and scale the result
-        double[] finalResult = new double[64];
+        // In-place inverse transform operations
         double scale = 1.0 / 32;
-        for(int i=0; i<64; i+=2) {
-            finalResult[i] = tempResult[i] * scale;
-            finalResult[i+1] = -tempResult[i+1] * scale;
+        for(int i=0; i<64; i++) {
+            tempResult[i] *= scale;
         }
+        
+        // Bit-reversal permutation for inverse transform
+        int[] bitReversedIndices = {
+            0, 16, 8, 24, 4, 20, 12, 28, 
+            2, 18, 10, 26, 6, 22, 14, 30,
+            1, 17, 9, 25, 5, 21, 13, 29,
+            3, 19, 11, 27, 7, 23, 15, 31
+        };
+        
+        double[] finalResult = new double[64];
+        for(int i=0; i<32; i++) {
+            int idx = bitReversedIndices[i];
+            finalResult[2*i] = tempResult[2*idx] * scale;
+            finalResult[2*i + 1] = -tempResult[2*idx + 1] * scale;
+        }
+        
         return finalResult;
     }
 
