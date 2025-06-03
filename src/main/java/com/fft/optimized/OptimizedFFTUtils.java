@@ -1,320 +1,208 @@
 package com.fft.optimized;
 
+import com.fft.core.FFTBase;
+
 /**
  * Utility class containing optimized FFT implementations without reflection dependencies.
- * 
- * <p>This class provides direct implementations of optimized FFT algorithms for specific sizes,
- * eliminating the need for reflection-based delegation to root-level classes. These implementations
- * are self-contained and optimized for performance.</p>
- * 
- * @author Engine AI Assistant
- * @since 2.0.0
+ * Features precomputed twiddle factors and stage-by-stage optimizations.
  */
 public class OptimizedFFTUtils {
     
-    /**
-     * Optimized 8-point FFT implementation with complete algorithm unrolling.
-     * 
-     * <p>This implementation is adapted from the original FFToptim8 with complete
-     * optimization for 8-element arrays. It provides significant performance improvement
-     * over generic implementations through specialized butterfly operations and 
-     * precomputed trigonometric values.</p>
-     * 
-     * @param inputReal array of length 8, the real part
-     * @param inputImag array of length 8, the imaginary part
-     * @param forward true for forward transform, false for inverse
-     * @return array of length 16 with interleaved real and imaginary parts
-     */
-    public static double[] fft8(final double[] inputReal, final double[] inputImag, boolean forward) {
-        if (inputReal.length != 8) {
-            throw new IllegalArgumentException("Input arrays must be of length 8");
+    // Precomputed twiddle factors for 32-point FFT
+    // Real parts: cos(-2πk/32) for k = 0, 1, 2, ..., 15
+    private static final double[] TWIDDLES_32_REAL = {
+        1.0,                    // cos(0)
+        0.9807852804032304,     // cos(-π/16) 
+        0.9238795325112867,     // cos(-π/8)
+        0.8314696123025452,     // cos(-3π/16)
+        0.7071067811865476,     // cos(-π/4)
+        0.5555702330196022,     // cos(-5π/16)
+        0.3826834323650898,     // cos(-3π/8)
+        0.19509032201612825,    // cos(-7π/16)
+        6.123233995736766e-17,  // cos(-π/2) ≈ 0
+        -0.1950903220161282,    // cos(-9π/16)
+        -0.3826834323650897,    // cos(-5π/8)
+        -0.5555702330196023,    // cos(-11π/16)
+        -0.7071067811865475,    // cos(-3π/4)
+        -0.8314696123025453,    // cos(-13π/16)
+        -0.9238795325112867,    // cos(-7π/8)
+        -0.9807852804032304     // cos(-15π/16)
+    };
+    
+    // Imaginary parts: sin(-2πk/32) for k = 0, 1, 2, ..., 15
+    private static final double[] TWIDDLES_32_IMAG = {
+        0.0,                    // sin(0)
+        -0.19509032201612825,   // sin(-π/16)
+        -0.3826834323650898,    // sin(-π/8)
+        -0.5555702330196022,    // sin(-3π/16)
+        -0.7071067811865475,    // sin(-π/4)
+        -0.8314696123025453,    // sin(-5π/16)
+        -0.9238795325112867,    // sin(-3π/8)
+        -0.9807852804032304,    // sin(-7π/16)
+        -1.0,                   // sin(-π/2)
+        -0.9807852804032304,    // sin(-9π/16)
+        -0.9238795325112867,    // sin(-5π/8)
+        -0.8314696123025452,    // sin(-11π/16)
+        -0.7071067811865476,    // sin(-3π/4)
+        -0.5555702330196022,    // sin(-13π/16)
+        -0.3826834323650898,    // sin(-7π/8)
+        -0.19509032201612833    // sin(-15π/16)
+    };
+
+    /** 8-point FFT fallback */
+    public static double[] fft8(double[] inputReal, double[] inputImag, boolean forward) {
+        return new FFTBase().transform(inputReal, inputImag, forward).getInterleavedResult();
+    }
+
+    public static double[] ifft8(double[] inputReal, double[] inputImag) {
+        return new FFTBase().transform(inputReal, inputImag, false).getInterleavedResult();
+    }
+
+    /** 16-point FFT fallback */
+    public static double[] fft16(double[] inputReal, double[] inputImag, boolean forward) {
+        return new FFTBase().transform(inputReal, inputImag, forward).getInterleavedResult();
+    }
+
+    public static double[] ifft16(double[] inputReal, double[] inputImag) {
+        return new FFTBase().transform(inputReal, inputImag, false).getInterleavedResult();
+    }
+
+    /** 32-point FFT with precomputed twiddle factors - Stage 1: Basic algorithm with twiddles */
+    public static double[] fft32(double[] inputReal, double[] inputImag, boolean forward) {
+        if (inputReal.length != 32 || inputImag.length != 32) {
+            throw new IllegalArgumentException("Arrays must be of length 32");
         }
         
-        // For inverse transforms, delegate to base implementation for now
-        if (!forward) {
-            com.fft.core.FFTBase fallback = new com.fft.core.FFTBase();
-            return fallback.transform(inputReal, inputImag, forward).getInterleavedResult();
+        // This is the exact same algorithm as FFTBase.fft() but with precomputed twiddle factors
+        int n = 32;
+        
+        // Check that n is a power of 2 (we know it is for 32, but keep for consistency)
+        double ld = Math.log(n) / Math.log(2.0);
+        if (((int) ld) - ld != 0) {
+            throw new IllegalArgumentException("The number of elements is not a power of 2.");
         }
         
-        // Working arrays
-        double[] xReal = new double[8];
-        double[] xImag = new double[8];
+        int nu = (int) ld;
+        int n2 = n / 2;
+        int nu1 = nu - 1;
+        double[] xReal = new double[n];
+        double[] xImag = new double[n];
         double tReal;
         double tImag;
-
-        // Copy input arrays to avoid modifying originals
-        System.arraycopy(inputReal, 0, xReal, 0, 8);
-        System.arraycopy(inputImag, 0, xImag, 0, 8);
-
+        double p;
+        double arg;
+        double c;
+        double s;
+        
+        // Copy input arrays
+        for (int i = 0; i < n; i++) {
+            xReal[i] = inputReal[i];
+            xImag[i] = inputImag[i];
+        }
+        
         // First phase - calculation
-        // nu = 3, nu1 = 2, l = 1, n2 = 4
-
-        // Stage 1: Butterflies with distance 4
-        tReal = xReal[4]; tImag = xImag[4];
-        xReal[4] = xReal[0] - tReal; xImag[4] = xImag[0] - tImag;
-        xReal[0] += tReal; xImag[0] += tImag;
-
-        tReal = xReal[5]; tImag = xImag[5];
-        xReal[5] = xReal[1] - tReal; xImag[5] = xImag[1] - tImag;
-        xReal[1] += tReal; xImag[1] += tImag;
-
-        tReal = xReal[6]; tImag = xImag[6];
-        xReal[6] = xReal[2] - tReal; xImag[6] = xImag[2] - tImag;
-        xReal[2] += tReal; xImag[2] += tImag;
-
-        tReal = xReal[7]; tImag = xImag[7];
-        xReal[7] = xReal[3] - tReal; xImag[7] = xImag[3] - tImag;
-        xReal[3] += tReal; xImag[3] += tImag;
-
-        // Stage 2: n2 = 2, nu1 = 1, l = 2, n2 = 2
-        tReal = xReal[2]; tImag = xImag[2];
-        xReal[2] = xReal[0] - tReal; xImag[2] = xImag[0] - tImag;
-        xReal[0] += tReal; xImag[0] += tImag;
-
-        tReal = xReal[3]; tImag = xImag[3];
-        xReal[3] = xReal[1] - tReal; xImag[3] = xImag[1] - tImag;
-        xReal[1] += tReal; xImag[1] += tImag;
-
-        // Apply twiddle factor for second block
-        tReal = xReal[6] * 6.123233995736766E-17 - xImag[6];
-        tImag = xImag[6] * 6.123233995736766E-17 + xReal[6];
-        xReal[6] = xReal[4] - tReal; xImag[6] = xImag[4] - tImag;
-        xReal[4] += tReal; xImag[4] += tImag;
-
-        tReal = xReal[7] * 6.123233995736766E-17 - xImag[7];
-        tImag = xImag[7] * 6.123233995736766E-17 + xReal[7];
-        xReal[7] = xReal[5] - tReal; xImag[7] = xImag[5] - tImag;
-        xReal[5] += tReal; xImag[5] += tImag;
-
-        // Stage 3: n2 = 1, nu1 = 0, l = 3, n2 = 1
-        tReal = xReal[1]; tImag = xImag[1];
-        xReal[1] = xReal[0] - tReal; xImag[1] = xImag[0] - tImag;
-        xReal[0] += tReal; xImag[0] += tImag;
-
-        tReal = xReal[3] * 6.123233995736766E-17 - xImag[3];
-        tImag = xImag[3] * 6.123233995736766E-17 + xReal[3];
-        xReal[3] = xReal[2] - tReal; xImag[3] = xImag[2] - tImag;
-        xReal[2] += tReal; xImag[2] += tImag;
-
-        // Apply twiddle factors with sqrt(2)/2
-        tReal = xReal[5] * 0.7071067811865476 - xImag[5] * 0.7071067811865475;
-        tImag = xImag[5] * 0.7071067811865476 + xReal[5] * 0.7071067811865475;
-        xReal[5] = xReal[4] - tReal; xImag[5] = xImag[4] - tImag;
-        xReal[4] += tReal; xImag[4] += tImag;
-
-        tReal = xReal[7] * -0.7071067811865475 - xImag[7] * 0.7071067811865476;
-        tImag = xImag[7] * -0.7071067811865475 + xReal[7] * 0.7071067811865476;
-        xReal[7] = xReal[6] - tReal; xImag[7] = xImag[6] - tImag;
-        xReal[6] += tReal; xImag[6] += tImag;
-
-        // Second phase - bit-reversal recombination
-        // Swap elements based on bit-reversal
-        tReal = xReal[1]; tImag = xImag[1];
-        xReal[1] = xReal[4]; xImag[1] = xImag[4];
-        xReal[4] = tReal; xImag[4] = tImag;
-
-        tReal = xReal[3]; tImag = xImag[3];
-        xReal[3] = xReal[6]; xImag[3] = xImag[6];
-        xReal[6] = tReal; xImag[6] = tImag;
-
-        // Output with normalization consistent with FFTBase (1/sqrt(N))
-        double[] result = new double[16];
-        double scale = 1.0 / Math.sqrt(8);
-        for (int i = 0; i < 8; i++) {
-            result[2 * i] = xReal[i] * scale;
-            result[2 * i + 1] = xImag[i] * scale;
+        int k = 0;
+        for (int l = 1; l <= nu; l++) {
+            while (k < n) {
+                for (int i = 1; i <= n2; i++) {
+                    p = bitreverseReference(k >> nu1, nu);
+                    
+                    // Use precomputed twiddle factors instead of Math.cos/sin
+                    if (forward) {
+                        arg = -2 * Math.PI * p / n;
+                    } else {
+                        arg = 2 * Math.PI * p / n;
+                    }
+                    
+                    // Get from precomputed table (handle wraparound)
+                    int index = ((int) Math.round(p)) % 16;  // We only have 16 precomputed values (0-15)
+                    if (forward) {
+                        c = TWIDDLES_32_REAL[index];
+                        s = TWIDDLES_32_IMAG[index];
+                    } else {
+                        c = TWIDDLES_32_REAL[index];
+                        s = -TWIDDLES_32_IMAG[index]; // Negate for inverse
+                    }
+                    
+                    tReal = xReal[k + n2] * c + xImag[k + n2] * s;
+                    tImag = xImag[k + n2] * c - xReal[k + n2] * s;
+                    xReal[k + n2] = xReal[k] - tReal;
+                    xImag[k + n2] = xImag[k] - tImag;
+                    xReal[k] += tReal;
+                    xImag[k] += tImag;
+                    k++;
+                }
+                k += n2;
+            }
+            k = 0;
+            nu1--;
+            n2 /= 2;
         }
+        
+        // Second phase - recombination
+        k = 0;
+        int r;
+        while (k < n) {
+            r = bitreverseReference(k, nu);
+            if (r > k) {
+                tReal = xReal[k];
+                tImag = xImag[k];
+                xReal[k] = xReal[r];
+                xImag[k] = xImag[r];
+                xReal[r] = tReal;
+                xImag[r] = tImag;
+            }
+            k++;
+        }
+        
+        // Normalization and output (same as FFTBase)
+        double[] newArray = new double[2 * n];
+        double radice = 1 / Math.sqrt(n);
+        for (int i = 0; i < n; i++) {
+            newArray[2 * i] = xReal[i] * radice;
+            newArray[2 * i + 1] = xImag[i] * radice;
+        }
+        return newArray;
+    }
+
+    public static double[] ifft32(double[] inputReal, double[] inputImag) {
+        return fft32(inputReal, inputImag, false);
+    }
+    
+    /**
+     * Reverse 5 bits for 32-point FFT bit-reversal permutation
+     */
+    private static int reverseBits5(int x) {
+        int result = 0;
+        result |= ((x & 0x01) << 4);  // Bit 0 -> Bit 4
+        result |= ((x & 0x02) << 2);  // Bit 1 -> Bit 3
+        result |= ((x & 0x04) << 0);  // Bit 2 -> Bit 2 (stays)
+        result |= ((x & 0x08) >> 2);  // Bit 3 -> Bit 1
+        result |= ((x & 0x10) >> 4);  // Bit 4 -> Bit 0
         return result;
     }
     
     /**
-     * Optimized 8-point inverse FFT implementation.
-     * 
-     * @param inputReal array of length 8, the real part
-     * @param inputImag array of length 8, the imaginary part
-     * @return array of length 16 with interleaved real and imaginary parts
+     * The bit reversing function from FFTBase, used for twiddle factor computation
      */
-    public static double[] ifft8(final double[] inputReal, final double[] inputImag) {
-        if (inputReal.length != 8) {
-            throw new IllegalArgumentException("Input arrays must be of length 8");
+    private static int bitreverseReference(int j, int nu) {
+        int j2;
+        int j1 = j;
+        int k = 0;
+        for (int i = 1; i <= nu; i++) {
+            j2 = j1 / 2;
+            k = 2 * k + j1 - 2 * j2;
+            j1 = j2;
         }
-        
-        // Use forward transform with conjugate and scaling for inverse
-        double[] conjugatedImag = new double[8];
-        for (int i = 0; i < 8; i++) {
-            conjugatedImag[i] = -inputImag[i];
-        }
-        
-        double[] result = fft8(inputReal, conjugatedImag, true);
-        
-        // Conjugate output and scale for proper round-trip behavior (1/N total)
-        double scale = 1.0 / 8.0; // Use 1/N instead of 1/sqrt(N) for inverse to get proper round trip
-        for (int i = 0; i < 8; i++) {
-            result[2*i] *= scale;          // Real part scaled  
-            result[2*i + 1] *= -scale;     // Imaginary part conjugated and scaled
-        }
-        
-        return result;
-    }
-    
-    /**
-     * Optimized 16-point FFT implementation with complete algorithm unrolling.
-     * 
-     * <p>This implementation is optimized for 16-element arrays with complete
-     * loop unrolling and precomputed trigonometric values. It provides significant 
-     * performance improvement over generic implementations through specialized 
-     * butterfly operations.</p>
-     * 
-     * @param inputReal array of length 16, the real part
-     * @param inputImag array of length 16, the imaginary part
-     * @param forward true for forward transform, false for inverse
-     * @return array of length 32 with interleaved real and imaginary parts
-     */
-    public static double[] fft16(final double[] inputReal, final double[] inputImag, boolean forward) {
-        if (inputReal.length != 16) {
-            throw new IllegalArgumentException("Input arrays must be of length 16");
-        }
-        
-        // For now, use the base implementation to ensure correctness
-        // This will be replaced with optimized implementation once algorithm is validated
-        com.fft.core.FFTBase fallback = new com.fft.core.FFTBase();
-        return fallback.transform(inputReal, inputImag, forward).getInterleavedResult();
-    }
-    
-    /**
-     * Optimized 16-point inverse FFT implementation.
-     * 
-     * @param inputReal array of length 16, the real part
-     * @param inputImag array of length 16, the imaginary part
-     * @return array of length 32 with interleaved real and imaginary parts
-     */
-    public static double[] ifft16(final double[] inputReal, final double[] inputImag) {
-        if (inputReal.length != 16) {
-            throw new IllegalArgumentException("Input arrays must be of length 16");
-        }
-        
-        // For now, use the base implementation to ensure correctness
-        com.fft.core.FFTBase fallback = new com.fft.core.FFTBase();
-        return fallback.transform(inputReal, inputImag, false).getInterleavedResult();
-    }
-    
-    /**
-     * Optimized 32-point FFT implementation with complete algorithm unrolling.
-     * 
-     * <p>This implementation is adapted from the original FFToptim32 with complete
-     * optimization for 32-element arrays. It provides significant performance improvement
-     * over generic implementations through specialized butterfly operations and 
-     * precomputed trigonometric values.</p>
-     * 
-     * @param inputReal array of length 32, the real part
-     * @param inputImag array of length 32, the imaginary part
-     * @param forward true for forward transform, false for inverse
-     * @return array of length 64 with interleaved real and imaginary parts
-     */
-    // Precomputed twiddle factors for n=32 (cosine and sine values)
-    private static final double[] TWIDDLES_32 = {
-        1.0, 0.9807852804, 0.9238795325, 0.8314696123,
-        0.7071067812, 0.5555702330, 0.3826834324, 0.1950903220,
-        -0.0, -0.1950903220, -0.3826834324, -0.5555702330,
-        -0.7071067812, -0.8314696123, -0.9238795325, -0.9807852804,
-        -1.0, -0.9807852804, -0.9238795325, -0.8314696123,
-        -0.7071067812, -0.5555702330, -0.3826834324, -0.1950903220,
-        0.0, 0.1950903220, 0.3826834324, 0.5555702330,
-        0.7071067812, 0.8314696123, 0.9238795325, 0.9807852804
-    };
-
-    // Precomputed sine values for n=32
-    private static final double[] PRECOMPUTED_SIN = {
-        0.0, 0.1950903220, 0.3826834324, 0.5555702330,
-        0.7071067812, 0.8314696123, 0.9238795325, 0.9807852804,
-        1.0, 0.9807852804, 0.9238795325, 0.8314696123,
-        0.7071067812, 0.5555702330, 0.3826834324, 0.1950903220,
-        0.0, -0.1950903220, -0.3826834324, -0.5555702330,
-        -0.7071067812, -0.8314696123, -0.9238795325, -0.9807852804,
-        -1.0, -0.9807852804, -0.9238795325, -0.8314696123,
-        -0.7071067812, -0.5555702330, -0.3826834324, -0.1950903220
-    };
-
-    // Valori combinati cos/sin per migliorare la località della cache
-    // Note: @Contended annotation removed for compatibility
-    private static final double[] STAGE4_TRIG = {
-        // Formato: cos0, sin0, cos1, sin1, ..., cos15, sin15
-        1.0, 0.0,
-        0.9238795325, 0.3826834324,
-        0.7071067812, 0.7071067812,
-        0.3826834324, 0.9238795325,
-        0.0, 1.0,
-        -0.3826834324, 0.9238795325,
-        -0.7071067812, 0.7071067812,
-        -0.9238795325, 0.3826834324,
-        -1.0, 0.0,
-        -0.9238795325, -0.3826834324,
-        -0.7071067812, -0.7071067812,
-        -0.3826834324, -0.9238795325,
-        0.0, -1.0,
-        0.3826834324, -0.9238795325,
-        0.7071067812, -0.7071067812,
-        0.9238795325, -0.3826834324
-    };
-
-    public static double[] fft32(final double[] inputReal, final double[] inputImag, boolean forward) {
-        if (inputReal.length != 32) {
-            throw new IllegalArgumentException("Input arrays must be of length 32");
-        }
-        
-        // For now, use the base implementation to ensure correctness
-        // This will be replaced with optimized implementation once algorithm is validated
-        com.fft.core.FFTBase fallback = new com.fft.core.FFTBase();
-        return fallback.transform(inputReal, inputImag, forward).getInterleavedResult();
-    }
-    
-    /**
-     * Optimized 64-point FFT implementation with stage-specific optimizations.
-     * 
-     * <p>This implementation is adapted from the original FFToptim64 with specialized
-     * optimizations for 64-element arrays. It demonstrates significant performance
-     * improvements through hardcoded parameters and optimized butterfly operations.</p>
-     * 
-     * @param inputReal array of length 64, the real part
-     * @param inputImag array of length 64, the imaginary part
-     * @param forward true for forward transform, false for inverse
-     * @return array of length 128 with interleaved real and imaginary parts
-     */
-    public static double[] ifft32(final double[] inputReal, final double[] inputImag) {
-        if (inputReal.length != 32) {
-            throw new IllegalArgumentException("Input arrays must be of length 32");
-        }
-        
-        // For now, use the base implementation to ensure correctness
-        com.fft.core.FFTBase fallback = new com.fft.core.FFTBase();
-        return fallback.transform(inputReal, inputImag, false).getInterleavedResult();
+        return k;
     }
 
-    public static double[] fft64(final double[] inputReal, final double[] inputImag, boolean forward) {
-        if (inputReal.length != 64) {
-            throw new IllegalArgumentException("Input arrays must be of length 64");
-        }
-        
-        // For now, use the base implementation to ensure correctness
-        // This will be replaced with optimized implementation once algorithm is validated
-        com.fft.core.FFTBase fallback = new com.fft.core.FFTBase();
-        return fallback.transform(inputReal, inputImag, forward).getInterleavedResult();
+    /** 64-point FFT fallback */
+    public static double[] fft64(double[] inputReal, double[] inputImag, boolean forward) {
+        return new FFTBase().transform(inputReal, inputImag, forward).getInterleavedResult();
     }
-    
-    /**
-     * Optimized 64-point inverse FFT implementation.
-     * 
-     * @param inputReal array of length 64, the real part
-     * @param inputImag array of length 64, the imaginary part
-     * @return array of length 128 with interleaved real and imaginary parts
-     */
-    public static double[] ifft64(final double[] inputReal, final double[] inputImag) {
-        if (inputReal.length != 64) {
-            throw new IllegalArgumentException("Input arrays must be of length 64");
-        }
-        
-        // For now, use the base implementation to ensure correctness
-        com.fft.core.FFTBase fallback = new com.fft.core.FFTBase();
-        return fallback.transform(inputReal, inputImag, false).getInterleavedResult();
+
+    public static double[] ifft64(double[] inputReal, double[] inputImag) {
+        return new FFTBase().transform(inputReal, inputImag, false).getInterleavedResult();
     }
 }

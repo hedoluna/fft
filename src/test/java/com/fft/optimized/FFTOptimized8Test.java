@@ -76,11 +76,10 @@ class FFTOptimized8Test {
         double[] recoveredReal = inverse.getRealParts();
         double[] recoveredImag = inverse.getImaginaryParts();
         
-        // With 1/sqrt(N) normalization in both directions, total scaling is 1/N
-        double expectedScale = 1.0 / 8;
+        // With 1/sqrt(N) normalization in both directions, signal should be recovered exactly
         for (int i = 0; i < originalReal.length; i++) {
-            assertThat(recoveredReal[i]).isCloseTo(originalReal[i] * expectedScale, within(EPSILON));
-            assertThat(recoveredImag[i]).isCloseTo(originalImag[i] * expectedScale, within(EPSILON));
+            assertThat(recoveredReal[i]).isCloseTo(originalReal[i], within(EPSILON));
+            assertThat(recoveredImag[i]).isCloseTo(originalImag[i], within(EPSILON));
         }
     }
     
