@@ -7,6 +7,68 @@ import com.fft.core.FFTBase;
  * Features precomputed twiddle factors and stage-by-stage optimizations.
  */
 public class OptimizedFFTUtils {
+
+    // Precomputed twiddle factors for 8-point FFT (k = 0..7)
+    private static final double[] TWIDDLES_8_REAL = {
+        1.0,
+        0.7071067811865476,
+        6.123233995736766e-17,
+        -0.7071067811865475,
+        -1.0,
+        -0.7071067811865477,
+        -1.8369701987210297e-16,
+        0.7071067811865474
+    };
+
+    private static final double[] TWIDDLES_8_IMAG = {
+        0.0,
+        -0.7071067811865475,
+        -1.0,
+        -0.7071067811865476,
+        -1.2246467991473532e-16,
+        0.7071067811865475,
+        1.0,
+        0.7071067811865477
+    };
+
+    // Precomputed twiddle factors for 16-point FFT (k = 0..15)
+    private static final double[] TWIDDLES_16_REAL = {
+        1.0,
+        0.9238795325112867,
+        0.7071067811865476,
+        0.3826834323650898,
+        6.123233995736766e-17,
+        -0.3826834323650897,
+        -0.7071067811865475,
+        -0.9238795325112867,
+        -1.0,
+        -0.9238795325112868,
+        -0.7071067811865477,
+        -0.38268343236509034,
+        -1.8369701987210297e-16,
+        0.38268343236509,
+        0.7071067811865474,
+        0.9238795325112865
+    };
+
+    private static final double[] TWIDDLES_16_IMAG = {
+        0.0,
+        -0.3826834323650898,
+        -0.7071067811865475,
+        -0.9238795325112867,
+        -1.0,
+        -0.9238795325112867,
+        -0.7071067811865476,
+        -0.3826834323650899,
+        -1.2246467991473532e-16,
+        0.38268343236508967,
+        0.7071067811865475,
+        0.9238795325112865,
+        1.0,
+        0.9238795325112866,
+        0.7071067811865477,
+        0.3826834323650904
+    };
     
     // Precomputed twiddle factors for 32-point FFT
     // Real parts: cos(-2πk/32) for k = 0, 1, 2, ..., 15
@@ -122,22 +184,144 @@ public class OptimizedFFTUtils {
         -0.09801714032956083
     };
 
-    /** 8-point FFT fallback */
+    /** 8-point FFT using precomputed twiddle factors */
     public static double[] fft8(double[] inputReal, double[] inputImag, boolean forward) {
-        return new FFTBase().transform(inputReal, inputImag, forward).getInterleavedResult();
+        if (inputReal.length != 8 || inputImag.length != 8) {
+            throw new IllegalArgumentException("Arrays must be of length 8");
+        }
+
+        int n = 8;
+        int nu = 3;
+        int n2 = n / 2;
+        int nu1 = nu - 1;
+        double[] xReal = new double[n];
+        double[] xImag = new double[n];
+        System.arraycopy(inputReal, 0, xReal, 0, n);
+        System.arraycopy(inputImag, 0, xImag, 0, n);
+
+        double tReal;
+        double tImag;
+        double c;
+        double s;
+
+        int k = 0;
+        for (int l = 1; l <= nu; l++) {
+            while (k < n) {
+                for (int i = 1; i <= n2; i++) {
+                    int p = bitreverseReference(k >> nu1, nu);
+                    c = TWIDDLES_8_REAL[p];
+                    s = forward ? TWIDDLES_8_IMAG[p] : -TWIDDLES_8_IMAG[p];
+
+                    tReal = xReal[k + n2] * c + xImag[k + n2] * s;
+                    tImag = xImag[k + n2] * c - xReal[k + n2] * s;
+                    xReal[k + n2] = xReal[k] - tReal;
+                    xImag[k + n2] = xImag[k] - tImag;
+                    xReal[k] += tReal;
+                    xImag[k] += tImag;
+                    k++;
+                }
+                k += n2;
+            }
+            k = 0;
+            nu1--;
+            n2 /= 2;
+        }
+
+        k = 0;
+        while (k < n) {
+            int r = bitreverseReference(k, nu);
+            if (r > k) {
+                tReal = xReal[k];
+                tImag = xImag[k];
+                xReal[k] = xReal[r];
+                xImag[k] = xImag[r];
+                xReal[r] = tReal;
+                xImag[r] = tImag;
+            }
+            k++;
+        }
+
+        double[] result = new double[2 * n];
+        double radice = 1 / Math.sqrt(n);
+        for (int i = 0; i < n; i++) {
+            result[2 * i] = xReal[i] * radice;
+            result[2 * i + 1] = xImag[i] * radice;
+        }
+        return result;
     }
 
     public static double[] ifft8(double[] inputReal, double[] inputImag) {
-        return new FFTBase().transform(inputReal, inputImag, false).getInterleavedResult();
+        return fft8(inputReal, inputImag, false);
     }
 
     /** 16-point FFT fallback */
     public static double[] fft16(double[] inputReal, double[] inputImag, boolean forward) {
-        return new FFTBase().transform(inputReal, inputImag, forward).getInterleavedResult();
+        if (inputReal.length != 16 || inputImag.length != 16) {
+            throw new IllegalArgumentException("Arrays must be of length 16");
+        }
+
+        int n = 16;
+        int nu = 4;
+        int n2 = n / 2;
+        int nu1 = nu - 1;
+        double[] xReal = new double[n];
+        double[] xImag = new double[n];
+        System.arraycopy(inputReal, 0, xReal, 0, n);
+        System.arraycopy(inputImag, 0, xImag, 0, n);
+
+        double tReal;
+        double tImag;
+        double c;
+        double s;
+
+        int k = 0;
+        for (int l = 1; l <= nu; l++) {
+            while (k < n) {
+                for (int i = 1; i <= n2; i++) {
+                    int p = bitreverseReference(k >> nu1, nu);
+                    c = TWIDDLES_16_REAL[p];
+                    s = forward ? TWIDDLES_16_IMAG[p] : -TWIDDLES_16_IMAG[p];
+
+                    tReal = xReal[k + n2] * c + xImag[k + n2] * s;
+                    tImag = xImag[k + n2] * c - xReal[k + n2] * s;
+                    xReal[k + n2] = xReal[k] - tReal;
+                    xImag[k + n2] = xImag[k] - tImag;
+                    xReal[k] += tReal;
+                    xImag[k] += tImag;
+                    k++;
+                }
+                k += n2;
+            }
+            k = 0;
+            nu1--;
+            n2 /= 2;
+        }
+
+        k = 0;
+        while (k < n) {
+            int r = bitreverseReference(k, nu);
+            if (r > k) {
+                tReal = xReal[k];
+                tImag = xImag[k];
+                xReal[k] = xReal[r];
+                xImag[k] = xImag[r];
+                xReal[r] = tReal;
+                xImag[r] = tImag;
+            }
+            k++;
+        }
+
+        double[] result = new double[2 * n];
+        double radice = 1 / Math.sqrt(n);
+        for (int i = 0; i < n; i++) {
+            result[2 * i] = xReal[i] * radice;
+            result[2 * i + 1] = xImag[i] * radice;
+        }
+        return result;
     }
 
     public static double[] ifft16(double[] inputReal, double[] inputImag) {
-        return new FFTBase().transform(inputReal, inputImag, false).getInterleavedResult();
+        return fft16(inputReal, inputImag, false);
     }
 
     /** 32-point FFT with precomputed twiddle factors - Stage 1: Basic algorithm with twiddles */
