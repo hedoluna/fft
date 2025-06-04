@@ -6,12 +6,13 @@ import com.fft.core.FFTResult;
 import com.fft.factory.FFTImplementation;
 
 /**
- * Highly optimized FFT implementation for 64-element arrays.
- * 
- * <p>This implementation provides significant performance improvement for 64-element FFT operations
- * through optimized loop structure, precomputed trigonometric values, and efficient memory access
- * patterns. The algorithm uses hardcoded parameters for 6-stage Cooley-Tukey FFT.</p>
- * 
+ * Partial FFT implementation for 64-element arrays.
+ *
+ * <p>This class currently delegates to {@link FFTBase} through
+ * {@link OptimizedFFTUtils#fft64(double[], double[], boolean)} to ensure
+ * correctness. It exists as a placeholder for future optimizations and does not
+ * provide a measured speedup over the base implementation.</p>
+ *
  * <h3>Optimization Techniques:</h3>
  * <ul>
  * <li><b>Stage-Optimized Processing:</b> Each of 6 stages optimized individually</li>
@@ -25,7 +26,6 @@ import com.fft.factory.FFTImplementation;
  * <ul>
  * <li>Time Complexity: O(n log n) = O(384) operations</li>
  * <li>Space Complexity: O(n) = O(64) additional memory</li>
- * <li>Speedup: ~2.5x faster than generic implementation</li>
  * <li>Cache Efficiency: Very good for L1/L2 cache</li>
  * </ul>
  * 
