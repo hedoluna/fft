@@ -42,9 +42,9 @@ import com.fft.factory.FFTImplementation;
  */
 @FFTImplementation(
     size = 64,
-    priority = 10,
-    description = "Partial implementation - delegates to FFTBase for correctness",
-    characteristics = {"incomplete-optimization", "fallback-delegation", "development-in-progress"}
+    priority = 40,
+    description = "Optimized FFT implementation for size 64 using precomputed twiddle factors",
+    characteristics = {"precomputed-trig", "stage-optimized"}
 )
 public class FFTOptimized64 implements FFT {
     
@@ -82,7 +82,7 @@ public class FFTOptimized64 implements FFT {
     
     @Override
     public String getDescription() {
-        return "Highly optimized FFT implementation (size " + SIZE + ", ~2.5x speedup)";
+        return "Optimized FFT implementation (size " + SIZE + ") with precomputed twiddle factors";
     }
     
     /**
