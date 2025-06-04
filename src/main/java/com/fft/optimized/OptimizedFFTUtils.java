@@ -49,6 +49,79 @@ public class OptimizedFFTUtils {
         -0.19509032201612833    // sin(-15π/16)
     };
 
+    // Precomputed twiddle factors for 64-point FFT
+    // Real parts: cos(-2πk/64) for k = 0..31
+    private static final double[] TWIDDLES_64_REAL = {
+        1.0,
+        0.9951847266721969,
+        0.9807852804032304,
+        0.9569403357322088,
+        0.9238795325112867,
+        0.881921264348355,
+        0.8314696123025452,
+        0.773010453362737,
+        0.7071067811865476,
+        0.6343932841636455,
+        0.5555702330196023,
+        0.4713967368259978,
+        0.38268343236508984,
+        0.29028467725446233,
+        0.19509032201612833,
+        0.09801714032956077,
+        6.123233995736766e-17,
+        -0.09801714032956065,
+        -0.1950903220161282,
+        -0.29028467725446216,
+        -0.3826834323650897,
+        -0.4713967368259977,
+        -0.555570233019602,
+        -0.6343932841636454,
+        -0.7071067811865475,
+        -0.773010453362737,
+        -0.8314696123025453,
+        -0.8819212643483549,
+        -0.9238795325112867,
+        -0.9569403357322088,
+        -0.9807852804032304,
+        -0.9951847266721968
+    };
+
+    // Imaginary parts: sin(-2πk/64) for k = 0..31
+    private static final double[] TWIDDLES_64_IMAG = {
+        0.0,
+        -0.0980171403295606,
+        -0.19509032201612825,
+        -0.29028467725446233,
+        -0.3826834323650898,
+        -0.47139673682599764,
+        -0.5555702330196022,
+        -0.6343932841636455,
+        -0.7071067811865475,
+        -0.773010453362737,
+        -0.8314696123025452,
+        -0.8819212643483549,
+        -0.9238795325112867,
+        -0.9569403357322089,
+        -0.9807852804032304,
+        -0.9951847266721968,
+        -1.0,
+        -0.9951847266721969,
+        -0.9807852804032304,
+        -0.9569403357322089,
+        -0.9238795325112867,
+        -0.881921264348355,
+        -0.8314696123025455,
+        -0.7730104533627371,
+        -0.7071067811865476,
+        -0.6343932841636455,
+        -0.5555702330196022,
+        -0.47139673682599786,
+        -0.3826834323650899,
+        -0.2902846772544624,
+        -0.1950903220161286,
+        -0.09801714032956083
+    };
+
     /** 8-point FFT fallback */
     public static double[] fft8(double[] inputReal, double[] inputImag, boolean forward) {
         return new FFTBase().transform(inputReal, inputImag, forward).getInterleavedResult();
@@ -197,12 +270,84 @@ public class OptimizedFFTUtils {
         return k;
     }
 
-    /** 64-point FFT fallback */
+    /**
+     * Optimized 64-point FFT implementation with precomputed twiddle factors.
+     * This method is based on {@link FFTBase#fft(double[], double[], boolean)}
+     * but avoids expensive trigonometric calls by using lookup tables.
+     */
     public static double[] fft64(double[] inputReal, double[] inputImag, boolean forward) {
-        return new FFTBase().transform(inputReal, inputImag, forward).getInterleavedResult();
+        if (inputReal.length != 64 || inputImag.length != 64) {
+            throw new IllegalArgumentException("Arrays must be of length 64");
+        }
+
+        int n = 64;
+        int nu = 6;
+        int n2 = n / 2;
+        int nu1 = nu - 1;
+
+        double[] xReal = new double[n];
+        double[] xImag = new double[n];
+        System.arraycopy(inputReal, 0, xReal, 0, n);
+        System.arraycopy(inputImag, 0, xImag, 0, n);
+
+        double tReal;
+        double tImag;
+        double c;
+        double s;
+
+        int k = 0;
+        for (int l = 1; l <= nu; l++) {
+            while (k < n) {
+                for (int i = 1; i <= n2; i++) {
+                    int p = bitreverseReference(k >> nu1, nu);
+                    int index = p & 31; // p mod 32
+                    if (forward) {
+                        c = TWIDDLES_64_REAL[index];
+                        s = TWIDDLES_64_IMAG[index];
+                    } else {
+                        c = TWIDDLES_64_REAL[index];
+                        s = -TWIDDLES_64_IMAG[index];
+                    }
+
+                    tReal = xReal[k + n2] * c + xImag[k + n2] * s;
+                    tImag = xImag[k + n2] * c - xReal[k + n2] * s;
+                    xReal[k + n2] = xReal[k] - tReal;
+                    xImag[k + n2] = xImag[k] - tImag;
+                    xReal[k] += tReal;
+                    xImag[k] += tImag;
+                    k++;
+                }
+                k += n2;
+            }
+            k = 0;
+            nu1--;
+            n2 /= 2;
+        }
+
+        k = 0;
+        while (k < n) {
+            int r = bitreverseReference(k, nu);
+            if (r > k) {
+                tReal = xReal[k];
+                tImag = xImag[k];
+                xReal[k] = xReal[r];
+                xImag[k] = xImag[r];
+                xReal[r] = tReal;
+                xImag[r] = tImag;
+            }
+            k++;
+        }
+
+        double[] newArray = new double[2 * n];
+        double radice = 1 / Math.sqrt(n);
+        for (int i = 0; i < n; i++) {
+            newArray[2 * i] = xReal[i] * radice;
+            newArray[2 * i + 1] = xImag[i] * radice;
+        }
+        return newArray;
     }
 
     public static double[] ifft64(double[] inputReal, double[] inputImag) {
-        return new FFTBase().transform(inputReal, inputImag, false).getInterleavedResult();
+        return fft64(inputReal, inputImag, false);
     }
 }
