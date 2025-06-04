@@ -184,6 +184,15 @@ public class OptimizedFFTUtils {
         -0.09801714032956083
     };
 
+    // Bit-reversal table for 6-bit indices (0..63)
+    private static final int[] BIT_REVERSE_64 = new int[64];
+
+    static {
+        for (int i = 0; i < 64; i++) {
+            BIT_REVERSE_64[i] = reverseBits6(i);
+        }
+    }
+
     /** 8-point FFT using precomputed twiddle factors */
     public static double[] fft8(double[] inputReal, double[] inputImag, boolean forward) {
         if (inputReal.length != 8 || inputImag.length != 8) {
@@ -433,6 +442,20 @@ public class OptimizedFFTUtils {
         result |= ((x & 0x10) >> 4);  // Bit 4 -> Bit 0
         return result;
     }
+
+    /**
+     * Reverse 6 bits for 64-point FFT bit-reversal permutation
+     */
+    private static int reverseBits6(int x) {
+        int result = 0;
+        result |= ((x & 0x01) << 5);  // Bit 0 -> Bit 5
+        result |= ((x & 0x02) << 3);  // Bit 1 -> Bit 4
+        result |= ((x & 0x04) << 1);  // Bit 2 -> Bit 3
+        result |= ((x & 0x08) >> 1);  // Bit 3 -> Bit 2
+        result |= ((x & 0x10) >> 3);  // Bit 4 -> Bit 1
+        result |= ((x & 0x20) >> 5);  // Bit 5 -> Bit 0
+        return result;
+    }
     
     /**
      * The bit reversing function from FFTBase, used for twiddle factor computation
@@ -478,8 +501,7 @@ public class OptimizedFFTUtils {
         for (int l = 1; l <= nu; l++) {
             while (k < n) {
                 for (int i = 1; i <= n2; i++) {
-                    int p = bitreverseReference(k >> nu1, nu);
-                    int index = p & 31; // p mod 32
+                    int index = BIT_REVERSE_64[k >> nu1] & 31; // p mod 32
                     if (forward) {
                         c = TWIDDLES_64_REAL[index];
                         s = TWIDDLES_64_IMAG[index];
@@ -505,7 +527,7 @@ public class OptimizedFFTUtils {
 
         k = 0;
         while (k < n) {
-            int r = bitreverseReference(k, nu);
+            int r = BIT_REVERSE_64[k];
             if (r > k) {
                 tReal = xReal[k];
                 tImag = xImag[k];
