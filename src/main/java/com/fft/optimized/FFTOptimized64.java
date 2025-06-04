@@ -97,6 +97,9 @@ public class FFTOptimized64 implements FFT {
         if (inputReal.length != SIZE) {
             throw new IllegalArgumentException("Input arrays must be of length " + SIZE);
         }
+        if (inputImag.length != SIZE) {
+            throw new IllegalArgumentException("Input arrays must be of length " + SIZE);
+        }
 
         // Delegate to the optimized utility implementation
         return OptimizedFFTUtils.fft64(inputReal, inputImag, forward);
