@@ -356,4 +356,34 @@ class FFTOptimized64Test {
             }
         }
     }
+
+    @Nested
+    @DisplayName("Static fft64() Method Tests")
+    class StaticFFT64MethodTests {
+
+        @Test
+        @DisplayName("Should throw if imaginary array length is incorrect")
+        void shouldThrowForWrongImagLength() {
+            double[] real = new double[SIZE];
+            double[] imagWrong = new double[SIZE - 1];
+
+            assertThatThrownBy(() -> FFTOptimized64.fft64(real, imagWrong, true))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("64");
+        }
+
+        @Test
+        @DisplayName("Should transform with correct array lengths")
+        void shouldTransformWithCorrectArrayLengths() {
+            double[] real = new double[SIZE];
+            double[] imag = new double[SIZE];
+
+            assertThatCode(() -> FFTOptimized64.fft64(real, imag, true))
+                .doesNotThrowAnyException();
+
+            double[] result = FFTOptimized64.fft64(real, imag, true);
+            assertThat(result).isNotNull();
+            assertThat(result).hasSize(SIZE * 2);
+        }
+    }
 }
