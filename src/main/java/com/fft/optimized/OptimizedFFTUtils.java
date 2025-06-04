@@ -163,7 +163,6 @@ public class OptimizedFFTUtils {
         double tReal;
         double tImag;
         double p;
-        double arg;
         double c;
         double s;
         
@@ -179,22 +178,18 @@ public class OptimizedFFTUtils {
             while (k < n) {
                 for (int i = 1; i <= n2; i++) {
                     p = bitreverseReference(k >> nu1, nu);
-                    
+
                     // Use precomputed twiddle factors instead of Math.cos/sin
+                    // Map to precomputed table with correct sign handling
+                    int pInt = (int) Math.round(p);
+                    int index = pInt % 16;  // Table contains values for 0-15
+                    int sign = pInt >= 16 ? -1 : 1;
                     if (forward) {
-                        arg = -2 * Math.PI * p / n;
+                        c = sign * TWIDDLES_32_REAL[index];
+                        s = sign * TWIDDLES_32_IMAG[index];
                     } else {
-                        arg = 2 * Math.PI * p / n;
-                    }
-                    
-                    // Get from precomputed table (handle wraparound)
-                    int index = ((int) Math.round(p)) % 16;  // We only have 16 precomputed values (0-15)
-                    if (forward) {
-                        c = TWIDDLES_32_REAL[index];
-                        s = TWIDDLES_32_IMAG[index];
-                    } else {
-                        c = TWIDDLES_32_REAL[index];
-                        s = -TWIDDLES_32_IMAG[index]; // Negate for inverse
+                        c = sign * TWIDDLES_32_REAL[index];
+                        s = -sign * TWIDDLES_32_IMAG[index]; // Negate for inverse and sign
                     }
                     
                     tReal = xReal[k + n2] * c + xImag[k + n2] * s;
