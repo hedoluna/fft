@@ -251,6 +251,15 @@ mvn clean test jacoco:report
 # Open target/site/jacoco/index.html
 ```
 
+## 📚 Documentation
+
+Additional details about the demos and testing process are available in the
+project documentation:
+
+- [docs/DEMO_DOCUMENTATION.md](docs/DEMO_DOCUMENTATION.md) – comprehensive demo guide
+- [docs/DEMO_TESTING_SUMMARY.md](docs/DEMO_TESTING_SUMMARY.md) – summary of testing and coverage
+- [docs/FFT_Library.md](docs/FFT_Library.md) – Italian overview of the library
+
 ## 🚧 Current Development Status
 
 ### ✅ Completed and Functional
