@@ -2,6 +2,7 @@ package com.fft.optimized;
 
 import com.fft.core.FFTResult;
 import com.fft.utils.FFTUtils;
+import com.fft.core.FFTBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -93,5 +94,25 @@ class FFTOptimized128Test {
         }
         
         assertThat(outputEnergy).isCloseTo(inputEnergy, within(TOLERANCE));
+    }
+    @Test
+    @DisplayName("Should match FFTBase results")
+    void shouldMatchFFTBaseResults() {
+        FFTBase reference = new FFTBase();
+        double[] real = FFTUtils.generateTestSignal(SIZE, "random");
+        double[] imag = new double[SIZE];
+
+        FFTResult expected = reference.transform(real.clone(), imag.clone(), true);
+        FFTResult actual = fft.transform(real.clone(), imag.clone(), true);
+
+        double[] expectedReal = expected.getRealParts();
+        double[] expectedImag = expected.getImaginaryParts();
+        double[] actualReal = actual.getRealParts();
+        double[] actualImag = actual.getImaginaryParts();
+
+        for (int i = 0; i < SIZE; i++) {
+            assertThat(actualReal[i]).isCloseTo(expectedReal[i], within(TOLERANCE));
+            assertThat(actualImag[i]).isCloseTo(expectedImag[i], within(TOLERANCE));
+        }
     }
 }
