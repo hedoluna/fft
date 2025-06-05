@@ -24,8 +24,8 @@ import com.fft.factory.FFTImplementation;
  * <ul>
  * <li>Time Complexity: O(n log n) = O(4608) operations</li>
  * <li>Space Complexity: O(n) = O(512) additional memory</li>
- * <li>Speedup: ~4x faster than generic implementation</li>
  * <li>Cache Efficiency: Very good for modern CPUs</li>
+ * <li>Uses {@link FFTBase} for inverse transforms</li>
  * </ul>
  * 
  * @author Orlando Selenu (original algorithm base)
@@ -37,7 +37,7 @@ import com.fft.factory.FFTImplementation;
     size = 512,
     priority = 50,
     description = "Optimized implementation with block processing for 512-element arrays",
-    characteristics = {"block-processing", "cache-friendly", "instruction-optimized", "4x-speedup"}
+    characteristics = {"block-processing", "cache-friendly", "instruction-optimized"}
 )
 public class FFTOptimized512 implements FFT {
     
@@ -81,7 +81,7 @@ public class FFTOptimized512 implements FFT {
     
     @Override
     public String getDescription() {
-        return "Highly optimized FFT implementation (size " + SIZE + ", ~4x speedup)";
+        return "Highly optimized FFT implementation (size " + SIZE + ")";
     }
     
     /**

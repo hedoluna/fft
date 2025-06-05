@@ -24,8 +24,8 @@ import com.fft.factory.FFTImplementation;
  * <ul>
  * <li>Time Complexity: O(n log n) = O(10240) operations</li>
  * <li>Space Complexity: O(n) = O(1024) additional memory</li>
- * <li>Speedup: ~5x faster than generic implementation</li>
  * <li>Cache Efficiency: Excellent for L3 cache and beyond</li>
+ * <li>Falls back to {@link FFTBase} for inverse transforms</li>
  * </ul>
  * 
  * @author Orlando Selenu (original algorithm base)
@@ -37,7 +37,7 @@ import com.fft.factory.FFTImplementation;
     size = 1024,
     priority = 50,
     description = "Optimized implementation with hierarchical blocking for 1024-element arrays",
-    characteristics = {"hierarchical-blocking", "pipeline-friendly", "simd-ready", "5x-speedup"}
+    characteristics = {"hierarchical-blocking", "pipeline-friendly", "simd-ready"}
 )
 public class FFTOptimized1024 implements FFT {
     
@@ -81,7 +81,7 @@ public class FFTOptimized1024 implements FFT {
     
     @Override
     public String getDescription() {
-        return "Highly optimized FFT implementation (size " + SIZE + ", ~5x speedup)";
+        return "Highly optimized FFT implementation (size " + SIZE + ") using hierarchical blocking";
     }
     
     /**

@@ -21,8 +21,8 @@ import com.fft.factory.FFTImplementation;
  * <ul>
  * <li>Time Complexity: O(n log n) = O(229376) operations</li>
  * <li>Space Complexity: O(n) = O(16384) additional memory</li>
- * <li>Speedup: ~6x faster than generic implementation</li>
  * <li>Memory Efficiency: Good for very large working sets</li>
+ * <li>Delegates to {@link FFTBase} when optimization is unavailable</li>
  * </ul>
  * 
  * @author Engine AI Assistant (2025)
@@ -33,7 +33,7 @@ import com.fft.factory.FFTImplementation;
     size = 16384,
     priority = 45,
     description = "Hybrid optimized implementation for 16384-element arrays",
-    characteristics = {"hybrid-decomposition", "memory-efficient", "large-scale", "6x-speedup"}
+    characteristics = {"hybrid-decomposition", "memory-efficient", "large-scale"}
 )
 public class FFTOptimized16384 implements FFT {
     
@@ -77,7 +77,7 @@ public class FFTOptimized16384 implements FFT {
     
     @Override
     public String getDescription() {
-        return "Hybrid optimized FFT implementation (size " + SIZE + ", ~6x speedup)";
+        return "Hybrid optimized FFT implementation (size " + SIZE + ")";
     }
     
     /**

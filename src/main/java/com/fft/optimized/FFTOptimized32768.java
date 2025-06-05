@@ -21,8 +21,8 @@ import com.fft.factory.FFTImplementation;
  * <ul>
  * <li>Time Complexity: O(n log n) = O(491520) operations</li>
  * <li>Space Complexity: O(n) = O(32768) additional memory</li>
- * <li>Speedup: ~5x faster than generic implementation</li>
  * <li>Memory Efficiency: Optimized for very large datasets</li>
+ * <li>Delegates to {@link FFTBase} for unimplemented paths</li>
  * </ul>
  * 
  * @author Engine AI Assistant (2025)
@@ -33,7 +33,7 @@ import com.fft.factory.FFTImplementation;
     size = 32768,
     priority = 40,
     description = "Mixed-radix optimized implementation for 32768-element arrays",
-    characteristics = {"mixed-radix", "large-scale-optimized", "memory-efficient", "5x-speedup"}
+    characteristics = {"mixed-radix", "large-scale-optimized", "memory-efficient"}
 )
 public class FFTOptimized32768 implements FFT {
     
@@ -77,7 +77,7 @@ public class FFTOptimized32768 implements FFT {
     
     @Override
     public String getDescription() {
-        return "Mixed-radix optimized FFT implementation (size " + SIZE + ", ~5x speedup)";
+        return "Mixed-radix optimized FFT implementation (size " + SIZE + ")";
     }
     
     /**

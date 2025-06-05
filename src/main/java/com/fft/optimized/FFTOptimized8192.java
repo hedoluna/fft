@@ -24,8 +24,8 @@ import com.fft.factory.FFTImplementation;
  * <ul>
  * <li>Time Complexity: O(n log n) = O(106496) operations</li>
  * <li>Space Complexity: O(n) = O(8192) additional memory</li>
- * <li>Speedup: ~8x faster than generic implementation</li>
  * <li>Memory Efficiency: Excellent for extremely large working sets</li>
+ * <li>Delegates to {@link FFTBase} for unoptimized paths</li>
  * </ul>
  * 
  * @author Orlando Selenu (original algorithm base)
@@ -81,7 +81,7 @@ public class FFTOptimized8192 implements FFT {
     
     @Override
     public String getDescription() {
-        return "Maximum performance FFT implementation (size " + SIZE + ", ~8x speedup)";
+        return "Maximum performance FFT implementation (size " + SIZE + ")";
     }
     
     /**

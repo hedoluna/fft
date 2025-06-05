@@ -21,8 +21,8 @@ import com.fft.factory.FFTImplementation;
  * <ul>
  * <li>Time Complexity: O(n log n) = O(1048576) operations</li>
  * <li>Space Complexity: O(n) = O(65536) additional memory</li>
- * <li>Speedup: ~4.5x faster than generic implementation</li>
  * <li>Memory Efficiency: Specialized for extremely large datasets</li>
+ * <li>Delegates to {@link FFTBase} for actual computation</li>
  * </ul>
  * 
  * <h3>Use Cases:</h3>
@@ -81,7 +81,7 @@ public class FFTOptimized65536 implements FFT {
     
     @Override
     public String getDescription() {
-        return "Radix-8 optimized FFT implementation (size " + SIZE + ", ~4.5x speedup)";
+        return "Radix-8 optimized FFT implementation (size " + SIZE + ")";
     }
     
     /**

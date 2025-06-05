@@ -24,8 +24,8 @@ import com.fft.factory.FFTImplementation;
  * <ul>
  * <li>Time Complexity: O(n log n) = O(2048) operations</li>
  * <li>Space Complexity: O(n) = O(256) additional memory</li>
- * <li>Speedup: ~3.5x faster than generic implementation</li>
  * <li>Cache Efficiency: Excellent for L3 cache</li>
+ * <li>Delegates to {@link FFTBase} for inverse transforms</li>
  * </ul>
  * 
  * @author Orlando Selenu (original algorithm base)
@@ -37,7 +37,7 @@ import com.fft.factory.FFTImplementation;
     size = 256,
     priority = 50,
     description = "Optimized implementation with vectorized operations for 256-element arrays",
-    characteristics = {"vectorized", "cache-optimized", "parallel-ready", "3.5x-speedup"}
+    characteristics = {"vectorized", "cache-optimized", "parallel-ready"}
 )
 public class FFTOptimized256 implements FFT {
     
@@ -81,7 +81,7 @@ public class FFTOptimized256 implements FFT {
     
     @Override
     public String getDescription() {
-        return "Highly optimized FFT implementation (size " + SIZE + ", ~3.5x speedup)";
+        return "Optimized FFT implementation (size " + SIZE + ") with vectorized operations";
     }
     
     /**
