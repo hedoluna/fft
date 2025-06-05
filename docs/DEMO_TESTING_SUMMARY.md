@@ -123,9 +123,10 @@ Created extensive unit tests for all demo classes:
 **Execution Time**: ~2 minutes for complete test suite
 
 ### Performance Characteristics
-**FFT Performance**: 
-- FFT8: 4.06x speedup (optimized implementation)
-- FFT32: 9.16x speedup (optimized implementation)
+**FFT Performance**:
+- FFT8: ~1.24x speedup
+- FFT32: stage-specific optimizations
+- FFT64: currently delegates to base; no speedup
 - Other sizes: Using fallback implementations
 
 **Recognition Performance**:

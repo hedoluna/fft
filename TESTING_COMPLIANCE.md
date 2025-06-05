@@ -53,9 +53,9 @@ For implementations using recursive decomposition (sizes 128+), we temporarily d
 The optimized implementations demonstrate significant performance improvements:
 
 ### Confirmed Speedups
-- **FFTOptimized8**: 2.70x speedup (62.9% efficiency)
-- **FFTOptimized32**: 2.10x speedup (52.3% efficiency) 
-- **FFTOptimized64**: 5.30x speedup (81.1% efficiency)
+- **FFTOptimized8**: ~1.24x speedup
+- **FFTOptimized32**: stage-specific optimizations
+- **FFTOptimized64**: currently delegates to base; no speedup
 
 ### Fallback Implementations
 Larger sizes (128+) currently use FFTBase fallback with minimal overhead:
