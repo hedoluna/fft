@@ -89,7 +89,28 @@ public class FFTOptimized32 implements FFT { ... }
 - Nuovi metodi ottimizzati in `OptimizedFFTUtils`:
   ```java
   // Vecchio
-  FFTUtils.fft(input); 
-  // Nuovo 
+  FFTUtils.fft(input);
+  // Nuovo
   factory.createFFT(32).transform(input);
   ```
+
+## Metodi di Utilità Aggiuntivi
+
+Il pacchetto `FFTUtils` fornisce varie funzioni di supporto per analizzare le
+implementazioni disponibili e preparare i segnali:
+
+```java
+// Creazione manuale di una factory e report del registro
+FFTFactory factory = FFTUtils.createFactory();
+System.out.println(factory.getRegistryReport());
+
+// Informazioni sull'implementazione scelta per una certa dimensione
+String info = FFTUtils.getImplementationInfo(1024);
+
+// Calcolo della prossima potenza di due e zero padding
+int next = FFTUtils.nextPowerOfTwo(300); // 512
+double[] padded = FFTUtils.zeroPadToPowerOfTwo(signal);
+```
+
+L'utilità `getSupportedSizes()` restituisce l'elenco di tutte le dimensioni
+gestite dalla factory predefinita.
