@@ -221,12 +221,14 @@ mvn exec:java -Dexec.mainClass="com.fft.demo.RefactoringDemo"
 
 ### FFT Implementation Performance
 
-| Size | Implementation | Avg Time (ms) | Speedup |
-|------|----------------|---------------|---------|
-| 8    | FFTOptimized8  | 0.001        | 2.87x   |
-| 32   | FFTOptimized32 | 0.001        | 9.48x   |
-| 64   | FFTOptimized64 | 0.005        | 0.97x   |
-| 1024 | FFTOptimized1024| 0.132       | 0.10x   |
+| Size | Implementation | Avg Time (ms) | Notes |
+|------|----------------|---------------|-------|
+| 8    | FFTOptimized8  | 0.001        | ~1.24x faster than FFTBase |
+| 32   | FFTOptimized32 | 0.001        | Stage-optimized implementation |
+| 64   | FFTOptimized64 | 0.005        | Delegates to FFTBase |
+| 1024 | FFTOptimized1024| 0.132       | Delegates to FFTBase |
+
+Implementations without specific optimizations fall back to `FFTBase`.
 
 ### Recognition Performance
 

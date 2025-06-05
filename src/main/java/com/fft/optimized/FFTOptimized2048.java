@@ -24,8 +24,8 @@ import com.fft.factory.FFTImplementation;
  * <ul>
  * <li>Time Complexity: O(n log n) = O(22528) operations</li>
  * <li>Space Complexity: O(n) = O(2048) additional memory</li>
- * <li>Speedup: ~6x faster than generic implementation</li>
  * <li>Memory Efficiency: Optimized for large working sets</li>
+ * <li>Falls back to {@link FFTBase} for inverse transforms</li>
  * </ul>
  * 
  * @author Orlando Selenu (original algorithm base)
@@ -37,7 +37,7 @@ import com.fft.factory.FFTImplementation;
     size = 2048,
     priority = 50,
     description = "Optimized implementation with advanced blocking for 2048-element arrays",
-    characteristics = {"advanced-blocking", "memory-stream-optimized", "parallel-ready", "6x-speedup"}
+    characteristics = {"advanced-blocking", "memory-stream-optimized", "parallel-ready"}
 )
 public class FFTOptimized2048 implements FFT {
     
@@ -81,7 +81,7 @@ public class FFTOptimized2048 implements FFT {
     
     @Override
     public String getDescription() {
-        return "Highly optimized FFT implementation (size " + SIZE + ", ~6x speedup)";
+        return "Optimized FFT implementation (size " + SIZE + ") using advanced blocking";
     }
     
     /**

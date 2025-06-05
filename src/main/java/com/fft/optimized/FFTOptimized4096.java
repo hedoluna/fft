@@ -24,8 +24,8 @@ import com.fft.factory.FFTImplementation;
  * <ul>
  * <li>Time Complexity: O(n log n) = O(49152) operations</li>
  * <li>Space Complexity: O(n) = O(4096) additional memory</li>
- * <li>Speedup: ~7x faster than generic implementation</li>
  * <li>Memory Efficiency: Excellent for very large working sets</li>
+ * <li>Delegates to {@link FFTBase} for inverse transforms</li>
  * </ul>
  * 
  * @author Orlando Selenu (original algorithm base)
@@ -37,7 +37,7 @@ import com.fft.factory.FFTImplementation;
     size = 4096,
     priority = 50,
     description = "Optimized implementation with multi-level cache optimization for 4096-element arrays",
-    characteristics = {"multi-level-cache", "bandwidth-maximized", "vector-ready", "7x-speedup"}
+    characteristics = {"multi-level-cache", "bandwidth-maximized", "vector-ready"}
 )
 public class FFTOptimized4096 implements FFT {
     
@@ -81,7 +81,7 @@ public class FFTOptimized4096 implements FFT {
     
     @Override
     public String getDescription() {
-        return "Highly optimized FFT implementation (size " + SIZE + ", ~7x speedup)";
+        return "Highly optimized FFT implementation (size " + SIZE + ")";
     }
     
     /**

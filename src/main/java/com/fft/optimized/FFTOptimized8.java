@@ -10,7 +10,7 @@ import com.fft.factory.FFTImplementation;
  * 
  * <p>This implementation provides maximum performance for 8-element FFT operations
  * through complete loop unrolling and precomputed trigonometric values. It demonstrates
- * approximately 1.4x speedup over the generic FFTBase implementation.</p>
+ * approximately 1.24x speedup over the generic FFTBase implementation.</p>
  * 
  * <h3>Optimization Techniques:</h3>
  * <ul>
@@ -33,7 +33,7 @@ import com.fft.factory.FFTImplementation;
  * <ul>
  * <li>Time Complexity: O(n log n) = O(24) operations</li>
  * <li>Space Complexity: O(n) = O(8) additional memory</li>
- * <li>Speedup: ~1.4x faster than generic implementation</li>
+ * <li>Speedup: ~1.24x faster than generic implementation</li>
  * <li>Cache Efficiency: Excellent due to small working set</li>
  * </ul>
  * 
@@ -54,7 +54,7 @@ import com.fft.factory.FFTImplementation;
     size = 8,
     priority = 50,
     description = "Highly optimized implementation with complete loop unrolling for 8-element arrays",
-    characteristics = {"unrolled-loops", "precomputed-trig", "1.4x-speedup"}
+    characteristics = {"unrolled-loops", "precomputed-trig", "1.24x-speedup"}
 )
 public class FFTOptimized8 implements FFT {
     
@@ -98,7 +98,7 @@ public class FFTOptimized8 implements FFT {
     
     @Override
     public String getDescription() {
-        return "Highly optimized FFT implementation (size " + SIZE + ", ~1.4x speedup)";
+        return "Highly optimized FFT implementation (size " + SIZE + ", ~1.24x speedup)";
     }
     
     /**

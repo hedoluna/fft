@@ -8,7 +8,7 @@ Enhanced and refactored in 2025 with modern Java patterns, comprehensive testing
 
 ## ✨ Key Features
 
-- **🚀 High Performance**: Framework with genuine 1.4x speedup (FFTOptimized8) and optimized fallbacks for larger sizes
+ - **🚀 High Performance**: Observed ~1.24x speedup with FFTOptimized8; larger sizes currently delegate to FFTBase
 - **🏭 Factory Pattern**: Automatic implementation selection based on input size  
 - **🎯 Type Safety**: Modern API with immutable result objects and rich data extraction
 - **🧪 Comprehensive Testing**: 197 unit tests with full pass rate
@@ -31,7 +31,7 @@ com.fft.factory/      # Implementation selection and factory pattern
 └── FFTImplementationDiscovery.java # Auto-registration system
 
 com.fft.optimized/    # Size-specific optimized implementations
-├── FFTOptimized8.java    # 8-point FFT (1.4x speedup)
+├── FFTOptimized8.java    # 8-point FFT (~1.24x speedup)
 ├── FFTOptimized16.java   # 16-point FFT (framework ready)
 ├── FFTOptimized32.java   # 32-point FFT (framework ready)
 ├── FFTOptimized64.java   # 64-point FFT
@@ -265,7 +265,7 @@ mvn clean test jacoco:report
 4. **Complete remaining optimizations** for sizes 64-65536
 
 ### 📋 Future Enhancements
-- **Complete optimization implementations** to deliver promised 2.5x-8x speedups
+- **Complete optimization implementations** to achieve additional performance gains
 - **Template-based code generation** framework for consistent optimizations
 - **SIMD vectorization** integration for modern CPU features
 - **Streaming FFT support** for real-time applications

@@ -24,8 +24,8 @@ import com.fft.factory.FFTImplementation;
  * <ul>
  * <li>Time Complexity: O(n log n) = O(64) operations</li>
  * <li>Space Complexity: O(n) = O(16) additional memory</li>
- * <li>Speedup: ~2.0x faster than generic implementation</li>
  * <li>Cache Efficiency: Excellent due to small working set</li>
+ * <li>Delegates to {@link FFTBase} when advanced optimizations are incomplete</li>
  * </ul>
  * 
  * <h3>Algorithm Details:</h3>
@@ -95,6 +95,6 @@ public class FFTOptimized16 implements FFT {
     
     @Override
     public String getDescription() {
-        return "Highly optimized FFT implementation (size " + SIZE + ", ~2.0x speedup)";
+        return "FFT implementation for size " + SIZE + " with partial optimizations";
     }
 }
