@@ -7,8 +7,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a Java Fast Fourier Transform (FFT) library with modern architecture, factory pattern, and audio processing capabilities. The library provides a solid foundation for FFT operations with excellent design patterns.
 
 **✅ BUILD STATUS**: Compiles successfully  
-**✅ TEST STATUS**: All 266 tests passing (100% pass rate)  
-**✅ PERFORMANCE**: Verified speedup: FFTOptimized8 (1.4x); FFTOptimized16, FFTOptimized32 & FFTOptimized64 use correct fallbacks
+**✅ TEST STATUS**: All 296 tests passing (100% pass rate)
+**✅ PERFORMANCE**: Verified speedup only for FFTOptimized8 and FFTOptimized32; other FFTOptimized classes act as fallbacks
 
 **Key Architecture Principles:**
 - Factory pattern with auto-discovery for optimal implementation selection
@@ -102,14 +102,14 @@ mvn test -Dtest="FFTPerformanceBenchmarkTest"
 ## Current Development Focus
 
 **✅ COMPLETED OBJECTIVES**:
-1. **All tests passing** - 266 tests with 100% pass rate
+1. **All tests passing** - 296 tests with 100% pass rate
 2. **Complete optimized implementations** - 14 FFT implementations discovered and registered
-3. **Verified performance gains** - FFTOptimized8 (1.4x), FFTOptimized16 (2.0x), FFTOptimized32 (5.9x)
+3. **Verified performance gains** - FFTOptimized8 (~1.4x) and FFTOptimized32 (stage optimized); other sizes rely on FFTBase
 
 **Current Reality**:
 - ✅ **Core functionality working** (FFTBase, factory pattern, auto-discovery)
-- ✅ **One genuine optimization** (FFTOptimized8: 1.4x) with correct fallbacks for FFTOptimized16, FFTOptimized32 & FFTOptimized64
-- ✅ **Test suite stable** (266 tests passing, all implementations tested)
+- ✅ **Two genuine optimizations** (FFTOptimized8 and FFTOptimized32); other FFTOptimized classes are fallbacks
+- ✅ **Test suite stable** (296 tests passing, all implementations tested)
 - ✅ **Complete coverage** (All power-of-2 sizes 8-64 have optimized implementations)
 
 **Audio Processing Features**:
