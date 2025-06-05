@@ -198,7 +198,8 @@ class FFTUtilsTest {
     void testGetSupportedSizes() {
         List<Integer> sizes = FFTUtils.getSupportedSizes();
         
-        assertThat(sizes).contains(2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192);
+        assertThat(sizes).contains(2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192,
+                                  16384, 32768, 65536);
         assertThat(sizes).isSorted();
     }
     
