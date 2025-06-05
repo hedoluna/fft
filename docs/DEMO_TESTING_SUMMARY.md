@@ -117,16 +117,16 @@ Created extensive unit tests for all demo classes:
 ## Test Execution Results
 
 ### ✅ All Tests Passing
-**Total Tests**: 197 tests across entire project
-**Success Rate**: 100% (197/197 tests passing)
+**Total Tests**: 296 tests across entire project
+**Success Rate**: 100% (296/296 tests passing)
 **Demo Tests**: 69 new demo-specific tests added
 **Execution Time**: ~2 minutes for complete test suite
 
 ### Performance Characteristics
-**FFT Performance**: 
-- FFT8: 4.06x speedup (optimized implementation)
-- FFT32: 9.16x speedup (optimized implementation)
-- Other sizes: Using fallback implementations
+**FFT Performance**:
+- FFT8: ~1.24x speedup
+- FFT32: stage-optimized (no measured multiplier)
+- FFT64 and larger: fallback implementations
 
 **Recognition Performance**:
 - Average recognition time: ~0.09 ms per melody
@@ -180,8 +180,8 @@ Detected: *RURRRR
 Parsons Code Accuracy: 71.4%
 
 Performance Comparison:
-Size: 8    | Avg time: 0.079 ms (4.06x speedup)
-Size: 32   | Avg time: 0.199 ms (9.16x speedup)
+Size: 8    | Avg time: 0.079 ms (~1.24x speedup)
+Size: 32   | Avg time: 0.199 ms (stage-optimized, no measured multiplier)
 ```
 
 ## Documentation Quality
@@ -223,7 +223,7 @@ Size: 32   | Avg time: 0.199 ms (9.16x speedup)
 The FFT demo package now has comprehensive testing coverage with 69 new test methods across 4 new test classes, complete documentation, and verified functionality. All demos execute successfully and demonstrate the library's capabilities in real-world audio processing applications.
 
 **Key Achievements**:
-- ✅ **100% test success rate** (197/197 tests passing)
+- ✅ **100% test success rate** (296/296 tests passing)
 - ✅ **Comprehensive documentation** (45-page demo guide)
 - ✅ **Robust error handling** across all components
 - ✅ **Performance validation** with benchmarking
