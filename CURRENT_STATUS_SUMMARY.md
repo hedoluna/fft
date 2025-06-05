@@ -18,9 +18,9 @@ The FFT library is **production-ready and fully compliant** with excellent desig
 - ✅ **Auto-Discovery System**: Successfully finds and registers all 14 implementations
 
 ### Confirmed Optimizations
-- ✅ **FFTOptimized8**: 2.70x speedup through complete loop unrolling (62.9% efficiency)
-- ✅ **FFTOptimized32**: 2.10x speedup with precomputed trigonometry (52.3% efficiency)
-- ✅ **FFTOptimized64**: 5.30x speedup with stage optimizations (81.1% efficiency)
+- ✅ **FFTOptimized8**: ~1.24x speedup
+- ✅ **FFTOptimized32**: stage-optimized (no measured multiplier)
+- ✅ **FFTOptimized64**: fallback to base implementation
 
 ### Test Results (Complete Coverage)
 - ✅ **FFTBaseTest**: 20/20 tests pass - Core algorithm solid
@@ -55,9 +55,9 @@ The FFT library is **production-ready and fully compliant** with excellent desig
 
 ### Confirmed Working Optimizations
 ```
-FFT Size 8:     2.70x speedup (Base: 467ns → Optimized: 173ns)
-FFT Size 32:    2.10x speedup (Base: 2946ns → Optimized: 1404ns)  
-FFT Size 64:    5.30x speedup (Base: 7016ns → Optimized: 1323ns)
+FFT Size 8:     ~1.24x speedup
+FFT Size 32:    stage-optimized (no measured multiplier)
+FFT Size 64:    fallback implementation
 ```
 
 ### Fallback Implementations
