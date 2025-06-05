@@ -1,9 +1,9 @@
 package com.fft.optimized;
 
 import com.fft.core.FFT;
-import com.fft.core.FFTBase;
 import com.fft.core.FFTResult;
 import com.fft.factory.FFTImplementation;
+import com.fft.optimized.OptimizedFFTUtils;
 
 /**
  * Highly optimized FFT implementation for 512-element arrays.
@@ -47,12 +47,6 @@ public class FFTOptimized512 implements FFT {
     public FFTResult transform(double[] real, double[] imaginary, boolean forward) {
         if (real.length != SIZE || imaginary.length != SIZE) {
             throw new IllegalArgumentException("Arrays must be of length " + SIZE);
-        }
-        
-        if (!forward) {
-            // For inverse transform, delegate to base implementation
-            FFTBase fallback = new FFTBase();
-            return fallback.transform(real, imaginary, forward);
         }
         
         double[] result = fft512(real, imaginary, forward);
@@ -100,15 +94,6 @@ public class FFTOptimized512 implements FFT {
             throw new IllegalArgumentException("Input arrays must be of length " + SIZE);
         }
         
-        // Delegate to the original optimized implementation
-        try {
-            Class<?> fftClass = Class.forName("FFToptim512");
-            java.lang.reflect.Method fftMethod = fftClass.getMethod("fft", double[].class, double[].class, boolean.class);
-            return (double[]) fftMethod.invoke(null, inputReal, inputImag, forward);
-        } catch (Exception e) {
-            // Fallback to base implementation if optimized class not available
-            com.fft.core.FFTBase fallback = new com.fft.core.FFTBase();
-            return fallback.transform(inputReal, inputImag, forward).getInterleavedResult();
-        }
+        return OptimizedFFTUtils.fftRecursive(SIZE, inputReal, inputImag, forward);
     }
 }

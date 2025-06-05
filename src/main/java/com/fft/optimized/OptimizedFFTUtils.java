@@ -1,6 +1,5 @@
 package com.fft.optimized;
 
-import com.fft.core.FFTBase;
 
 /**
  * Utility class containing optimized FFT implementations without reflection dependencies.
@@ -578,5 +577,126 @@ public class OptimizedFFTUtils {
      */
     public static double[] ifft64(double[] inputReal, double[] inputImag) {
         return fft64(inputReal, inputImag, false);
+    }
+
+    /**
+     * Generic recursive FFT implementation using specialized kernels for
+     * small sizes. Sizes up to 64 delegate to the precomputed methods in this
+     * class. Larger power-of-two sizes are handled using radix-2 or radix-4
+     * decomposition depending on divisibility.
+     *
+     * @param size    transform size (must match {@code real} and {@code imag} length)
+     * @param real    real part array
+     * @param imag    imaginary part array
+     * @param forward true for forward transform, false for inverse
+     * @return interleaved result of length {@code 2 * size}
+     */
+    public static double[] fftRecursive(int size, double[] real, double[] imag, boolean forward) {
+        if (real.length != size || imag.length != size) {
+            throw new IllegalArgumentException("Arrays must be of length " + size);
+        }
+
+        // Use specialized kernels for small sizes
+        if (size == 8) {
+            return fft8(real, imag, forward);
+        } else if (size == 16) {
+            return fft16(real, imag, forward);
+        } else if (size == 32) {
+            return fft32(real, imag, forward);
+        } else if (size == 64) {
+            return fft64(real, imag, forward);
+        }
+
+        if (size % 4 == 0) {
+            // Radix-4 decomposition
+            int quarter = size / 4;
+            double[][] r = new double[4][quarter];
+            double[][] i = new double[4][quarter];
+            for (int idx = 0; idx < quarter; idx++) {
+                for (int q = 0; q < 4; q++) {
+                    r[q][idx] = real[4 * idx + q];
+                    i[q][idx] = imag[4 * idx + q];
+                }
+            }
+
+            for (int q = 0; q < 4; q++) {
+                double[] sub = fftRecursive(quarter, r[q], i[q], forward);
+                for (int j = 0; j < quarter; j++) {
+                    r[q][j] = sub[2 * j];
+                    i[q][j] = sub[2 * j + 1];
+                }
+            }
+
+            double[] result = new double[2 * size];
+            double constant = forward ? -2.0 * Math.PI : 2.0 * Math.PI;
+            double scale = Math.sqrt(size);
+
+            for (int k = 0; k < quarter; k++) {
+                for (int q = 0; q < 4; q++) {
+                    int outIdx = k + q * quarter;
+                    double realSum = 0.0;
+                    double imagSum = 0.0;
+
+                    for (int j = 0; j < 4; j++) {
+                        double angle = constant * j * q * k / size;
+                        double cos = Math.cos(angle);
+                        double sin = Math.sin(angle);
+                        realSum += r[j][k] * cos - i[j][k] * sin;
+                        imagSum += r[j][k] * sin + i[j][k] * cos;
+                    }
+
+                    result[2 * outIdx] = realSum / scale;
+                    result[2 * outIdx + 1] = imagSum / scale;
+                }
+            }
+
+            return result;
+        } else if (size % 2 == 0) {
+            // Radix-2 decomposition
+            int half = size / 2;
+            double[] evenR = new double[half];
+            double[] evenI = new double[half];
+            double[] oddR = new double[half];
+            double[] oddI = new double[half];
+
+            for (int idx = 0; idx < half; idx++) {
+                evenR[idx] = real[2 * idx];
+                evenI[idx] = imag[2 * idx];
+                oddR[idx] = real[2 * idx + 1];
+                oddI[idx] = imag[2 * idx + 1];
+            }
+
+            double[] even = fftRecursive(half, evenR, evenI, forward);
+            double[] odd = fftRecursive(half, oddR, oddI, forward);
+
+            for (int j = 0; j < half; j++) {
+                evenR[j] = even[2 * j];
+                evenI[j] = even[2 * j + 1];
+                oddR[j] = odd[2 * j];
+                oddI[j] = odd[2 * j + 1];
+            }
+
+            double[] result = new double[2 * size];
+            double constant = forward ? -2.0 * Math.PI : 2.0 * Math.PI;
+            double scale = Math.sqrt(size);
+
+            for (int k = 0; k < half; k++) {
+                double angle = constant * k / size;
+                double cos = Math.cos(angle);
+                double sin = Math.sin(angle);
+
+                double tReal = oddR[k] * cos - oddI[k] * sin;
+                double tImag = oddR[k] * sin + oddI[k] * cos;
+
+                result[2 * k] = (evenR[k] + tReal) / scale;
+                result[2 * k + 1] = (evenI[k] + tImag) / scale;
+                result[2 * (k + half)] = (evenR[k] - tReal) / scale;
+                result[2 * (k + half) + 1] = (evenI[k] - tImag) / scale;
+            }
+
+            return result;
+        }
+
+        throw new IllegalArgumentException("Size must be a power of two and >= 8");
     }
 }
