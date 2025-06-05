@@ -22,7 +22,7 @@ import com.fft.optimized.OptimizedFFTUtils;
  * <li>Time Complexity: O(n log n) = O(1048576) operations</li>
  * <li>Space Complexity: O(n) = O(65536) additional memory</li>
  * <li>Memory Efficiency: Specialized for extremely large datasets</li>
- * <li>Delegates to {@link FFTBase} for actual computation</li>
+ * <li>Built from optimized base transforms for all operations</li>
  * </ul>
  * 
  * <h3>Use Cases:</h3>
@@ -36,8 +36,8 @@ import com.fft.optimized.OptimizedFFTUtils;
 @FFTImplementation(
     size = 65536,
     priority = 1,
-    description = "Radix-8 decomposition using FFTBase for sub-transforms - no performance benefit",
-    characteristics = {"radix-8-decomposition", "delegates-to-base", "no-speedup", "same-as-base-performance"}
+    description = "Recursive decomposition using optimized base transforms",
+    characteristics = {"recursive", "radix-8-decomposition", "large-scale"}
 )
 public class FFTOptimized65536 implements FFT {
     
@@ -75,7 +75,7 @@ public class FFTOptimized65536 implements FFT {
     
     @Override
     public String getDescription() {
-        return "Radix-8 optimized FFT implementation (size " + SIZE + ")";
+        return "Recursive FFT implementation for size " + SIZE + " using optimized base blocks";
     }
     
     /**

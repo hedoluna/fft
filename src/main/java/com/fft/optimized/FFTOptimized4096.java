@@ -25,7 +25,7 @@ import com.fft.optimized.OptimizedFFTUtils;
  * <li>Time Complexity: O(n log n) = O(49152) operations</li>
  * <li>Space Complexity: O(n) = O(4096) additional memory</li>
  * <li>Memory Efficiency: Excellent for very large working sets</li>
- * <li>Delegates to {@link FFTBase} for inverse transforms</li>
+ * <li>Built from optimized base transforms for all operations</li>
  * </ul>
  * 
  * @author Orlando Selenu (original algorithm base)
@@ -36,8 +36,8 @@ import com.fft.optimized.OptimizedFFTUtils;
 @FFTImplementation(
     size = 4096,
     priority = 50,
-    description = "Optimized implementation with multi-level cache optimization for 4096-element arrays",
-    characteristics = {"multi-level-cache", "bandwidth-maximized", "vector-ready"}
+    description = "Recursive decomposition using optimized base transforms",
+    characteristics = {"recursive", "multi-level-cache", "vector-ready"}
 )
 public class FFTOptimized4096 implements FFT {
     
@@ -75,7 +75,7 @@ public class FFTOptimized4096 implements FFT {
     
     @Override
     public String getDescription() {
-        return "Highly optimized FFT implementation (size " + SIZE + ")";
+        return "Recursive FFT implementation for size " + SIZE + " using optimized base blocks";
     }
     
     /**

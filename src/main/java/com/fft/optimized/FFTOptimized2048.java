@@ -25,7 +25,7 @@ import com.fft.optimized.OptimizedFFTUtils;
  * <li>Time Complexity: O(n log n) = O(22528) operations</li>
  * <li>Space Complexity: O(n) = O(2048) additional memory</li>
  * <li>Memory Efficiency: Optimized for large working sets</li>
- * <li>Falls back to {@link FFTBase} for inverse transforms</li>
+ * <li>Built from optimized base transforms for all operations</li>
  * </ul>
  * 
  * @author Orlando Selenu (original algorithm base)
@@ -36,8 +36,8 @@ import com.fft.optimized.OptimizedFFTUtils;
 @FFTImplementation(
     size = 2048,
     priority = 50,
-    description = "Optimized implementation with advanced blocking for 2048-element arrays",
-    characteristics = {"advanced-blocking", "memory-stream-optimized", "parallel-ready"}
+    description = "Recursive decomposition using optimized base transforms",
+    characteristics = {"recursive", "advanced-blocking", "parallel-ready"}
 )
 public class FFTOptimized2048 implements FFT {
     
@@ -75,7 +75,7 @@ public class FFTOptimized2048 implements FFT {
     
     @Override
     public String getDescription() {
-        return "Optimized FFT implementation (size " + SIZE + ") using advanced blocking";
+        return "Recursive FFT implementation for size " + SIZE + " using optimized base blocks";
     }
     
     /**

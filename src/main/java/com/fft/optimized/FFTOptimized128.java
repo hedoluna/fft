@@ -25,7 +25,7 @@ import com.fft.optimized.OptimizedFFTUtils;
  * <li>Time Complexity: O(n log n) = O(896) operations</li>
  * <li>Space Complexity: O(n) = O(128) additional memory</li>
  * <li>Cache Efficiency: Optimized for L2/L3 cache</li>
- * <li>Delegates to {@link FFTBase} for correctness</li>
+ * <li>Built from small optimized transforms for correctness</li>
  * </ul>
  * 
  * @author Orlando Selenu (original algorithm base)
@@ -36,8 +36,8 @@ import com.fft.optimized.OptimizedFFTUtils;
 @FFTImplementation(
     size = 128,
     priority = 1,
-    description = "Fallback implementation - attempts reflection to non-existent class, then uses FFTBase",
-    characteristics = {"reflection-fallback", "no-optimization", "equivalent-to-base-performance"}
+    description = "Recursive decomposition using optimized base transforms",
+    characteristics = {"recursive", "decomposed", "uses-optimized-base"}
 )
 public class FFTOptimized128 implements FFT {
     
@@ -75,7 +75,7 @@ public class FFTOptimized128 implements FFT {
     
     @Override
     public String getDescription() {
-        return "FFT implementation for size " + SIZE + " that currently delegates to FFTBase";
+        return "Recursive FFT implementation for size " + SIZE + " using optimized base blocks";
     }
     
     /**

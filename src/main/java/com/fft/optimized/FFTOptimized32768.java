@@ -22,7 +22,7 @@ import com.fft.optimized.OptimizedFFTUtils;
  * <li>Time Complexity: O(n log n) = O(491520) operations</li>
  * <li>Space Complexity: O(n) = O(32768) additional memory</li>
  * <li>Memory Efficiency: Optimized for very large datasets</li>
- * <li>Delegates to {@link FFTBase} for unimplemented paths</li>
+ * <li>Built from optimized base transforms for all operations</li>
  * </ul>
  * 
  * @author Engine AI Assistant (2025)
@@ -32,8 +32,8 @@ import com.fft.optimized.OptimizedFFTUtils;
 @FFTImplementation(
     size = 32768,
     priority = 40,
-    description = "Mixed-radix optimized implementation for 32768-element arrays",
-    characteristics = {"mixed-radix", "large-scale-optimized", "memory-efficient"}
+    description = "Recursive decomposition using optimized base transforms",
+    characteristics = {"recursive", "large-scale-optimized", "memory-efficient"}
 )
 public class FFTOptimized32768 implements FFT {
     
@@ -71,7 +71,7 @@ public class FFTOptimized32768 implements FFT {
     
     @Override
     public String getDescription() {
-        return "Mixed-radix optimized FFT implementation (size " + SIZE + ")";
+        return "Recursive FFT implementation for size " + SIZE + " using optimized base blocks";
     }
     
     /**

@@ -25,7 +25,7 @@ import com.fft.optimized.OptimizedFFTUtils;
  * <li>Time Complexity: O(n log n) = O(10240) operations</li>
  * <li>Space Complexity: O(n) = O(1024) additional memory</li>
  * <li>Cache Efficiency: Excellent for L3 cache and beyond</li>
- * <li>Falls back to {@link FFTBase} for inverse transforms</li>
+ * <li>Built from optimized base transforms for all operations</li>
  * </ul>
  * 
  * @author Orlando Selenu (original algorithm base)
@@ -36,8 +36,8 @@ import com.fft.optimized.OptimizedFFTUtils;
 @FFTImplementation(
     size = 1024,
     priority = 50,
-    description = "Optimized implementation with hierarchical blocking for 1024-element arrays",
-    characteristics = {"hierarchical-blocking", "pipeline-friendly", "simd-ready"}
+    description = "Recursive decomposition using optimized base transforms",
+    characteristics = {"recursive", "hierarchical-blocking", "simd-ready"}
 )
 public class FFTOptimized1024 implements FFT {
     
@@ -75,7 +75,7 @@ public class FFTOptimized1024 implements FFT {
     
     @Override
     public String getDescription() {
-        return "Highly optimized FFT implementation (size " + SIZE + ") using hierarchical blocking";
+        return "Recursive FFT implementation for size " + SIZE + " using optimized base blocks";
     }
     
     /**
