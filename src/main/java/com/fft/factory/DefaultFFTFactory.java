@@ -60,12 +60,24 @@ public class DefaultFFTFactory implements FFTFactory {
      * This method registers known implementations and provides fallback implementations.
      */
     private void registerDefaultImplementations() {
-        // Registra implementazioni ottimizzate con alta priorità
-        registerImplementation(8, com.fft.optimized.FFTOptimized8::new, 50);
+        // Register optimized implementations with descending priority by size
+        registerImplementation(8, com.fft.optimized.FFTOptimized8::new, 60);
+        registerImplementation(16, com.fft.optimized.FFTOptimized16::new, 55);
         registerImplementation(32, com.fft.optimized.FFTOptimized32::new, 50);
-        
-        // Registra FFTBase come fallback per dimensioni potenza di 2 fino a 8192
-        for (int size = 2; size <= 8192; size *= 2) {
+        registerImplementation(64, com.fft.optimized.FFTOptimized64::new, 45);
+        registerImplementation(128, com.fft.optimized.FFTOptimized128::new, 40);
+        registerImplementation(256, com.fft.optimized.FFTOptimized256::new, 35);
+        registerImplementation(512, com.fft.optimized.FFTOptimized512::new, 30);
+        registerImplementation(1024, com.fft.optimized.FFTOptimized1024::new, 25);
+        registerImplementation(2048, com.fft.optimized.FFTOptimized2048::new, 20);
+        registerImplementation(4096, com.fft.optimized.FFTOptimized4096::new, 15);
+        registerImplementation(8192, com.fft.optimized.FFTOptimized8192::new, 10);
+        registerImplementation(16384, com.fft.optimized.FFTOptimized16384::new, 5);
+        registerImplementation(32768, com.fft.optimized.FFTOptimized32768::new, 4);
+        registerImplementation(65536, com.fft.optimized.FFTOptimized65536::new, 3);
+
+        // Register FFTBase as fallback for power-of-two sizes up to 65536
+        for (int size = 2; size <= 65536; size *= 2) {
             registerImplementation(size, FFTBase::new, 0); // Low priority fallback
         }
     }

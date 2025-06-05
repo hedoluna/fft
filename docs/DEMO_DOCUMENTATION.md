@@ -223,12 +223,12 @@ mvn exec:java -Dexec.mainClass="com.fft.demo.RefactoringDemo"
 
 | Size | Implementation | Avg Time (ms) | Notes |
 |------|----------------|---------------|-------|
-| 8    | FFTOptimized8  | 0.001        | ~1.24x faster than FFTBase |
-| 32   | FFTOptimized32 | 0.001        | Stage-optimized implementation |
-| 64   | FFTOptimized64 | 0.005        | Delegates to FFTBase |
-| 1024 | FFTOptimized1024| 0.132       | Delegates to FFTBase |
+| 8    | FFTOptimized8  | 0.001        | Hardcoded tables |
+| 32   | FFTOptimized32 | 0.001        | Hardcoded tables |
+| 64   | FFTOptimized64 | 0.005        | Hardcoded tables, used recursively |
+| 1024 | FFTOptimized1024| 0.132       | Recursively composed |
 
-Implementations without specific optimizations fall back to `FFTBase`.
+Implementations without specific optimizations recursively compose the hardcoded tables. No external `FFToptimX` classes are required.
 
 ### Recognition Performance
 
@@ -255,7 +255,7 @@ Implementations without specific optimizations fall back to `FFTBase`.
 ### Signal Processing Pipeline
 1. **Audio Capture**: Java Sound API with configurable formats
 2. **Windowing**: Hamming window to reduce spectral leakage
-3. **FFT Analysis**: Optimized implementations based on size
+3. **FFT Analysis**: Sizes up to 64 (or 128) rely on hardcoded tables. Larger sizes recursively compose these smaller transforms, so no external FFToptimX classes are needed.
 4. **Peak Detection**: Parabolic interpolation for sub-bin accuracy
 5. **Harmonic Analysis**: Fundamental frequency extraction
 6. **Note Recognition**: Equal temperament frequency mapping

@@ -1,6 +1,5 @@
 package com.fft.optimized;
 
-import com.fft.core.FFTBase;
 
 /**
  * Utility class containing optimized FFT implementations without reflection dependencies.
@@ -581,107 +580,124 @@ public class OptimizedFFTUtils {
     }
 
     /**
-     * Computes an FFT for any power-of-two size using the optimized
-     * 8/16/32/64-point implementations as building blocks.
+
+     * Generic recursive FFT implementation using specialized kernels for
+     * small sizes. Sizes up to 64 delegate to the precomputed methods in this
+     * class. Larger power-of-two sizes are handled using radix-2 or radix-4
+     * decomposition depending on divisibility.
      *
-     * <p>This method performs a recursive Cooley-Tukey decomposition and
-     * delegates to the highly tuned small-size routines for the base cases.
-     * The result is normalized with the conventional {@code 1/\sqrt{n}}
-     * factor.</p>
-     *
-     * @param inputReal real part of the input signal
-     * @param inputImag imaginary part of the input signal
-     * @param forward   true for forward transform, false for inverse
-     * @return interleaved array containing the FFT result
+     * @param size    transform size (must match {@code real} and {@code imag} length)
+     * @param real    real part array
+     * @param imag    imaginary part array
+     * @param forward true for forward transform, false for inverse
+     * @return interleaved result of length {@code 2 * size}
      */
-    public static double[] fftRecursive(double[] inputReal, double[] inputImag, boolean forward) {
-        if (inputReal.length != inputImag.length) {
-            throw new IllegalArgumentException("Real and imaginary arrays must have same length");
+    public static double[] fftRecursive(int size, double[] real, double[] imag, boolean forward) {
+        if (real.length != size || imag.length != size) {
+            throw new IllegalArgumentException("Arrays must be of length " + size);
         }
 
-        double[][] unscaled = fftUnscaled(inputReal, inputImag, forward);
-        int n = inputReal.length;
-        double[] result = new double[n * 2];
-        double norm = 1.0 / Math.sqrt(n);
-        for (int i = 0; i < n; i++) {
-            result[2 * i] = unscaled[0][i] * norm;
-            result[2 * i + 1] = unscaled[1][i] * norm;
-        }
-        return result;
-    }
-
-    // ----- Internal helpers -----
-
-    /**
-     * Recursively computes the FFT without applying the final
-     * normalisation factor. Base cases delegate to the existing
-     * optimized routines and are rescaled to remove their internal
-     * normalisation.
-     */
-    private static double[][] fftUnscaled(double[] real, double[] imag, boolean forward) {
-        int n = real.length;
-
-        if (n == 8) {
-            double[] tmp = fft8(real, imag, forward);
-            return unpackAndRescale(tmp, Math.sqrt(8));
-        }
-        if (n == 16) {
-            double[] tmp = fft16(real, imag, forward);
-            return unpackAndRescale(tmp, Math.sqrt(16));
-        }
-        if (n == 32) {
-            double[] tmp = fft32(real, imag, forward);
-            return unpackAndRescale(tmp, Math.sqrt(32));
-        }
-        if (n == 64) {
-            double[] tmp = fft64(real, imag, forward);
-            return unpackAndRescale(tmp, Math.sqrt(64));
+        // Use specialized kernels for small sizes
+        if (size == 8) {
+            return fft8(real, imag, forward);
+        } else if (size == 16) {
+            return fft16(real, imag, forward);
+        } else if (size == 32) {
+            return fft32(real, imag, forward);
+        } else if (size == 64) {
+            return fft64(real, imag, forward);
         }
 
-        int half = n / 2;
-        double[] evenReal = new double[half];
-        double[] evenImag = new double[half];
-        double[] oddReal = new double[half];
-        double[] oddImag = new double[half];
+        if (size % 4 == 0) {
+            // Radix-4 decomposition
+            int quarter = size / 4;
+            double[][] r = new double[4][quarter];
+            double[][] i = new double[4][quarter];
+            for (int idx = 0; idx < quarter; idx++) {
+                for (int q = 0; q < 4; q++) {
+                    r[q][idx] = real[4 * idx + q];
+                    i[q][idx] = imag[4 * idx + q];
+                }
+            }
 
-        for (int i = 0; i < half; i++) {
-            evenReal[i] = real[2 * i];
-            evenImag[i] = imag[2 * i];
-            oddReal[i] = real[2 * i + 1];
-            oddImag[i] = imag[2 * i + 1];
+            for (int q = 0; q < 4; q++) {
+                double[] sub = fftRecursive(quarter, r[q], i[q], forward);
+                for (int j = 0; j < quarter; j++) {
+                    r[q][j] = sub[2 * j];
+                    i[q][j] = sub[2 * j + 1];
+                }
+            }
+
+            double[] result = new double[2 * size];
+            double constant = forward ? -2.0 * Math.PI : 2.0 * Math.PI;
+            double scale = Math.sqrt(size);
+
+            for (int k = 0; k < quarter; k++) {
+                for (int q = 0; q < 4; q++) {
+                    int outIdx = k + q * quarter;
+                    double realSum = 0.0;
+                    double imagSum = 0.0;
+
+                    for (int j = 0; j < 4; j++) {
+                        double angle = constant * j * q * k / size;
+                        double cos = Math.cos(angle);
+                        double sin = Math.sin(angle);
+                        realSum += r[j][k] * cos - i[j][k] * sin;
+                        imagSum += r[j][k] * sin + i[j][k] * cos;
+                    }
+
+                    result[2 * outIdx] = realSum / scale;
+                    result[2 * outIdx + 1] = imagSum / scale;
+                }
+            }
+
+            return result;
+        } else if (size % 2 == 0) {
+            // Radix-2 decomposition
+            int half = size / 2;
+            double[] evenR = new double[half];
+            double[] evenI = new double[half];
+            double[] oddR = new double[half];
+            double[] oddI = new double[half];
+
+            for (int idx = 0; idx < half; idx++) {
+                evenR[idx] = real[2 * idx];
+                evenI[idx] = imag[2 * idx];
+                oddR[idx] = real[2 * idx + 1];
+                oddI[idx] = imag[2 * idx + 1];
+            }
+
+            double[] even = fftRecursive(half, evenR, evenI, forward);
+            double[] odd = fftRecursive(half, oddR, oddI, forward);
+
+            for (int j = 0; j < half; j++) {
+                evenR[j] = even[2 * j];
+                evenI[j] = even[2 * j + 1];
+                oddR[j] = odd[2 * j];
+                oddI[j] = odd[2 * j + 1];
+            }
+
+            double[] result = new double[2 * size];
+            double constant = forward ? -2.0 * Math.PI : 2.0 * Math.PI;
+            double scale = Math.sqrt(size);
+
+            for (int k = 0; k < half; k++) {
+                double angle = constant * k / size;
+                double cos = Math.cos(angle);
+                double sin = Math.sin(angle);
+
+                double tReal = oddR[k] * cos - oddI[k] * sin;
+                double tImag = oddR[k] * sin + oddI[k] * cos;
+
+                result[2 * k] = (evenR[k] + tReal) / scale;
+                result[2 * k + 1] = (evenI[k] + tImag) / scale;
+                result[2 * (k + half)] = (evenR[k] - tReal) / scale;
+                result[2 * (k + half) + 1] = (evenI[k] - tImag) / scale;
+            }
+
+            return result;
         }
 
-        double[][] even = fftUnscaled(evenReal, evenImag, forward);
-        double[][] odd = fftUnscaled(oddReal, oddImag, forward);
-
-        double[] outReal = new double[n];
-        double[] outImag = new double[n];
-        double angle = (forward ? -2.0 : 2.0) * Math.PI / n;
-
-        for (int k = 0; k < half; k++) {
-            double c = Math.cos(angle * k);
-            double s = Math.sin(angle * k);
-            double tr = odd[0][k] * c - odd[1][k] * s;
-            double ti = odd[0][k] * s + odd[1][k] * c;
-            outReal[k] = even[0][k] + tr;
-            outImag[k] = even[1][k] + ti;
-            outReal[k + half] = even[0][k] - tr;
-            outImag[k + half] = even[1][k] - ti;
-        }
-
-        return new double[][]{outReal, outImag};
-    }
-
-    /** Converts interleaved results into separate arrays and removes
-     *  the normalisation applied by the small-size routines. */
-    private static double[][] unpackAndRescale(double[] interleaved, double factor) {
-        int n = interleaved.length / 2;
-        double[] r = new double[n];
-        double[] im = new double[n];
-        for (int i = 0; i < n; i++) {
-            r[i] = interleaved[2 * i] * factor;
-            im[i] = interleaved[2 * i + 1] * factor;
-        }
-        return new double[][]{r, im};
+        throw new IllegalArgumentException("Size must be a power of two and >= 8");
     }
 }

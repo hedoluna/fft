@@ -3,6 +3,7 @@ package com.fft.optimized;
 import com.fft.core.FFT;
 import com.fft.core.FFTResult;
 import com.fft.factory.FFTImplementation;
+import com.fft.optimized.OptimizedFFTUtils;
 
 /**
  * Highly optimized FFT implementation for 2048-element arrays.
@@ -93,7 +94,6 @@ public class FFTOptimized2048 implements FFT {
             throw new IllegalArgumentException("Input arrays must be of length " + SIZE);
         }
         
-        // Compute using recursive decomposition built from small optimized transforms
-        return OptimizedFFTUtils.fftRecursive(inputReal, inputImag, forward);
+        return OptimizedFFTUtils.fftRecursive(SIZE, inputReal, inputImag, forward);
     }
 }
