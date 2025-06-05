@@ -11,7 +11,7 @@ Enhanced and refactored in 2025 with modern Java patterns, comprehensive testing
  - **🚀 High Performance**: Sizes up to 64 (or 128) use hardcoded tables. Larger transforms recursively compose these tables, so no external FFToptimX classes are required. Observed ~1.24x speedup with FFTOptimized8.
 - **🏭 Factory Pattern**: Automatic implementation selection based on input size  
 - **🎯 Type Safety**: Modern API with immutable result objects and rich data extraction
-- **🧪 Comprehensive Testing**: 197 unit tests with full pass rate
+- **🧪 Comprehensive Testing**: 296 unit tests with full pass rate and 90%+ code coverage
 - **🎵 Audio Processing**: Real-time pitch detection and song recognition using Parsons code methodology
  - **📦 Zero Dependencies**: Pure Java implementation—no external FFToptimX classes required (uses javax.sound for audio demos only)
 - **🔧 Maven Build**: Modern build system with quality gates and code coverage
