@@ -76,6 +76,9 @@ class DefaultFFTFactoryTest {
         assertThat(factory.supportsSize(2048)).isTrue();
         assertThat(factory.supportsSize(4096)).isTrue();
         assertThat(factory.supportsSize(8192)).isTrue();
+        assertThat(factory.supportsSize(16384)).isTrue();
+        assertThat(factory.supportsSize(32768)).isTrue();
+        assertThat(factory.supportsSize(65536)).isTrue();
         
         assertThat(factory.supportsSize(7)).isFalse();
         assertThat(factory.supportsSize(15)).isFalse();
@@ -87,7 +90,8 @@ class DefaultFFTFactoryTest {
     void testGetSupportedSizes() {
         var sizes = factory.getSupportedSizes();
         
-        assertThat(sizes).contains(2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192);
+        assertThat(sizes).contains(2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192,
+                                  16384, 32768, 65536);
         assertThat(sizes).isSorted();
         assertThat(sizes).doesNotContain(7, 15, 100);
     }

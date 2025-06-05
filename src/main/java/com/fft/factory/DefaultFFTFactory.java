@@ -107,12 +107,16 @@ public class DefaultFFTFactory implements FFTFactory {
     @Override
     public List<Integer> getSupportedSizes() {
         Set<Integer> sizes = new TreeSet<>(implementations.keySet());
-        
-        // Add common power-of-2 sizes that are supported by fallback
-        for (int size = 2; size <= 8192; size *= 2) {
-            sizes.add(size);
+
+        // Dynamically include power-of-two sizes up to 65536
+        for (int size = 2; size > 0 && size <= 65536; size *= 2) {
+            if (supportsSize(size)) {
+                sizes.add(size);
+            } else {
+                break;
+            }
         }
-        
+
         return new ArrayList<>(sizes);
     }
     
