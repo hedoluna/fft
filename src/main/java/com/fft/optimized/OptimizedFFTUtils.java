@@ -259,6 +259,13 @@ public class OptimizedFFTUtils {
         return result;
     }
 
+    /**
+     * Convenience wrapper for computing the 8-point inverse FFT.
+     *
+     * @param inputReal the real part of the input signal (length 8)
+     * @param inputImag the imaginary part of the input signal (length 8)
+     * @return an array of length 16 containing interleaved real and imaginary results
+     */
     public static double[] ifft8(double[] inputReal, double[] inputImag) {
         return fft8(inputReal, inputImag, false);
     }
@@ -329,6 +336,13 @@ public class OptimizedFFTUtils {
         return result;
     }
 
+    /**
+     * Computes the 16-point inverse FFT using the optimized forward algorithm.
+     *
+     * @param inputReal the real part of the input signal (length 16)
+     * @param inputImag the imaginary part of the input signal (length 16)
+     * @return an array of length 32 with interleaved real and imaginary components
+     */
     public static double[] ifft16(double[] inputReal, double[] inputImag) {
         return fft16(inputReal, inputImag, false);
     }
@@ -426,6 +440,13 @@ public class OptimizedFFTUtils {
         return newArray;
     }
 
+    /**
+     * Convenience method for executing the 32-point inverse FFT.
+     *
+     * @param inputReal the real part of the input signal (length 32)
+     * @param inputImag the imaginary part of the input signal (length 32)
+     * @return an array of length 64 with interleaved inverse transform results
+     */
     public static double[] ifft32(double[] inputReal, double[] inputImag) {
         return fft32(inputReal, inputImag, false);
     }
@@ -548,6 +569,13 @@ public class OptimizedFFTUtils {
         return newArray;
     }
 
+    /**
+     * Executes the 64-point inverse FFT using the optimized lookup tables.
+     *
+     * @param inputReal the real part of the input signal (length 64)
+     * @param inputImag the imaginary part of the input signal (length 64)
+     * @return an array of length 128 containing the interleaved inverse FFT output
+     */
     public static double[] ifft64(double[] inputReal, double[] inputImag) {
         return fft64(inputReal, inputImag, false);
     }
