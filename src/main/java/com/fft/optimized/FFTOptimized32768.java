@@ -96,6 +96,9 @@ public class FFTOptimized32768 implements FFT {
         if (inputReal.length != SIZE) {
             throw new IllegalArgumentException("Input arrays must be of length " + SIZE);
         }
+        if (inputImag.length != SIZE) {
+            throw new IllegalArgumentException("Input arrays must be of length " + SIZE);
+        }
         
         // Use radix-4 decomposition: 32768 = 4 * 8192
         double[][] fourReal = new double[4][8192];

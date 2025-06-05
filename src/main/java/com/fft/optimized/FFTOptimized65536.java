@@ -100,6 +100,9 @@ public class FFTOptimized65536 implements FFT {
         if (inputReal.length != SIZE) {
             throw new IllegalArgumentException("Input arrays must be of length " + SIZE);
         }
+        if (inputImag.length != SIZE) {
+            throw new IllegalArgumentException("Input arrays must be of length " + SIZE);
+        }
         
         // Use radix-8 decomposition: 65536 = 8 * 8192
         double[][] eightReal = new double[8][8192];

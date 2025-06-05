@@ -95,6 +95,9 @@ public class FFTOptimized16384 implements FFT {
         if (inputReal.length != SIZE) {
             throw new IllegalArgumentException("Input arrays must be of length " + SIZE);
         }
+        if (inputImag.length != SIZE) {
+            throw new IllegalArgumentException("Input arrays must be of length " + SIZE);
+        }
         
         // Use radix-2 decomposition: 16384 = 2 * 8192
         double[] evenReal = new double[8192];
