@@ -94,7 +94,7 @@ private static FFTFactory getDefaultFactory() {
 
 **Impact**:
 - ✅ Resolved NoClassDefFoundError affecting 85+ tests
-- ✅ Tests now run successfully (197/197 passing, 100% success rate)
+- ✅ Tests now run successfully (296/296 tests passing, 100% success rate)
 - ✅ Factory auto-discovery working (13 implementations found)
 - ✅ FFTUtils functionality fully restored
 
@@ -129,7 +129,7 @@ FFTOptimized65536 (characteristics=radix-8-decomposition,delegates-to-base,same-
 - Performance tests: blocked by missing dependencies
 
 ### **Test Results - After Fixes**:
-- **100% Success Rate**: 197 out of 197 tests passing
+- **100% Success Rate**: 296/296 tests passing
 - **FFTUtils Working**: Static initialization fixed, no more NoClassDefFoundError
 - **Factory tests**: Run with warnings instead of errors
 - **Auto-discovery**: Working correctly (13 implementations found)

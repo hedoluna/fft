@@ -105,7 +105,7 @@ double[] powerSpectrum = spectrum.getPowerSpectrum();
 ```
 
 -### 5. **Comprehensive Quality Assurance**
-- 197 unit tests with 100% pass rate
+- 296/296 tests passing with 100% pass rate
 - JaCoCo code coverage reporting
 - SpotBugs static analysis integration
 - Maven build automation
