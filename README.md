@@ -96,6 +96,23 @@ FFTOptimized8 fft8 = new FFTOptimized8();
 FFTResult result8 = fft8.transform(realData, imagData, true);
 ```
 
+### Utility Methods
+
+```java
+import com.fft.utils.FFTUtils;
+
+// Create a custom factory and inspect registry details
+FFTFactory factory = FFTUtils.createFactory();
+System.out.println(factory.getRegistryReport());
+
+// Query which implementation would handle a given size
+String info = FFTUtils.getImplementationInfo(1024);
+
+// Zero pad to the next power of two
+double[] padded = FFTUtils.zeroPadToPowerOfTwo(rawSignal);
+int nextSize = FFTUtils.nextPowerOfTwo(300); // 512
+```
+
 ### Legacy API (Backward Compatibility)
 
 ```java
