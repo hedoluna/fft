@@ -131,30 +131,31 @@ public class FFTOptimized65536 implements FFT {
         double constant = forward ? -2.0 * Math.PI : 2.0 * Math.PI;
         double sqrt_size = Math.sqrt(SIZE);
         
-        // Precompute powers of e^(2πi/8) for radix-8
         double[] cos8 = new double[8];
         double[] sin8 = new double[8];
-        for (int j = 0; j < 8; j++) {
-            double angle = constant * j / 8.0;
-            cos8[j] = Math.cos(angle);
-            sin8[j] = Math.sin(angle);
-        }
-        
+
         for (int k = 0; k < 8192; k++) {
             for (int q = 0; q < 8; q++) {
                 int outputIdx = k + q * 8192;
                 double real = 0, imag = 0;
-                
-                for (int j = 0; j < 8; j++) {
-                    // Compute twiddle factor: e^(-2πi * j * q * k / N)
-                    double angle = constant * j * q * k / SIZE;
-                    double cos = Math.cos(angle);
-                    double sin = Math.sin(angle);
-                    
-                    real += eightReal[j][k] * cos - eightImag[j][k] * sin;
-                    imag += eightReal[j][k] * sin + eightImag[j][k] * cos;
+
+                // Precompute powers of e^(±2πi * q * k / N)
+                double baseAngle = constant * q * k / SIZE;
+                double baseCos = Math.cos(baseAngle);
+                double baseSin = Math.sin(baseAngle);
+
+                cos8[0] = 1.0;
+                sin8[0] = 0.0;
+                for (int j = 1; j < 8; j++) {
+                    cos8[j] = cos8[j - 1] * baseCos - sin8[j - 1] * baseSin;
+                    sin8[j] = cos8[j - 1] * baseSin + sin8[j - 1] * baseCos;
                 }
-                
+
+                for (int j = 0; j < 8; j++) {
+                    real += eightReal[j][k] * cos8[j] - eightImag[j][k] * sin8[j];
+                    imag += eightReal[j][k] * sin8[j] + eightImag[j][k] * cos8[j];
+                }
+
                 result[2 * outputIdx] = real / sqrt_size;
                 result[2 * outputIdx + 1] = imag / sqrt_size;
             }
