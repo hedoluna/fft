@@ -128,7 +128,7 @@ FFTOptimized65536 (characteristics=radix-8-decomposition,delegates-to-base,same-
 - Factory tests: 11/11 errors (IllegalArgumentException)
 - Performance tests: blocked by missing dependencies
 
--### **Test Results - After Fixes**:
+### **Test Results - After Fixes**:
 - **100% Success Rate**: 296 out of 296 tests passing
 - **FFTUtils Working**: Static initialization fixed, no more NoClassDefFoundError
 - **Factory tests**: Run with warnings instead of errors
