@@ -106,11 +106,14 @@ public class FFTOptimized8 implements FFT {
      * 
      * This implementation is highly optimized for 8-element arrays with
      * completely unrolled loops and precomputed trigonometric values.
-     * Note: Currently only supports direct transform (DIRECT parameter is ignored).
+     * Performs both forward and inverse transforms depending on the
+     * {@code DIRECT} parameter. When {@code DIRECT} is {@code true} this
+     * executes the forward transform. If {@code DIRECT} is {@code false}, it
+     * computes the inverse transform using the same 1/√n normalization.
      *
      * @param inputReal an array of length 8, the real part
      * @param inputImag an array of length 8, the imaginary part
-     * @param DIRECT    currently unused, always performs direct transform
+     * @param DIRECT true for forward transform, false for inverse
      * @return a new array of length 16 (interleaved real and imaginary parts)
      */
     public static double[] fft(final double[] inputReal, double[] inputImag, boolean DIRECT) {
@@ -126,6 +129,7 @@ public class FFTOptimized8 implements FFT {
         double[] xImag = new double[8];
         double tReal;
         double tImag;
+        double sign = DIRECT ? -1.0 : 1.0; // sign for sine terms
 
         // Copy input arrays to avoid modifying originals
         xReal[0] = inputReal[0];
@@ -200,16 +204,16 @@ public class FFTOptimized8 implements FFT {
         xImag[1] += tImag;
 
         // k = 4
-        tReal = xReal[6] * 6.123233995736766E-17 - xImag[6];
-        tImag = xImag[6] * 6.123233995736766E-17 + xReal[6];
+        tReal = xReal[6] * 6.123233995736766E-17 + sign * xImag[6];
+        tImag = xImag[6] * 6.123233995736766E-17 - sign * xReal[6];
         xReal[6] = xReal[4] - tReal;
         xImag[6] = xImag[4] - tImag;
         xReal[4] += tReal;
         xImag[4] += tImag;
 
         // k = 5
-        tReal = xReal[7] * 6.123233995736766E-17 - xImag[7];
-        tImag = xImag[7] * 6.123233995736766E-17 + xReal[7];
+        tReal = xReal[7] * 6.123233995736766E-17 + sign * xImag[7];
+        tImag = xImag[7] * 6.123233995736766E-17 - sign * xReal[7];
         xReal[7] = xReal[5] - tReal;
         xImag[7] = xImag[5] - tImag;
         xReal[5] += tReal;
@@ -229,16 +233,16 @@ public class FFTOptimized8 implements FFT {
         xImag[0] += tImag;
 
         // k = 2
-        tReal = xReal[3] * 6.123233995736766E-17 - xImag[3];
-        tImag = xImag[3] * 6.123233995736766E-17 + xReal[3];
+        tReal = xReal[3] * 6.123233995736766E-17 + sign * xImag[3];
+        tImag = xImag[3] * 6.123233995736766E-17 - sign * xReal[3];
         xReal[3] = xReal[2] - tReal;
         xImag[3] = xImag[2] - tImag;
         xReal[2] += tReal;
         xImag[2] += tImag;
 
         // k = 4
-        tReal = xReal[5] * 0.7071067811865476 - xImag[5] * 0.7071067811865475; // c: 0.7071067811865476
-        tImag = xImag[5] * 0.7071067811865476 + xReal[5] * 0.7071067811865475; // s: -0.7071067811865475
+        tReal = xReal[5] * 0.7071067811865476 + sign * xImag[5] * 0.7071067811865475; // c: 0.7071067811865476
+        tImag = xImag[5] * 0.7071067811865476 - sign * xReal[5] * 0.7071067811865475; // s: -0.7071067811865475
         xReal[5] = xReal[4] - tReal;
         xImag[5] = xImag[4] - tImag;
         xReal[4] += tReal;
@@ -246,8 +250,8 @@ public class FFTOptimized8 implements FFT {
 
         // k = 6
         // p = 3;
-        tReal = xReal[7] * -0.7071067811865475 - xImag[7] * 0.7071067811865476; // c: -0.7071067811865475
-        tImag = xImag[7] * -0.7071067811865475 + xReal[7] * 0.7071067811865476; // s: -0.7071067811865476
+        tReal = xReal[7] * -0.7071067811865475 + sign * xImag[7] * 0.7071067811865476; // c: -0.7071067811865475
+        tImag = xImag[7] * -0.7071067811865475 - sign * xReal[7] * 0.7071067811865476; // s: -0.7071067811865476
         xReal[7] = xReal[6] - tReal;
         xImag[7] = xImag[6] - tImag;
         xReal[6] += tReal;
