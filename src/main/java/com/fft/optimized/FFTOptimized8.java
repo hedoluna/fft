@@ -1,7 +1,6 @@
 package com.fft.optimized;
 
 import com.fft.core.FFT;
-import com.fft.core.FFTBase;
 import com.fft.core.FFTResult;
 import com.fft.factory.FFTImplementation;
 

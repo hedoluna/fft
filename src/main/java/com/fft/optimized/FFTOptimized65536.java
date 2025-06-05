@@ -1,9 +1,9 @@
 package com.fft.optimized;
 
 import com.fft.core.FFT;
-import com.fft.core.FFTBase;
 import com.fft.core.FFTResult;
 import com.fft.factory.FFTImplementation;
+import com.fft.optimized.OptimizedFFTUtils;
 
 /**
  * Highly optimized FFT implementation for 65536-element arrays.
@@ -47,12 +47,6 @@ public class FFTOptimized65536 implements FFT {
     public FFTResult transform(double[] real, double[] imaginary, boolean forward) {
         if (real.length != SIZE || imaginary.length != SIZE) {
             throw new IllegalArgumentException("Arrays must be of length " + SIZE);
-        }
-        
-        if (!forward) {
-            // For inverse transform, delegate to base implementation
-            FFTBase fallback = new FFTBase();
-            return fallback.transform(real, imaginary, forward);
         }
         
         double[] result = fft65536(real, imaginary, forward);
@@ -104,66 +98,6 @@ public class FFTOptimized65536 implements FFT {
             throw new IllegalArgumentException("Input arrays must be of length " + SIZE);
         }
         
-        // Use radix-8 decomposition: 65536 = 8 * 8192
-        double[][] eightReal = new double[8][8192];
-        double[][] eightImag = new double[8][8192];
-        
-        // Decimation in time: separate into 8 groups
-        for (int i = 0; i < 8192; i++) {
-            for (int j = 0; j < 8; j++) {
-                eightReal[j][i] = inputReal[8 * i + j];
-                eightImag[j][i] = inputImag[8 * i + j];
-            }
-        }
-        
-        // Compute FFTs of eighth-size using base implementation
-        com.fft.core.FFTBase fallback = new com.fft.core.FFTBase();
-        double[][] eightResults = new double[8][];
-        for (int j = 0; j < 8; j++) {
-            eightResults[j] = fallback.transform(eightReal[j], eightImag[j], forward).getInterleavedResult();
-            
-            // Extract results back to working arrays
-            for (int i = 0; i < 8192; i++) {
-                eightReal[j][i] = eightResults[j][2 * i];
-                eightImag[j][i] = eightResults[j][2 * i + 1];
-            }
-        }
-        
-        // Combine results with twiddle factors using radix-8 butterflies
-        double[] result = new double[131072];
-        double constant = forward ? -2.0 * Math.PI : 2.0 * Math.PI;
-        double sqrt_size = Math.sqrt(SIZE);
-        
-        double[] cos8 = new double[8];
-        double[] sin8 = new double[8];
-
-        for (int k = 0; k < 8192; k++) {
-            for (int q = 0; q < 8; q++) {
-                int outputIdx = k + q * 8192;
-                double real = 0, imag = 0;
-
-                // Precompute powers of e^(±2πi * q * k / N)
-                double baseAngle = constant * q * k / SIZE;
-                double baseCos = Math.cos(baseAngle);
-                double baseSin = Math.sin(baseAngle);
-
-                cos8[0] = 1.0;
-                sin8[0] = 0.0;
-                for (int j = 1; j < 8; j++) {
-                    cos8[j] = cos8[j - 1] * baseCos - sin8[j - 1] * baseSin;
-                    sin8[j] = cos8[j - 1] * baseSin + sin8[j - 1] * baseCos;
-                }
-
-                for (int j = 0; j < 8; j++) {
-                    real += eightReal[j][k] * cos8[j] - eightImag[j][k] * sin8[j];
-                    imag += eightReal[j][k] * sin8[j] + eightImag[j][k] * cos8[j];
-                }
-
-                result[2 * outputIdx] = real / sqrt_size;
-                result[2 * outputIdx + 1] = imag / sqrt_size;
-            }
-        }
-        
-        return result;
+        return OptimizedFFTUtils.fftRecursive(SIZE, inputReal, inputImag, forward);
     }
 }
