@@ -579,4 +579,109 @@ public class OptimizedFFTUtils {
     public static double[] ifft64(double[] inputReal, double[] inputImag) {
         return fft64(inputReal, inputImag, false);
     }
+
+    /**
+     * Computes an FFT for any power-of-two size using the optimized
+     * 8/16/32/64-point implementations as building blocks.
+     *
+     * <p>This method performs a recursive Cooley-Tukey decomposition and
+     * delegates to the highly tuned small-size routines for the base cases.
+     * The result is normalized with the conventional {@code 1/\sqrt{n}}
+     * factor.</p>
+     *
+     * @param inputReal real part of the input signal
+     * @param inputImag imaginary part of the input signal
+     * @param forward   true for forward transform, false for inverse
+     * @return interleaved array containing the FFT result
+     */
+    public static double[] fftRecursive(double[] inputReal, double[] inputImag, boolean forward) {
+        if (inputReal.length != inputImag.length) {
+            throw new IllegalArgumentException("Real and imaginary arrays must have same length");
+        }
+
+        double[][] unscaled = fftUnscaled(inputReal, inputImag, forward);
+        int n = inputReal.length;
+        double[] result = new double[n * 2];
+        double norm = 1.0 / Math.sqrt(n);
+        for (int i = 0; i < n; i++) {
+            result[2 * i] = unscaled[0][i] * norm;
+            result[2 * i + 1] = unscaled[1][i] * norm;
+        }
+        return result;
+    }
+
+    // ----- Internal helpers -----
+
+    /**
+     * Recursively computes the FFT without applying the final
+     * normalisation factor. Base cases delegate to the existing
+     * optimized routines and are rescaled to remove their internal
+     * normalisation.
+     */
+    private static double[][] fftUnscaled(double[] real, double[] imag, boolean forward) {
+        int n = real.length;
+
+        if (n == 8) {
+            double[] tmp = fft8(real, imag, forward);
+            return unpackAndRescale(tmp, Math.sqrt(8));
+        }
+        if (n == 16) {
+            double[] tmp = fft16(real, imag, forward);
+            return unpackAndRescale(tmp, Math.sqrt(16));
+        }
+        if (n == 32) {
+            double[] tmp = fft32(real, imag, forward);
+            return unpackAndRescale(tmp, Math.sqrt(32));
+        }
+        if (n == 64) {
+            double[] tmp = fft64(real, imag, forward);
+            return unpackAndRescale(tmp, Math.sqrt(64));
+        }
+
+        int half = n / 2;
+        double[] evenReal = new double[half];
+        double[] evenImag = new double[half];
+        double[] oddReal = new double[half];
+        double[] oddImag = new double[half];
+
+        for (int i = 0; i < half; i++) {
+            evenReal[i] = real[2 * i];
+            evenImag[i] = imag[2 * i];
+            oddReal[i] = real[2 * i + 1];
+            oddImag[i] = imag[2 * i + 1];
+        }
+
+        double[][] even = fftUnscaled(evenReal, evenImag, forward);
+        double[][] odd = fftUnscaled(oddReal, oddImag, forward);
+
+        double[] outReal = new double[n];
+        double[] outImag = new double[n];
+        double angle = (forward ? -2.0 : 2.0) * Math.PI / n;
+
+        for (int k = 0; k < half; k++) {
+            double c = Math.cos(angle * k);
+            double s = Math.sin(angle * k);
+            double tr = odd[0][k] * c - odd[1][k] * s;
+            double ti = odd[0][k] * s + odd[1][k] * c;
+            outReal[k] = even[0][k] + tr;
+            outImag[k] = even[1][k] + ti;
+            outReal[k + half] = even[0][k] - tr;
+            outImag[k + half] = even[1][k] - ti;
+        }
+
+        return new double[][]{outReal, outImag};
+    }
+
+    /** Converts interleaved results into separate arrays and removes
+     *  the normalisation applied by the small-size routines. */
+    private static double[][] unpackAndRescale(double[] interleaved, double factor) {
+        int n = interleaved.length / 2;
+        double[] r = new double[n];
+        double[] im = new double[n];
+        for (int i = 0; i < n; i++) {
+            r[i] = interleaved[2 * i] * factor;
+            im[i] = interleaved[2 * i + 1] * factor;
+        }
+        return new double[][]{r, im};
+    }
 }

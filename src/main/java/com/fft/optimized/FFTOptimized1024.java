@@ -1,7 +1,6 @@
 package com.fft.optimized;
 
 import com.fft.core.FFT;
-import com.fft.core.FFTBase;
 import com.fft.core.FFTResult;
 import com.fft.factory.FFTImplementation;
 
@@ -25,7 +24,7 @@ import com.fft.factory.FFTImplementation;
  * <li>Time Complexity: O(n log n) = O(10240) operations</li>
  * <li>Space Complexity: O(n) = O(1024) additional memory</li>
  * <li>Cache Efficiency: Excellent for L3 cache and beyond</li>
- * <li>Falls back to {@link FFTBase} for inverse transforms</li>
+ * <li>Built from optimized base transforms for all operations</li>
  * </ul>
  * 
  * @author Orlando Selenu (original algorithm base)
@@ -36,8 +35,8 @@ import com.fft.factory.FFTImplementation;
 @FFTImplementation(
     size = 1024,
     priority = 50,
-    description = "Optimized implementation with hierarchical blocking for 1024-element arrays",
-    characteristics = {"hierarchical-blocking", "pipeline-friendly", "simd-ready"}
+    description = "Recursive decomposition using optimized base transforms",
+    characteristics = {"recursive", "hierarchical-blocking", "simd-ready"}
 )
 public class FFTOptimized1024 implements FFT {
     
@@ -47,12 +46,6 @@ public class FFTOptimized1024 implements FFT {
     public FFTResult transform(double[] real, double[] imaginary, boolean forward) {
         if (real.length != SIZE || imaginary.length != SIZE) {
             throw new IllegalArgumentException("Arrays must be of length " + SIZE);
-        }
-        
-        if (!forward) {
-            // For inverse transform, delegate to base implementation
-            FFTBase fallback = new FFTBase();
-            return fallback.transform(real, imaginary, forward);
         }
         
         double[] result = fft1024(real, imaginary, forward);
@@ -81,7 +74,7 @@ public class FFTOptimized1024 implements FFT {
     
     @Override
     public String getDescription() {
-        return "Highly optimized FFT implementation (size " + SIZE + ") using hierarchical blocking";
+        return "Recursive FFT implementation for size " + SIZE + " using optimized base blocks";
     }
     
     /**
@@ -100,15 +93,7 @@ public class FFTOptimized1024 implements FFT {
             throw new IllegalArgumentException("Input arrays must be of length " + SIZE);
         }
         
-        // Delegate to the original optimized implementation
-        try {
-            Class<?> fftClass = Class.forName("FFToptim1024");
-            java.lang.reflect.Method fftMethod = fftClass.getMethod("fft", double[].class, double[].class, boolean.class);
-            return (double[]) fftMethod.invoke(null, inputReal, inputImag, forward);
-        } catch (Exception e) {
-            // Fallback to base implementation if optimized class not available
-            com.fft.core.FFTBase fallback = new com.fft.core.FFTBase();
-            return fallback.transform(inputReal, inputImag, forward).getInterleavedResult();
-        }
+        // Compute using recursive decomposition built from small optimized transforms
+        return OptimizedFFTUtils.fftRecursive(inputReal, inputImag, forward);
     }
 }
