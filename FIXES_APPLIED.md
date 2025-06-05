@@ -95,7 +95,7 @@ private static FFTFactory getDefaultFactory() {
 **Impact**:
 - ✅ Resolved NoClassDefFoundError affecting 85+ tests
 - ✅ Tests now run successfully (197/197 passing, 100% success rate)
-- ✅ Factory auto-discovery working (13 implementations found)
+ - ✅ Factory auto-discovery working (14 implementations found)
 - ✅ FFTUtils functionality fully restored
 
 ### **5. Updated Documentation for Accuracy**
@@ -132,7 +132,7 @@ FFTOptimized65536 (characteristics=radix-8-decomposition,delegates-to-base,same-
 - **100% Success Rate**: 197 out of 197 tests passing
 - **FFTUtils Working**: Static initialization fixed, no more NoClassDefFoundError
 - **Factory tests**: Run with warnings instead of errors
-- **Auto-discovery**: Working correctly (13 implementations found)
+ - **Auto-discovery**: Working correctly (14 implementations found)
 - **JMH tests**: Now have required dependencies available
 
 ## 🎯 **Current Accurate Status**
@@ -140,14 +140,14 @@ FFTOptimized65536 (characteristics=radix-8-decomposition,delegates-to-base,same-
 ### **What Actually Works**:
 - ✅ **Core FFT Operations**: FFTBase handles all power-of-2 sizes correctly
 - ✅ **FFTUtils Class**: Fully functional with lazy initialization (NoClassDefFoundError resolved)
-- ✅ **Factory Pattern**: Auto-discovery finds and registers 13 implementations correctly
+ - ✅ **Factory Pattern**: Auto-discovery finds and registers 14 implementations correctly
 - ✅ **Two Genuine Optimizations**: FFTOptimized8 (1.4x) and FFTOptimized32  
 - ✅ **Audio Processing Suite**: Sophisticated pitch detection and song recognition
 - ✅ **Build System**: Compiles successfully with proper dependencies
 - ✅ **Test Infrastructure**: 100% test success rate, JMH benchmarking available
 
 ### **What's Honestly Limited**:
-- ⚠️ **Limited Optimizations**: Only 2 out of 13 implementations actually optimize
+ - ⚠️ **Limited Optimizations**: Only 2 out of 14 implementations actually optimize
 - ⚠️ **Fallback Behavior**: Larger sizes correctly labeled as delegating to FFTBase
 - ⚠️ **Performance Gap**: Opportunity exists to implement genuine optimizations
 
@@ -184,6 +184,6 @@ With these fixes in place, the project can now:
 
 ## 🏆 **Conclusion**
 
-The FFT library has been transformed from a project with misleading claims and unstable tests to one with honest documentation and reliable infrastructure. While the optimization gap remains (only 2 out of 13 implementations actually optimize), the foundation is now solid for genuine development and users have accurate expectations.
+The FFT library has been transformed from a project with misleading claims and unstable tests to one with honest documentation and reliable infrastructure. While the optimization gap remains (only 2 out of 14 implementations actually optimize), the foundation is now solid for genuine development and users have accurate expectations.
 
 **Key Achievement**: Converted a misleading but broken library into an honest and functional one with excellent growth potential.

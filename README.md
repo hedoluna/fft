@@ -257,7 +257,7 @@ mvn clean test jacoco:report
 - ✅ **Modern package structure** with clean separation of concerns
 - ✅ **Core FFT functionality** via FFTBase supporting all power-of-2 sizes  
 - ✅ **Build system** working (Maven compiles successfully)
-- ✅ **Auto-discovery system** finds and registers all 13 implementations
+ - ✅ **Auto-discovery system** finds and registers all 14 implementations
 - ✅ **Two genuine optimizations** (FFTOptimized8: 1.24x, FFTOptimized32: stage-optimized)
 - ✅ **Basic test validation** (105+ core tests passing including FFTBaseTest 20/20)
 - ✅ **Modern API design** (FFTResult wrapper, type-safe interfaces)
@@ -268,7 +268,7 @@ mvn clean test jacoco:report
 - **✅ Honest Performance Claims**: Misleading speedup annotations corrected to reflect actual behavior
 - **✅ JMH Benchmarking Added**: Proper performance testing infrastructure now available
 - **✅ Test Suite Stabilized**: Factory validation made lenient, JaCoCo exclusions added
-- **✅ Auto-Discovery Working**: All 13 implementations correctly discovered and registered
+ - **✅ Auto-Discovery Working**: All 14 implementations correctly discovered and registered
 
 ### ⚠️ Current Status (100% Tests Passing)
 - **197 out of 197 tests passing** - Core functionality fully operational
