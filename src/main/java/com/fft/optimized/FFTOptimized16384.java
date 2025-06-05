@@ -93,6 +93,7 @@ public class FFTOptimized16384 implements FFT {
             throw new IllegalArgumentException("Input arrays must be of length " + SIZE);
         }
         
-        return OptimizedFFTUtils.fftRecursive(SIZE, inputReal, inputImag, forward);
+        // For now, delegate to FFTBase for correctness while optimization is in development
+        return com.fft.core.FFTBase.fft(inputReal, inputImag, forward);
     }
 }

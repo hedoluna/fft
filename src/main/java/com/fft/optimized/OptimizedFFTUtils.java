@@ -580,7 +580,6 @@ public class OptimizedFFTUtils {
     }
 
     /**
-
      * Generic recursive FFT implementation using specialized kernels for
      * small sizes. Sizes up to 64 delegate to the precomputed methods in this
      * class. Larger power-of-two sizes are handled using radix-2 or radix-4
@@ -593,11 +592,25 @@ public class OptimizedFFTUtils {
      * @return interleaved result of length {@code 2 * size}
      */
     public static double[] fftRecursive(int size, double[] real, double[] imag, boolean forward) {
+        return fftRecursiveInternal(size, real, imag, forward, true);
+    }
+
+    /**
+     * Internal recursive FFT implementation with normalization control.
+     * 
+     * @param size    transform size (must match {@code real} and {@code imag} length)
+     * @param real    real part array
+     * @param imag    imaginary part array
+     * @param forward true for forward transform, false for inverse
+     * @param applyNormalization true to apply 1/√n normalization (only at top level)
+     * @return interleaved result of length {@code 2 * size}
+     */
+    private static double[] fftRecursiveInternal(int size, double[] real, double[] imag, boolean forward, boolean applyNormalization) {
         if (real.length != size || imag.length != size) {
             throw new IllegalArgumentException("Arrays must be of length " + size);
         }
 
-        // Use specialized kernels for small sizes
+        // Use specialized kernels for small sizes - these already handle normalization correctly
         if (size == 8) {
             return fft8(real, imag, forward);
         } else if (size == 16) {
@@ -620,8 +633,9 @@ public class OptimizedFFTUtils {
                 }
             }
 
+            // Recursive calls without normalization
             for (int q = 0; q < 4; q++) {
-                double[] sub = fftRecursive(quarter, r[q], i[q], forward);
+                double[] sub = fftRecursiveInternal(quarter, r[q], i[q], forward, false);
                 for (int j = 0; j < quarter; j++) {
                     r[q][j] = sub[2 * j];
                     i[q][j] = sub[2 * j + 1];
@@ -630,7 +644,6 @@ public class OptimizedFFTUtils {
 
             double[] result = new double[2 * size];
             double constant = forward ? -2.0 * Math.PI : 2.0 * Math.PI;
-            double scale = Math.sqrt(size);
 
             for (int k = 0; k < quarter; k++) {
                 for (int q = 0; q < 4; q++) {
@@ -646,8 +659,15 @@ public class OptimizedFFTUtils {
                         imagSum += r[j][k] * sin + i[j][k] * cos;
                     }
 
-                    result[2 * outIdx] = realSum / scale;
-                    result[2 * outIdx + 1] = imagSum / scale;
+                    // Apply normalization only at the top level
+                    if (applyNormalization) {
+                        double scale = 1.0 / Math.sqrt(size);
+                        result[2 * outIdx] = realSum * scale;
+                        result[2 * outIdx + 1] = imagSum * scale;
+                    } else {
+                        result[2 * outIdx] = realSum;
+                        result[2 * outIdx + 1] = imagSum;
+                    }
                 }
             }
 
@@ -667,8 +687,9 @@ public class OptimizedFFTUtils {
                 oddI[idx] = imag[2 * idx + 1];
             }
 
-            double[] even = fftRecursive(half, evenR, evenI, forward);
-            double[] odd = fftRecursive(half, oddR, oddI, forward);
+            // Recursive calls without normalization
+            double[] even = fftRecursiveInternal(half, evenR, evenI, forward, false);
+            double[] odd = fftRecursiveInternal(half, oddR, oddI, forward, false);
 
             for (int j = 0; j < half; j++) {
                 evenR[j] = even[2 * j];
@@ -679,7 +700,6 @@ public class OptimizedFFTUtils {
 
             double[] result = new double[2 * size];
             double constant = forward ? -2.0 * Math.PI : 2.0 * Math.PI;
-            double scale = Math.sqrt(size);
 
             for (int k = 0; k < half; k++) {
                 double angle = constant * k / size;
@@ -689,10 +709,19 @@ public class OptimizedFFTUtils {
                 double tReal = oddR[k] * cos - oddI[k] * sin;
                 double tImag = oddR[k] * sin + oddI[k] * cos;
 
-                result[2 * k] = (evenR[k] + tReal) / scale;
-                result[2 * k + 1] = (evenI[k] + tImag) / scale;
-                result[2 * (k + half)] = (evenR[k] - tReal) / scale;
-                result[2 * (k + half) + 1] = (evenI[k] - tImag) / scale;
+                // Apply normalization only at the top level
+                if (applyNormalization) {
+                    double scale = 1.0 / Math.sqrt(size);
+                    result[2 * k] = (evenR[k] + tReal) * scale;
+                    result[2 * k + 1] = (evenI[k] + tImag) * scale;
+                    result[2 * (k + half)] = (evenR[k] - tReal) * scale;
+                    result[2 * (k + half) + 1] = (evenI[k] - tImag) * scale;
+                } else {
+                    result[2 * k] = evenR[k] + tReal;
+                    result[2 * k + 1] = evenI[k] + tImag;
+                    result[2 * (k + half)] = evenR[k] - tReal;
+                    result[2 * (k + half) + 1] = (evenI[k] - tImag);
+                }
             }
 
             return result;

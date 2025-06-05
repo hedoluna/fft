@@ -95,6 +95,6 @@ public class FFTOptimized16 implements FFT {
     
     @Override
     public String getDescription() {
-        return "FFT implementation for size " + SIZE + " with partial optimizations";
+        return "Optimized FFT implementation for size " + SIZE + " with partial optimizations";
     }
 }
