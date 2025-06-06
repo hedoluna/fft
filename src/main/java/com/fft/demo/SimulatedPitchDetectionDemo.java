@@ -50,6 +50,11 @@ public class SimulatedPitchDetectionDemo {
         }
     }
     
+    /**
+     * Application entry point for the simulated pitch detection demonstrations.
+     *
+     * @param args command line arguments (unused)
+     */
     public static void main(String[] args) {
         System.out.println("=== Simulated FFT-Based Pitch Detection Demo ===\n");
         
@@ -57,6 +62,9 @@ public class SimulatedPitchDetectionDemo {
         demo.runAllDemos();
     }
     
+    /**
+     * Runs all simulation scenarios in sequence.
+     */
     public void runAllDemos() {
         demonstrateSingleToneDetection();
         demonstrateChordDetection();
@@ -65,6 +73,9 @@ public class SimulatedPitchDetectionDemo {
         demonstratePerformanceComparison();
     }
     
+    /**
+     * Detects single note frequencies from generated tone samples.
+     */
     private void demonstrateSingleToneDetection() {
         System.out.println("1. Single Tone Detection:");
         System.out.println("-------------------------");
@@ -90,6 +101,9 @@ public class SimulatedPitchDetectionDemo {
         System.out.println();
     }
     
+    /**
+     * Demonstrates detection of multiple simultaneous notes forming a chord.
+     */
     private void demonstrateChordDetection() {
         System.out.println("2. Chord Detection (Multiple Frequencies):");
         System.out.println("------------------------------------------");
@@ -119,6 +133,10 @@ public class SimulatedPitchDetectionDemo {
         System.out.println();
     }
     
+    /**
+     * Generates a short melody and verifies that the detected Parsons code
+     * matches the expected pattern.
+     */
     private void demonstrateMelodyRecognition() {
         System.out.println("3. Melody Recognition - \"Twinkle, Twinkle, Little Star\":");
         System.out.println("--------------------------------------------------------");
@@ -180,6 +198,9 @@ public class SimulatedPitchDetectionDemo {
         System.out.printf("Parsons Code Accuracy: %.1f%%\n\n", accuracy);
     }
     
+    /**
+     * Tests pitch detection accuracy over a range of noise levels.
+     */
     private void demonstrateNoisySignalDetection() {
         System.out.println("4. Noisy Signal Detection:");
         System.out.println("--------------------------");
@@ -206,6 +227,10 @@ public class SimulatedPitchDetectionDemo {
         System.out.println();
     }
     
+    /**
+     * Benchmarks FFT performance for several signal sizes using the utility
+     * methods.
+     */
     private void demonstratePerformanceComparison() {
         System.out.println("5. FFT Performance Comparison:");
         System.out.println("------------------------------");
@@ -244,6 +269,14 @@ public class SimulatedPitchDetectionDemo {
     
     // Signal generation methods
     
+    /**
+     * Creates a pure sine-wave tone.
+     *
+     * @param frequency tone frequency in Hz
+     * @param duration length in seconds
+     * @param amplitude amplitude of the wave
+     * @return generated signal samples
+     */
     private double[] generateTone(double frequency, double duration, double amplitude) {
         int samples = (int) (SAMPLE_RATE * duration);
         double[] signal = new double[samples];
@@ -256,7 +289,17 @@ public class SimulatedPitchDetectionDemo {
         return signal;
     }
     
-    private double[] generateToneWithVibrato(double frequency, double duration, double amplitude, 
+    /**
+     * Generates a tone that includes vibrato modulation.
+     *
+     * @param frequency base frequency in Hz
+     * @param duration signal duration in seconds
+     * @param amplitude amplitude of the tone
+     * @param vibratoRate vibrato frequency in Hz
+     * @param vibratoDepth vibrato depth factor
+     * @return generated signal samples
+     */
+    private double[] generateToneWithVibrato(double frequency, double duration, double amplitude,
                                            double vibratoRate, double vibratoDepth) {
         int samples = (int) (SAMPLE_RATE * duration);
         double[] signal = new double[samples];
@@ -271,6 +314,14 @@ public class SimulatedPitchDetectionDemo {
         return signal;
     }
     
+    /**
+     * Generates a multi-tone chord signal.
+     *
+     * @param frequencies array of frequencies in Hz
+     * @param amplitudes amplitude for each frequency
+     * @param duration length of the chord in seconds
+     * @return generated chord samples
+     */
     private double[] generateChord(double[] frequencies, double[] amplitudes, double duration) {
         int samples = (int) (SAMPLE_RATE * duration);
         double[] signal = new double[samples];
@@ -289,6 +340,12 @@ public class SimulatedPitchDetectionDemo {
         return signal;
     }
     
+    /**
+     * Injects Gaussian noise into a signal for testing robustness.
+     *
+     * @param signal signal array to modify
+     * @param noiseLevel standard deviation of the noise
+     */
     private void addNoise(double[] signal, double noiseLevel) {
         Random random = new Random(42); // Fixed seed for reproducibility
         
@@ -299,6 +356,12 @@ public class SimulatedPitchDetectionDemo {
     
     // Pitch detection methods
     
+    /**
+     * Detects the dominant frequency in the provided signal.
+     *
+     * @param signal input signal samples
+     * @return detected frequency in Hz
+     */
     private double detectPitch(double[] signal) {
         // Ensure signal is power of 2 for FFT
         double[] paddedSignal = FFTUtils.zeroPadToPowerOfTwo(signal);
@@ -324,6 +387,13 @@ public class SimulatedPitchDetectionDemo {
         return binToFrequency(peakBin, paddedSignal.length);
     }
     
+    /**
+     * Finds several prominent frequencies within a signal.
+     *
+     * @param signal input signal samples
+     * @param numPeaks number of peaks to return
+     * @return list of detected frequencies
+     */
     private List<Double> detectMultiplePitches(double[] signal, int numPeaks) {
         double[] paddedSignal = FFTUtils.zeroPadToPowerOfTwo(signal);
         FFTResult spectrum = FFTUtils.fft(paddedSignal);
@@ -360,14 +430,34 @@ public class SimulatedPitchDetectionDemo {
         return frequencies;
     }
     
+    /**
+     * Converts a frequency to the corresponding FFT bin index.
+     *
+     * @param frequency frequency in Hz
+     * @param signalLength length of the signal used for the FFT
+     * @return bin index
+     */
     private int frequencyToBin(double frequency, int signalLength) {
         return (int) Math.round(frequency * signalLength / SAMPLE_RATE);
     }
     
+    /**
+     * Converts an FFT bin index back to frequency in Hz.
+     *
+     * @param bin bin index
+     * @param signalLength length of the signal used for the FFT
+     * @return frequency in Hz
+     */
     private double binToFrequency(int bin, int signalLength) {
         return (double) bin * SAMPLE_RATE / signalLength;
     }
     
+    /**
+     * Converts a frequency to a note name with octave.
+     *
+     * @param frequency frequency in Hz
+     * @return note name string or {@code "N/A"}
+     */
     private String frequencyToNote(double frequency) {
         if (frequency <= 0) return "N/A";
         
@@ -385,6 +475,13 @@ public class SimulatedPitchDetectionDemo {
         return noteName + octave;
     }
     
+    /**
+     * Estimates the signal-to-noise ratio for a given noise level.
+     *
+     * @param signal reference signal (amplitude assumed to be 1)
+     * @param noiseLevel noise multiplier used when adding noise
+     * @return SNR value in decibels
+     */
     private double calculateSNR(double[] signal, double noiseLevel) {
         // Calculate signal power (assuming signal amplitude is 1.0)
         double signalPower = 1.0;

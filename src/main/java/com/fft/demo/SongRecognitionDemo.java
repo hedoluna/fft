@@ -48,6 +48,11 @@ public class SongRecognitionDemo {
         this.melodyDatabase = createEnhancedMelodyDatabase();
     }
     
+    /**
+     * Entry point for the song recognition demonstration.
+     *
+     * @param args command line arguments (unused)
+     */
     public static void main(String[] args) {
         System.out.println("=== FFT-Based Song Recognition Demo ===\n");
         
@@ -55,6 +60,9 @@ public class SongRecognitionDemo {
         demo.runAllDemos();
     }
     
+    /**
+     * Executes each song recognition example in turn.
+     */
     public void runAllDemos() {
         demonstrateBasicSongRecognition();
         demonstratePartialMelodyMatching();
@@ -64,6 +72,9 @@ public class SongRecognitionDemo {
         demonstratePerformanceAnalysis();
     }
     
+    /**
+     * Recognizes complete melodies from a predefined list.
+     */
     private void demonstrateBasicSongRecognition() {
         System.out.println("1. Basic Song Recognition:");
         System.out.println("-------------------------");
@@ -79,6 +90,9 @@ public class SongRecognitionDemo {
         System.out.println();
     }
     
+    /**
+     * Shows recognition ability using incomplete melody fragments.
+     */
     private void demonstratePartialMelodyMatching() {
         System.out.println("2. Partial Melody Matching:");
         System.out.println("---------------------------");
@@ -94,6 +108,9 @@ public class SongRecognitionDemo {
         System.out.println();
     }
     
+    /**
+     * Tests melody recognition when the input contains noise.
+     */
     private void demonstrateNoisyMelodyRecognition() {
         System.out.println("3. Noisy Melody Recognition:");
         System.out.println("----------------------------");
@@ -111,6 +128,9 @@ public class SongRecognitionDemo {
         System.out.println();
     }
     
+    /**
+     * Demonstrates robustness to transposition and rhythmic changes.
+     */
     private void demonstrateVariationTolerance() {
         System.out.println("4. Variation Tolerance:");
         System.out.println("----------------------");
@@ -133,6 +153,9 @@ public class SongRecognitionDemo {
         System.out.println();
     }
     
+    /**
+     * Simulates incremental recognition as more notes of a melody arrive.
+     */
     private void demonstrateRealTimeRecognition() {
         System.out.println("5. Real-Time Recognition Simulation:");
         System.out.println("------------------------------------");
@@ -158,6 +181,9 @@ public class SongRecognitionDemo {
         System.out.println();
     }
     
+    /**
+     * Benchmarks recognition performance and analyzes FFT overhead.
+     */
     private void demonstratePerformanceAnalysis() {
         System.out.println("6. Performance Analysis:");
         System.out.println("-----------------------");
@@ -197,6 +223,12 @@ public class SongRecognitionDemo {
         System.out.println();
     }
     
+    /**
+     * Helper that prints recognition results for a given melody.
+     *
+     * @param description description displayed before the results
+     * @param melody array of note names
+     */
     private void testMelodyRecognition(String description, String[] melody) {
         System.out.printf("Testing: %s\n", description);
         
@@ -215,6 +247,12 @@ public class SongRecognitionDemo {
         System.out.println();
     }
     
+    /**
+     * Recognizes a melody after noise has been added.
+     *
+     * @param melody melody to recognize
+     * @param noiseLevel level of added noise
+     */
     private void testNoisyMelodyRecognition(String[] melody, double noiseLevel) {
         // Generate signal with noise
         double[] signal = generateMelodySignal(melody);
@@ -235,6 +273,13 @@ public class SongRecognitionDemo {
         }
     }
     
+    /**
+     * Converts a melody into Parsons code and finds best matches.
+     *
+     * @param melody melody expressed as note names
+     * @param verbose if true, prints the generated Parsons code
+     * @return list of recognition results
+     */
     private List<RecognitionResult> recognizeMelody(String[] melody, boolean verbose) {
         // Convert note names to frequencies
         double[] frequencies = new double[melody.length];
@@ -253,6 +298,13 @@ public class SongRecognitionDemo {
         return findBestMatches(parsonsCode, 5);
     }
     
+    /**
+     * Searches the database for melodies that best match the query code.
+     *
+     * @param queryCode Parsons code query
+     * @param maxResults maximum number of results
+     * @return sorted list of recognition results
+     */
     private List<RecognitionResult> findBestMatches(String queryCode, int maxResults) {
         List<RecognitionResult> results = new ArrayList<>();
         
@@ -280,6 +332,9 @@ public class SongRecognitionDemo {
             .collect(Collectors.toList());
     }
     
+    /**
+     * Calculates similarity of two Parsons codes allowing for partial overlaps.
+     */
     private double calculatePartialSimilarity(String query, String target) {
         // Check if query is a substring of target or vice versa
         if (target.contains(query) || query.contains(target)) {
@@ -305,6 +360,9 @@ public class SongRecognitionDemo {
         return (double) maxOverlap / minLength;
     }
     
+    /**
+     * Calculates similarity of a query to any variation of a melody.
+     */
     private double calculateVariationSimilarity(String query, MelodyEntry entry) {
         double maxSimilarity = 0.0;
         
@@ -317,6 +375,12 @@ public class SongRecognitionDemo {
         return maxSimilarity;
     }
     
+    /**
+     * Generates a digital signal for the specified melody.
+     *
+     * @param melody note names
+     * @return concatenated signal samples
+     */
     private double[] generateMelodySignal(String[] melody) {
         List<Double> signal = new ArrayList<>();
         
@@ -332,6 +396,12 @@ public class SongRecognitionDemo {
         return signal.stream().mapToDouble(Double::doubleValue).toArray();
     }
     
+    /**
+     * Extracts a sequence of pitch values from a time-domain signal.
+     *
+     * @param signal input audio samples
+     * @return array of detected pitches
+     */
     private double[] extractPitchSequence(double[] signal) {
         List<Double> pitches = new ArrayList<>();
         int samplesPerNote = (int) (SAMPLE_RATE * NOTE_DURATION);
@@ -347,6 +417,9 @@ public class SongRecognitionDemo {
         return pitches.stream().mapToDouble(Double::doubleValue).toArray();
     }
     
+    /**
+     * Generates a basic sine wave tone.
+     */
     private double[] generateTone(double frequency, double duration, double amplitude) {
         int samples = (int) (SAMPLE_RATE * duration);
         double[] signal = new double[samples];
@@ -359,6 +432,9 @@ public class SongRecognitionDemo {
         return signal;
     }
     
+    /**
+     * Adds white noise to the signal.
+     */
     private void addNoise(double[] signal, double noiseLevel) {
         Random random = new Random(42);
         for (int i = 0; i < signal.length; i++) {
@@ -366,6 +442,9 @@ public class SongRecognitionDemo {
         }
     }
     
+    /**
+     * Detects the strongest frequency in the signal.
+     */
     private double detectPitch(double[] signal) {
         double[] paddedSignal = FFTUtils.zeroPadToPowerOfTwo(signal);
         FFTResult spectrum = FFTUtils.fft(paddedSignal);
@@ -387,14 +466,23 @@ public class SongRecognitionDemo {
         return maxMagnitude > 0.01 ? binToFrequency(peakBin, paddedSignal.length) : 0.0;
     }
     
+    /**
+     * Converts a frequency value to an FFT bin index.
+     */
     private int frequencyToBin(double frequency, int signalLength) {
         return (int) Math.round(frequency * signalLength / SAMPLE_RATE);
     }
     
+    /**
+     * Converts an FFT bin index to frequency in Hz.
+     */
     private double binToFrequency(int bin, int signalLength) {
         return (double) bin * SAMPLE_RATE / signalLength;
     }
     
+    /**
+     * Maps a note name to its frequency in Hz.
+     */
     private double noteToFrequency(String note) {
         // Map note names to frequencies (A4 = 440 Hz)
         Map<String, Double> noteFreqs = new HashMap<>();
@@ -410,6 +498,11 @@ public class SongRecognitionDemo {
         return noteFreqs.getOrDefault(note, 440.0);
     }
     
+    /**
+     * Builds an in-memory database of melodies with variations.
+     *
+     * @return map of song titles to melody data
+     */
     private Map<String, MelodyEntry> createEnhancedMelodyDatabase() {
         Map<String, MelodyEntry> database = new HashMap<>();
         
