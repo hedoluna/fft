@@ -70,6 +70,11 @@ public class PitchDetectionDemo {
     private final List<PitchChange> parsonsSequence = new ArrayList<>();
     private double lastStablePitch = 0.0;
     
+    /**
+     * Application entry point for the real-time pitch detection demo.
+     *
+     * @param args command line arguments (unused)
+     */
     public static void main(String[] args) {
         System.out.println("=== FFT-Based Pitch Detection Demo ===\n");
         
@@ -77,6 +82,10 @@ public class PitchDetectionDemo {
         demo.runDemo();
     }
     
+    /**
+     * Captures live audio and performs continuous pitch detection until the
+     * user stops the demo.
+     */
     public void runDemo() {
         System.out.println("Setting up audio capture...");
         
@@ -124,6 +133,12 @@ public class PitchDetectionDemo {
         printParsonsCode();
     }
     
+    /**
+     * Continuously reads audio from the microphone and performs pitch analysis
+     * on successive frames.
+     *
+     * @param microphone initialized and started {@link TargetDataLine}
+     */
     private void processAudioStream(TargetDataLine microphone) {
         byte[] buffer = new byte[FFT_SIZE * 2]; // 16-bit samples
         double[] audioSamples = new double[FFT_SIZE];
@@ -173,6 +188,13 @@ public class PitchDetectionDemo {
         }
     }
     
+    /**
+     * Converts raw little-endian PCM bytes to normalized double samples.
+     *
+     * @param buffer audio byte buffer
+     * @param samples destination array for normalized samples
+     * @param bytesRead number of valid bytes in the buffer
+     */
     private void convertBytesToSamples(byte[] buffer, double[] samples, int bytesRead) {
         int sampleCount = Math.min(bytesRead / 2, samples.length);
         
@@ -188,6 +210,11 @@ public class PitchDetectionDemo {
         }
     }
     
+    /**
+     * Applies a Hamming window to the provided sample array in-place.
+     *
+     * @param samples audio frame to window
+     */
     private void applyHammingWindow(double[] samples) {
         int n = samples.length;
         for (int i = 0; i < n; i++) {
@@ -196,6 +223,12 @@ public class PitchDetectionDemo {
         }
     }
     
+    /**
+     * Determines the fundamental frequency of the provided spectrum.
+     *
+     * @param spectrum FFT result of the current audio frame
+     * @return detection result containing frequency, magnitude and note name
+     */
     private PitchDetectionResult detectPitch(FFTResult spectrum) {
         double[] magnitudes = spectrum.getMagnitudes();
         int maxBin = 0;
@@ -230,6 +263,14 @@ public class PitchDetectionDemo {
         return new PitchDetectionResult(fundamentalFreq, maxMagnitude, noteName, octave);
     }
     
+    /**
+     * Uses parabolic interpolation to refine the frequency estimate of a peak
+     * bin.
+     *
+     * @param magnitudes spectrum magnitudes
+     * @param peakBin index of the spectral peak
+     * @return interpolated frequency in Hz
+     */
     private double refineFrequencyEstimate(double[] magnitudes, int peakBin) {
         if (peakBin <= 0 || peakBin >= magnitudes.length - 1) {
             return binToFrequency(peakBin);
@@ -248,6 +289,14 @@ public class PitchDetectionDemo {
         return binToFrequency(peakBin + xPeak);
     }
     
+    /**
+     * Performs a simple harmonic analysis to determine the most likely
+     * fundamental frequency.
+     *
+     * @param magnitudes spectrum magnitudes
+     * @param candidateFreq initial frequency estimate
+     * @return refined fundamental frequency
+     */
     private double findFundamentalFrequency(double[] magnitudes, double candidateFreq) {
         // Simple harmonic analysis - check if this might be a harmonic
         // Look for a potential fundamental at half, third, quarter, etc.
@@ -269,6 +318,14 @@ public class PitchDetectionDemo {
         return bestFreq;
     }
     
+    /**
+     * Calculates a simple score representing how strong the harmonics of a
+     * given frequency are in the spectrum.
+     *
+     * @param magnitudes magnitude spectrum
+     * @param fundamentalFreq candidate fundamental frequency
+     * @return harmonic strength score
+     */
     private double calculateHarmonicScore(double[] magnitudes, double fundamentalFreq) {
         double score = 0;
         
@@ -286,14 +343,32 @@ public class PitchDetectionDemo {
         return score;
     }
     
+    /**
+     * Converts a frequency in Hz to the corresponding FFT bin index.
+     *
+     * @param frequency frequency in Hz
+     * @return bin index
+     */
     private int frequencyToBin(double frequency) {
         return (int) Math.round(frequency * FFT_SIZE / SAMPLE_RATE);
     }
-    
+
+    /**
+     * Converts a bin index to the corresponding frequency in Hz.
+     *
+     * @param bin FFT bin index
+     * @return frequency in Hz
+     */
     private double binToFrequency(double bin) {
         return bin * SAMPLE_RATE / FFT_SIZE;
     }
-    
+
+    /**
+     * Maps a frequency to the nearest musical note name.
+     *
+     * @param frequency frequency in Hz
+     * @return note name or {@code "N/A"} if invalid
+     */
     private String frequencyToNote(double frequency) {
         if (frequency <= 0) return "N/A";
         
@@ -301,6 +376,12 @@ public class PitchDetectionDemo {
         return NOTE_NAMES[noteNumber % 12];
     }
     
+    /**
+     * Calculates the octave number for a given frequency.
+     *
+     * @param frequency frequency in Hz
+     * @return octave number or 0 if frequency is invalid
+     */
     private int frequencyToOctave(double frequency) {
         if (frequency <= 0) return 0;
         
@@ -308,6 +389,12 @@ public class PitchDetectionDemo {
         return (noteNumber / 12) - 1;
     }
     
+    /**
+     * Prints pitch detection results to the console every few frames.
+     *
+     * @param frameCount index of the current audio frame
+     * @param result detected pitch information
+     */
     private void displayResults(int frameCount, PitchDetectionResult result) {
         if (frameCount % 10 == 0) { // Display every 10th frame to avoid overwhelming output
             System.out.printf("Frame %d: ", frameCount);
@@ -321,6 +408,12 @@ public class PitchDetectionDemo {
         }
     }
     
+    /**
+     * Updates the internal Parsons code sequence based on the latest pitch
+     * detection result.
+     *
+     * @param result detected pitch information
+     */
     private void updateParsonsSequence(PitchDetectionResult result) {
         if (result.frequency <= 0) return;
         
@@ -356,6 +449,10 @@ public class PitchDetectionDemo {
         lastStablePitch = smoothedPitch;
     }
     
+    /**
+     * Prints the captured Parsons code sequence and a human readable summary
+     * of each pitch change.
+     */
     private void printParsonsCode() {
         System.out.println("\n=== Captured Parsons Code Sequence ===");
         

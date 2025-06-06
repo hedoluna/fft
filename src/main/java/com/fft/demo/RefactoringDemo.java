@@ -16,6 +16,15 @@ import com.fft.utils.FFTUtils;
  */
 public class RefactoringDemo {
     
+    /**
+     * Runs the refactoring demonstration.
+     *
+     * <p>The method sequentially executes several showcase routines that
+     * highlight the new API, factory pattern, optimized implementations and
+     * backward compatibility features of the library.</p>
+     *
+     * @param args command line arguments (unused)
+     */
     public static void main(String[] args) {
         System.out.println("=== FFT Library Refactoring Demonstration ===\n");
         
@@ -28,6 +37,12 @@ public class RefactoringDemo {
         System.out.println("=== Refactoring Demonstration Complete ===");
     }
     
+    /**
+     * Demonstrates usage of the new type-safe API.
+     *
+     * <p>The example performs an FFT on a small sample array and prints key
+     * information about the resulting {@link FFTResult} object.</p>
+     */
     private static void demonstrateNewAPI() {
         System.out.println("1. New Type-Safe API:");
         System.out.println("--------------------");
@@ -44,6 +59,13 @@ public class RefactoringDemo {
         System.out.println();
     }
     
+    /**
+     * Shows how the {@link DefaultFFTFactory} chooses optimized implementations
+     * automatically.
+     *
+     * <p>Creates several FFT instances of different sizes and prints the
+     * implementation descriptions along with a registry report.</p>
+     */
     private static void demonstrateFactoryPattern() {
         System.out.println("2. Factory Pattern with Automatic Implementation Selection:");
         System.out.println("-----------------------------------------------------------");
@@ -63,6 +85,13 @@ public class RefactoringDemo {
         System.out.println(factory.getRegistryReport());
     }
     
+    /**
+     * Benchmarks and displays the optimized implementations used for different
+     * FFT sizes.
+     *
+     * <p>The method prints which implementation would be chosen for common
+     * sizes and measures the time required to perform multiple FFTs.</p>
+     */
     private static void demonstrateOptimizedImplementations() {
         System.out.println("3. Optimized Implementation Performance:");
         System.out.println("----------------------------------------");
@@ -85,6 +114,13 @@ public class RefactoringDemo {
     }
     
     @SuppressWarnings("deprecation")
+    /**
+     * Verifies that legacy API methods still function alongside the new API.
+     *
+     * <p>Executes both the deprecated double-array API and the modern
+     * {@link FFTUtils#fft(double[], double[], boolean)} method, then compares the
+     * results.</p>
+     */
     private static void demonstrateBackwardCompatibility() {
         System.out.println("4. Backward Compatibility:");
         System.out.println("---------------------------");
@@ -105,6 +141,13 @@ public class RefactoringDemo {
         System.out.println();
     }
     
+    /**
+     * Illustrates the convenience methods provided by {@link FFTResult}.
+     *
+     * <p>A test signal is generated and transformed, after which various
+     * representations such as magnitudes, phases and power spectrum are
+     * printed.</p>
+     */
     private static void demonstrateResultWrapper() {
         System.out.println("5. Rich FFTResult Wrapper:");
         System.out.println("---------------------------");
