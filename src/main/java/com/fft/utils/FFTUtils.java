@@ -50,7 +50,13 @@ import com.fft.factory.FFTFactory;
 public class FFTUtils {
     
     private static volatile FFTFactory DEFAULT_FACTORY;
-    
+
+    /**
+     * Returns the default {@link FFTFactory} instance.
+     *
+     * <p>The factory is lazily created on first access using double-checked
+     * locking and reused for subsequent calls.</p>
+     */
     private static FFTFactory getDefaultFactory() {
         FFTFactory factory = DEFAULT_FACTORY;
         if (factory == null) {
