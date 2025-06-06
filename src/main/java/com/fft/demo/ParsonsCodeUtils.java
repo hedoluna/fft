@@ -328,7 +328,15 @@ public class ParsonsCodeUtils {
         return database;
     }
     
-    // Helper method for calculating edit distance (Levenshtein distance)
+    /**
+     * Calculates the edit distance between two strings using the
+     * Levenshtein distance algorithm.
+     *
+     * @param s1 first string
+     * @param s2 second string
+     * @return number of single-character edits needed to transform {@code s1}
+     *     into {@code s2}
+     */
     private static int calculateEditDistance(String s1, String s2) {
         int[][] dp = new int[s1.length() + 1][s2.length() + 1];
         
