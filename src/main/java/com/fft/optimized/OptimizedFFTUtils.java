@@ -192,7 +192,7 @@ public class OptimizedFFTUtils {
         }
     }
 
-    /** 8-point FFT using precomputed twiddle factors */
+    /** 8-point FFT using precomputed twiddle factors - safe optimization */
     public static double[] fft8(double[] inputReal, double[] inputImag, boolean forward) {
         if (inputReal.length != 8 || inputImag.length != 8) {
             throw new IllegalArgumentException("Arrays must be of length 8");
@@ -250,10 +250,11 @@ public class OptimizedFFTUtils {
         }
 
         double[] result = new double[2 * n];
-        double radice = 1 / Math.sqrt(n);
+        // Precompute normalization: 1/√8 = 0.35355339059327373
+        final double NORM_8 = 0.35355339059327373; 
         for (int i = 0; i < n; i++) {
-            result[2 * i] = xReal[i] * radice;
-            result[2 * i + 1] = xImag[i] * radice;
+            result[2 * i] = xReal[i] * NORM_8;
+            result[2 * i + 1] = xImag[i] * NORM_8;
         }
         return result;
     }
