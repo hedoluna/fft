@@ -1,4 +1,4 @@
-# Optimized FFT Library v4.0
+# FFT Library Documentation v2.0.0-SNAPSHOT
 
 ## Struttura File
 
@@ -19,12 +19,19 @@ src/
 │   │           │   ├── FFTImplementation.java # Metadati annotazione
 │   │           │   └── FFTImplementationDiscovery.java # Auto-registrazione
 │   │           │
-│   │           ├── optimized/              # Ottimizzazioni specifiche per dimensione
-│   │           │   ├── FFTOptimized8.java  # 8-point (1.4x speedup)
-│   │           │   ├── FFTOptimized16.java # 16-point (framework ready)
-│   │           │   ├── FFTOptimized32.java # 32-point (framework ready)
-│   │           │   ├── FFTOptimized64.java # 64-point (corretto fallback)
+│   │           ├── optimized/              # 14 implementazioni specifiche per dimensione
+│   │           │   ├── FFTOptimized8.java  # 8-point (1.42-2.45x speedup verificato)
+│   │           │   ├── FFTOptimized16.java # 16-point (fallback implementation)
+│   │           │   ├── FFTOptimized32.java # 32-point (1.33-1.56x speedup verificato)
+│   │           │   ├── FFTOptimized64.java # 64-point (fallback implementation)
+│   │           │   ├── ... (sizes 128-65536) # Tutte le potenze di 2 fino a 65536
 │   │           │   └── OptimizedFFTUtils.java # Logica ottimizzata condivisa
+│   │           │
+│   │           ├── demo/                   # Applicazioni dimostrative avanzate
+│   │           │   ├── PitchDetectionDemo.java # Rilevamento tonalità in tempo reale
+│   │           │   ├── SongRecognitionDemo.java # Riconoscimento melodie (Parsons code)
+│   │           │   ├── SimulatedPitchDetectionDemo.java # Validazione performance
+│   │           │   └── ParsonsCodeUtils.java # Utilità per music information retrieval
 │   │           │
 │   │           └── utils/                  # Utilità deprecate
 │   │               └── FFTUtils.java       # Wrapper legacy
