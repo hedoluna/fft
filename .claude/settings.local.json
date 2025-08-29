@@ -10,7 +10,17 @@
       "Bash(grep:*)",
       "Bash(git add:*)",
       "Bash(git rm:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(apt list:*)",
+      "Bash(sudo apt:*)",
+      "Bash(sudo apt install:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(javac:*)",
+      "Bash(java:*)",
+      "Bash(rm:*)",
+      "Bash(git rebase:*)",
+      "Bash(git reset:*)"
     ]
   },
   "enableAllProjectMcpServers": false

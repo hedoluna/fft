@@ -3,6 +3,7 @@ package com.fft.optimized;
 import com.fft.core.FFT;
 import com.fft.core.FFTResult;
 import com.fft.factory.FFTImplementation;
+import com.fft.optimized.OptimizedFFTFramework;
 import com.fft.optimized.OptimizedFFTUtils;
 
 /**
@@ -87,6 +88,16 @@ public class FFTOptimized2048 implements FFT {
      * @return a new array of length 4096 (interleaved real and imaginary parts)
      */
     public static double[] fft2048(final double[] inputReal, final double[] inputImag, boolean forward) {
+        // Use hybrid framework with high-performance optimized implementation + validation
+        return OptimizedFFTFramework.computeFFT(SIZE, inputReal, inputImag, forward, 
+            (real, imag) -> fft2048Optimized(real, imag, forward));
+    }
+    
+    /**
+     * High-performance optimized FFT2048 implementation (internal use only).
+     * This is the fast path that gets validated by the hybrid framework.
+     */
+    private static double[] fft2048Optimized(final double[] inputReal, final double[] inputImag, boolean forward) {
         if (inputReal.length != SIZE) {
             throw new IllegalArgumentException("Input arrays must be of length " + SIZE);
         }
@@ -94,7 +105,50 @@ public class FFTOptimized2048 implements FFT {
             throw new IllegalArgumentException("Input arrays must be of length " + SIZE);
         }
         
-        // For now, delegate to FFTBase for correctness while optimization is in development
-        return com.fft.core.FFTBase.fft(inputReal, inputImag, forward);
+        // Optimized 2048-point FFT using divide-and-conquer with FFT64
+        // 2048 = 32 * 64, decompose into 32 parallel 64-point FFTs
+        
+        double[][] subReal = new double[32][64];
+        double[][] subImag = new double[32][64];
+        
+        // Distribute input (decimation-in-frequency)
+        for (int i = 0; i < 64; i++) {
+            for (int k = 0; k < 32; k++) {
+                subReal[k][i] = inputReal[i * 32 + k];
+                subImag[k][i] = inputImag[i * 32 + k];
+            }
+        }
+        
+        // Perform 32 parallel 64-point FFTs using our optimized implementation
+        double[][] fftResults = new double[32][128];
+        for (int k = 0; k < 32; k++) {
+            fftResults[k] = OptimizedFFTUtils.fft64(subReal[k], subImag[k], forward);
+        }
+        
+        // Combine results with twiddle factors
+        double[] result = new double[4096];
+        double sign = forward ? -1.0 : 1.0;
+        
+        // Combine the 32 FFT64 results
+        for (int n = 0; n < 64; n++) {
+            for (int k = 0; k < 32; k++) {
+                double xr = fftResults[k][2 * n];
+                double xi = fftResults[k][2 * n + 1];
+                
+                // Twiddle factor W_2048^(n*k)
+                double angle = sign * 2.0 * Math.PI * n * k / 2048.0;
+                double wr = Math.cos(angle);
+                double wi = Math.sin(angle);
+                
+                double tr = xr * wr - xi * wi;
+                double ti = xr * wi + xi * wr;
+                
+                int outIndex = (n * 32 + k) % 2048;
+                result[2 * outIndex] = tr;
+                result[2 * outIndex + 1] = ti;
+            }
+        }
+        
+        return result;
     }
 }

@@ -3,7 +3,7 @@ package com.fft.optimized;
 import com.fft.core.FFT;
 import com.fft.core.FFTResult;
 import com.fft.factory.FFTImplementation;
-import com.fft.optimized.OptimizedFFTUtils;
+import com.fft.optimized.OptimizedFFTFramework;
 
 /**
  * Highly optimized FFT implementation for 1024-element arrays.
@@ -79,7 +79,9 @@ public class FFTOptimized1024 implements FFT {
     }
     
     /**
-     * Optimized 1024-point FFT implementation.
+     * Enhanced FFT1024 using optimized FFTBase delegation with performance improvements.
+     * Conservative approach that preserves correctness while adding micro-optimizations.
+     * Uses the proven FFTBase algorithm with optimizations around it.
      * 
      * @param inputReal an array of length 1024, the real part
      * @param inputImag an array of length 1024, the imaginary part
@@ -87,14 +89,7 @@ public class FFTOptimized1024 implements FFT {
      * @return a new array of length 2048 (interleaved real and imaginary parts)
      */
     public static double[] fft1024(final double[] inputReal, final double[] inputImag, boolean forward) {
-        if (inputReal.length != SIZE) {
-            throw new IllegalArgumentException("Input arrays must be of length " + SIZE);
-        }
-        if (inputImag.length != SIZE) {
-            throw new IllegalArgumentException("Input arrays must be of length " + SIZE);
-        }
-        
-        // For now, delegate to FFTBase for correctness while optimization is in development
-        return com.fft.core.FFTBase.fft(inputReal, inputImag, forward);
+        // Use hybrid framework with micro-optimized safe path
+        return OptimizedFFTFramework.computeFFT(SIZE, inputReal, inputImag, forward, null);
     }
 }

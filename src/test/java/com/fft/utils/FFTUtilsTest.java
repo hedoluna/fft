@@ -217,6 +217,7 @@ class FFTUtilsTest {
     
     @Test
     @DisplayName("Should support legacy fft method")
+    @SuppressWarnings("deprecation")
     void testLegacyFFT() {
         double[] real = {1, 2, 3, 4, 5, 6, 7, 8};
         double[] imag = new double[8];
@@ -232,6 +233,7 @@ class FFTUtilsTest {
     
     @Test
     @DisplayName("Should support legacy extraction methods")
+    @SuppressWarnings("deprecation")
     void testLegacyExtractionMethods() {
         double[] interleaved = {1, 2, 3, 4, 5, 6, 7, 8};
         
