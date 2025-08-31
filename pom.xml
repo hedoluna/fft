@@ -127,7 +127,8 @@
                     <excludes>
                         <exclude>**/*IntegrationTest.java</exclude>
                     </excludes>
-                    <argLine>--enable-native-access=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/sun.nio.ch=ALL-UNNAMED</argLine>
+                     <forkCount>0</forkCount>
+                     <argLine>${argLine}</argLine>
                 </configuration>
             </plugin>
             
