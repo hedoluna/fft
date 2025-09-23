@@ -508,7 +508,7 @@ public class PitchDetectionUtils {
     /**
      * Converts frequency to FFT bin index.
      */
-    private static int frequencyToBin(double frequency, double sampleRate, int fftSize) {
+    public static int frequencyToBin(double frequency, double sampleRate, int fftSize) {
         return (int) Math.round(frequency * fftSize / sampleRate);
     }
 

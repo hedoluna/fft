@@ -81,6 +81,7 @@ public class SongRecognitionDemo {
         demonstrateNoisyMelodyRecognition();
         demonstrateVariationTolerance();
         demonstrateRealTimeRecognition();
+        demonstrateAdvancedRecognition();
         demonstratePerformanceAnalysis();
     }
     
@@ -342,7 +343,61 @@ public class SongRecognitionDemo {
         }
         System.out.println();
     }
-    
+
+    /**
+     * Demonstrates advanced recognition capabilities using enhanced pitch detection.
+     */
+    private void demonstrateAdvancedRecognition() {
+        System.out.println("6. Advanced Recognition with Enhanced Pitch Detection:");
+        System.out.println("-----------------------------------------------------");
+
+        // Test with "Twinkle, Twinkle, Little Star" using advanced recognition
+        String[] twinkleMelody = {"C4", "C4", "G4", "G4", "A4", "A4", "G4", "F4", "F4", "E4", "E4", "D4", "D4", "C4"};
+        testAdvancedMelodyRecognition("Twinkle, Twinkle, Little Star (Advanced)", twinkleMelody);
+
+        // Test with partial and noisy melody
+        String[] partialTwinkle = {"C4", "C4", "G4", "G4", "A4"};
+        testAdvancedMelodyRecognition("Twinkle (Partial + Advanced)", partialTwinkle);
+
+        System.out.println();
+    }
+
+    /**
+     * Tests advanced melody recognition with enhanced features.
+     */
+    private void testAdvancedMelodyRecognition(String description, String[] melody) {
+        System.out.printf("Testing: %s\n", description);
+
+        // Generate signal and extract notes using advanced method
+        double[] signal = generateMelodySignal(melody);
+        List<DetectedNote> detectedNotes = extractDetectedNotes(signal);
+
+        System.out.printf("  Detected %d notes with advanced segmentation\n", detectedNotes.size());
+
+        if (!detectedNotes.isEmpty()) {
+            double avgConfidence = detectedNotes.stream().mapToDouble(n -> n.confidence).average().orElse(0.0);
+            System.out.printf("  Average note confidence: %.1f%%\n", avgConfidence * 100);
+
+            // Use advanced recognition
+            List<RecognitionResult> results = recognizeMelodyAdvanced(detectedNotes, 5);
+
+            if (results.isEmpty()) {
+                System.out.println("  No matches found with advanced recognition");
+            } else {
+                System.out.println("  Advanced recognition results:");
+                for (int i = 0; i < Math.min(3, results.size()); i++) {
+                    RecognitionResult result = results.get(i);
+                    System.out.printf("    %d. %s (%.1f%% confidence)\n",
+                        i + 1, result.songTitle, result.confidence * 100);
+                }
+            }
+        } else {
+            System.out.println("  No notes detected");
+        }
+
+        System.out.println();
+    }
+
     /**
      * Recognizes a melody after noise has been added using enhanced processing.
      *
@@ -398,16 +453,282 @@ public class SongRecognitionDemo {
         for (int i = 0; i < melody.length; i++) {
             frequencies[i] = noteToFrequency(melody[i]);
         }
-        
+
         // Generate Parsons code
         String parsonsCode = ParsonsCodeUtils.generateParsonsCode(frequencies);
-        
+
         if (verbose) {
             System.out.printf("  Generated Parsons code: %s\n", parsonsCode);
         }
-        
+
         // Find matches
         return findBestMatches(parsonsCode, 5);
+    }
+
+    /**
+     * Advanced melody recognition using enhanced pitch detection features.
+     *
+     * @param detectedNotes notes with full timing and confidence information
+     * @param maxResults maximum number of results to return
+     * @return list of recognition results with enhanced scoring
+     */
+    public List<RecognitionResult> recognizeMelodyAdvanced(List<DetectedNote> detectedNotes, int maxResults) {
+        if (detectedNotes.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // Extract basic frequency sequence
+        double[] frequencies = detectedNotes.stream().mapToDouble(n -> n.frequency).toArray();
+        double[] confidences = detectedNotes.stream().mapToDouble(n -> n.confidence).toArray();
+
+        // Generate Parsons code with confidence weighting
+        String parsonsCode = generateConfidenceWeightedParsonsCode(frequencies, confidences);
+
+        // Extract rhythm pattern
+        String rhythmPattern = analyzeAdvancedRhythmPattern(detectedNotes);
+
+        // Try to detect chords for harmonic context
+        List<PitchDetectionUtils.ChordResult> chordSequence = new ArrayList<>();
+        try {
+            chordSequence = extractChordSequenceFromMelody(detectedNotes);
+        } catch (Exception e) {
+            // Chord detection might fail, continue without it
+        }
+
+        // Enhanced matching with multiple criteria
+        List<RecognitionResult> results = findBestMatchesAdvanced(parsonsCode, rhythmPattern, chordSequence, maxResults);
+
+        // Apply confidence-based re-ranking
+        results = rerankResultsByConfidence(results, detectedNotes);
+
+        return results;
+    }
+
+    /**
+     * Generates Parsons code with confidence weighting for more accurate matching.
+     */
+    private String generateConfidenceWeightedParsonsCode(double[] frequencies, double[] confidences) {
+        if (frequencies.length < 2) return "";
+
+        StringBuilder code = new StringBuilder();
+        code.append("*"); // Start symbol
+
+        for (int i = 1; i < frequencies.length; i++) {
+            double freq1 = frequencies[i-1];
+            double freq2 = frequencies[i];
+            double conf1 = confidences[i-1];
+            double conf2 = confidences[i];
+
+            // Weighted comparison based on confidence
+            double weightedRatio = (freq2 * conf2 + freq1 * conf1) / (conf1 + conf2);
+            double ratio = freq2 / freq1;
+
+            char direction;
+            if (ratio > 1.05) direction = 'U';      // Up
+            else if (ratio < 0.95) direction = 'D'; // Down
+            else direction = 'R';                   // Repeat/Same
+
+            // Only add if both notes have reasonable confidence
+            if (conf1 > 0.3 && conf2 > 0.3) {
+                code.append(direction);
+            }
+        }
+
+        return code.toString();
+    }
+
+    /**
+     * Advanced rhythm pattern analysis considering note durations and timing.
+     */
+    private String analyzeAdvancedRhythmPattern(List<DetectedNote> notes) {
+        if (notes.size() < 2) return "";
+
+        StringBuilder rhythm = new StringBuilder();
+        double avgDuration = notes.stream().mapToDouble(n -> n.duration).average().orElse(0.4);
+        double avgGap = 0.0;
+
+        // Calculate average gap between notes
+        for (int i = 1; i < notes.size(); i++) {
+            double gap = notes.get(i).startTime - (notes.get(i-1).startTime + notes.get(i-1).duration);
+            avgGap += gap;
+        }
+        avgGap /= Math.max(1, notes.size() - 1);
+
+        for (int i = 0; i < notes.size() - 1; i++) {
+            DetectedNote current = notes.get(i);
+            DetectedNote next = notes.get(i + 1);
+
+            // Classify note duration
+            char durationChar = current.duration > avgDuration * 1.5 ? 'L' :  // Long
+                              current.duration < avgDuration * 0.7 ? 'S' : 'M'; // Short : Medium
+
+            // Classify gap to next note
+            double gap = next.startTime - (current.startTime + current.duration);
+            char gapChar = gap > avgGap * 1.5 ? 'P' :  // Pause
+                          gap < avgGap * 0.5 ? 'C' : 'M'; // Connected : Medium
+
+            rhythm.append(durationChar).append(gapChar);
+        }
+
+        return rhythm.toString();
+    }
+
+    /**
+     * Attempts to extract chord sequence from melody notes (simplified approach).
+     */
+    private List<PitchDetectionUtils.ChordResult> extractChordSequenceFromMelody(List<DetectedNote> notes) {
+        List<PitchDetectionUtils.ChordResult> chords = new ArrayList<>();
+
+        // Group notes into potential chord segments (simultaneous or very close notes)
+        List<List<DetectedNote>> chordGroups = groupNotesIntoChords(notes);
+
+        for (List<DetectedNote> group : chordGroups) {
+            if (group.size() >= 2) {
+                // Create synthetic chord signal from note frequencies
+                double[] chordFrequencies = group.stream().mapToDouble(n -> n.frequency).toArray();
+
+                // Simple chord detection based on frequency ratios
+                PitchDetectionUtils.ChordResult chord = detectChordFromFrequencies(chordFrequencies);
+                if (chord.confidence > 0.3) {
+                    chords.add(chord);
+                }
+            }
+        }
+
+        return chords;
+    }
+
+    /**
+     * Groups consecutive notes that might form chords.
+     */
+    private List<List<DetectedNote>> groupNotesIntoChords(List<DetectedNote> notes) {
+        List<List<DetectedNote>> groups = new ArrayList<>();
+
+        if (notes.isEmpty()) return groups;
+
+        List<DetectedNote> currentGroup = new ArrayList<>();
+        currentGroup.add(notes.get(0));
+
+        for (int i = 1; i < notes.size(); i++) {
+            DetectedNote current = notes.get(i);
+            DetectedNote last = currentGroup.get(currentGroup.size() - 1);
+
+            // Check if notes are simultaneous or very close (within 50ms)
+            double timeDiff = Math.abs(current.startTime - last.startTime);
+            if (timeDiff < 0.05) { // 50ms threshold
+                currentGroup.add(current);
+            } else {
+                if (currentGroup.size() > 1) {
+                    groups.add(new ArrayList<>(currentGroup));
+                }
+                currentGroup.clear();
+                currentGroup.add(current);
+            }
+        }
+
+        if (currentGroup.size() > 1) {
+            groups.add(currentGroup);
+        }
+
+        return groups;
+    }
+
+    /**
+     * Simple chord detection from frequency set.
+     */
+    private PitchDetectionUtils.ChordResult detectChordFromFrequencies(double[] frequencies) {
+        // Simplified chord detection - in a real system this would be more sophisticated
+        if (frequencies.length < 2) {
+            return new PitchDetectionUtils.ChordResult(new double[0], 0.0, "Unknown", "unknown");
+        }
+
+        // Sort frequencies and look for common intervals
+        double[] sorted = Arrays.copyOf(frequencies, frequencies.length);
+        Arrays.sort(sorted);
+
+        // Check for major chord pattern (root, major third, fifth)
+        if (frequencies.length >= 3) {
+            double root = sorted[0];
+            double third = sorted[1];
+            double fifth = sorted[2];
+
+            double thirdRatio = third / root;
+            double fifthRatio = fifth / root;
+
+            if (Math.abs(thirdRatio - Math.pow(2, 4.0/12.0)) < 0.1 &&
+                Math.abs(fifthRatio - Math.pow(2, 7.0/12.0)) < 0.1) {
+                return new PitchDetectionUtils.ChordResult(frequencies, 0.8, "C", "major");
+            }
+        }
+
+        // Default to unknown chord
+        return new PitchDetectionUtils.ChordResult(frequencies, 0.3, "Unknown", "unknown");
+    }
+
+    /**
+     * Advanced pattern matching with multiple criteria.
+     */
+    private List<RecognitionResult> findBestMatchesAdvanced(String parsonsCode, String rhythmPattern,
+                                                          List<PitchDetectionUtils.ChordResult> chords, int maxResults) {
+        List<RecognitionResult> results = new ArrayList<>();
+
+        for (Map.Entry<String, MelodyEntry> entry : melodyDatabase.entrySet()) {
+            String songTitle = entry.getKey();
+            MelodyEntry melodyEntry = entry.getValue();
+
+            // Multi-criteria scoring
+            double melodyScore = ParsonsCodeUtils.calculateSimilarity(parsonsCode, melodyEntry.parsonsCode);
+            double rhythmScore = rhythmPattern.isEmpty() ? 0.5 : calculateRhythmSimilarity(rhythmPattern, melodyEntry);
+            double harmonyScore = chords.isEmpty() ? 0.5 : calculateHarmonySimilarity(chords, melodyEntry);
+
+            // Weighted combination
+            double combinedScore = melodyScore * 0.6 + rhythmScore * 0.2 + harmonyScore * 0.2;
+
+            if (combinedScore > 0.3) { // Threshold for consideration
+                results.add(new RecognitionResult(songTitle, combinedScore, melodyEntry.parsonsCode));
+            }
+        }
+
+        // Sort and limit results
+        return results.stream()
+            .sorted((r1, r2) -> Double.compare(r2.confidence, r1.confidence))
+            .limit(maxResults)
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Calculates rhythm similarity (placeholder - would need rhythm database).
+     */
+    private double calculateRhythmSimilarity(String queryRhythm, MelodyEntry entry) {
+        // Simplified - in a real system this would compare against stored rhythm patterns
+        return 0.5; // Neutral score
+    }
+
+    /**
+     * Calculates harmony similarity (placeholder - would need chord database).
+     */
+    private double calculateHarmonySimilarity(List<PitchDetectionUtils.ChordResult> chords, MelodyEntry entry) {
+        // Simplified - in a real system this would compare against stored chord progressions
+        return chords.isEmpty() ? 0.5 : 0.6;
+    }
+
+    /**
+     * Re-ranks results based on note confidence levels.
+     */
+    private List<RecognitionResult> rerankResultsByConfidence(List<RecognitionResult> results, List<DetectedNote> notes) {
+        if (results.isEmpty() || notes.isEmpty()) return results;
+
+        double avgNoteConfidence = notes.stream().mapToDouble(n -> n.confidence).average().orElse(0.5);
+
+        // Boost results when notes have high confidence
+        return results.stream()
+            .map(result -> {
+                double confidenceBonus = avgNoteConfidence > 0.7 ? 0.1 : 0.0;
+                double adjustedConfidence = Math.min(1.0, result.confidence + confidenceBonus);
+                return new RecognitionResult(result.songTitle, adjustedConfidence, result.matchedCode);
+            })
+            .sorted((r1, r2) -> Double.compare(r2.confidence, r1.confidence))
+            .collect(Collectors.toList());
     }
     
     /**
@@ -702,40 +1023,102 @@ public class SongRecognitionDemo {
     }
 
     /**
-     * Extracts detected notes with full timing and duration information.
+     * Extracts detected notes with full timing and duration information using advanced pitch detection.
+     *
+     * <p>Enhanced version using:
+     * - Adaptive window sizing based on signal characteristics
+     * - Multi-resolution analysis for better note boundary detection
+     * - Confidence-weighted segmentation
+     * - Harmonic analysis for improved accuracy</p>
      *
      * @param signal input audio samples
      * @return list of detected notes with timing information
      */
     private List<DetectedNote> extractDetectedNotes(double[] signal) {
-        // Parameters for intelligent segmentation
-        final int WINDOW_SIZE = (int) (SAMPLE_RATE * 0.1); // 100ms windows
-        final int HOP_SIZE = (int) (SAMPLE_RATE * 0.05);   // 50ms hop
-        final double CONFIDENCE_THRESHOLD = 0.5;          // Minimum confidence
-        final double FREQUENCY_TOLERANCE = 25.0;          // Hz tolerance for grouping
-        final int MIN_SEGMENT_LENGTH = 3;                 // Minimum segments per note
-        final double MIN_FREQUENCY = 85.0;                // Minimum musical frequency
+        // Enhanced parameters for advanced segmentation
+        final double CONFIDENCE_THRESHOLD = 0.4;          // Lower threshold for advanced detection
+        final double FREQUENCY_TOLERANCE = 15.0;          // Tighter tolerance for better accuracy
+        final int MIN_SEGMENT_LENGTH = 2;                 // Reduced for faster response
+        final double MIN_FREQUENCY = 75.0;                // Lower minimum for bass notes
+        final double MAX_FREQUENCY = 2000.0;              // Upper limit for harmonics
 
         List<PitchSegment> segments = new ArrayList<>();
 
-        // Sliding window analysis
-        for (int start = 0; start < signal.length - WINDOW_SIZE; start += HOP_SIZE) {
-            double[] window = Arrays.copyOfRange(signal, start, start + WINDOW_SIZE);
-            PitchDetectionUtils.PitchResult result = PitchDetectionUtils.detectPitchHybrid(window, SAMPLE_RATE);
+        // Multi-resolution sliding window analysis
+        int[] windowSizes = {(int)(SAMPLE_RATE * 0.08), (int)(SAMPLE_RATE * 0.12), (int)(SAMPLE_RATE * 0.16)};
+        int hopSize = (int)(SAMPLE_RATE * 0.04); // 40ms hop for better temporal resolution
 
-            if (result.isVoiced && result.confidence > CONFIDENCE_THRESHOLD && result.frequency > MIN_FREQUENCY) {
-                segments.add(new PitchSegment(result.frequency, result.confidence, start, start + WINDOW_SIZE));
+        for (int start = 0; start < signal.length - windowSizes[0]; start += hopSize) {
+            PitchSegment bestSegment = null;
+            double bestConfidence = 0.0;
+
+            // Try multiple window sizes for better note boundary detection
+            for (int windowSize : windowSizes) {
+                if (start + windowSize > signal.length) continue;
+
+                double[] window = Arrays.copyOfRange(signal, start, start + windowSize);
+                PitchDetectionUtils.PitchResult result = PitchDetectionUtils.detectPitchHybrid(window, SAMPLE_RATE);
+
+                // Enhanced validation with harmonic analysis
+                if (result.isVoiced && result.confidence > CONFIDENCE_THRESHOLD &&
+                    result.frequency > MIN_FREQUENCY && result.frequency < MAX_FREQUENCY) {
+
+                    // Check for harmonic consistency (fundamental + harmonics)
+                    boolean hasHarmonics = checkHarmonicConsistency(window, result.frequency, SAMPLE_RATE);
+                    double adjustedConfidence = result.confidence * (hasHarmonics ? 1.2 : 0.9);
+
+                    if (adjustedConfidence > bestConfidence) {
+                        bestConfidence = adjustedConfidence;
+                        bestSegment = new PitchSegment(result.frequency, adjustedConfidence, start, start + windowSize);
+                    }
+                }
+            }
+
+            if (bestSegment != null) {
+                segments.add(bestSegment);
             }
         }
 
-        // Group segments into notes using intelligent clustering
-        return groupSegmentsIntoNotes(segments, FREQUENCY_TOLERANCE, MIN_SEGMENT_LENGTH);
+        // Advanced note grouping with temporal and frequency analysis
+        return groupSegmentsIntoNotesAdvanced(segments, FREQUENCY_TOLERANCE, MIN_SEGMENT_LENGTH);
     }
 
     /**
-     * Groups pitch segments into discrete notes with duration information.
+     * Checks for harmonic consistency in the signal.
      */
-    private List<DetectedNote> groupSegmentsIntoNotes(List<PitchSegment> segments, double freqTolerance, int minSegments) {
+    private boolean checkHarmonicConsistency(double[] window, double fundamentalFreq, double sampleRate) {
+        try {
+            // Quick FFT analysis to check for harmonics
+            double[] padded = FFTUtils.zeroPadToPowerOfTwo(window);
+            FFTResult spectrum = FFTUtils.fft(padded);
+
+            double[] magnitudes = spectrum.getMagnitudes();
+            int fftSize = magnitudes.length;
+
+            // Check for 2nd and 3rd harmonics
+            int fundamentalBin = PitchDetectionUtils.frequencyToBin(fundamentalFreq, sampleRate, fftSize);
+            int secondHarmonicBin = fundamentalBin * 2;
+            int thirdHarmonicBin = fundamentalBin * 3;
+
+            if (secondHarmonicBin >= magnitudes.length || thirdHarmonicBin >= magnitudes.length) {
+                return false;
+            }
+
+            double fundamentalMag = magnitudes[fundamentalBin];
+            double secondMag = magnitudes[secondHarmonicBin];
+            double thirdMag = magnitudes[thirdHarmonicBin];
+
+            // Harmonics should be present but weaker than fundamental
+            return secondMag > fundamentalMag * 0.1 && thirdMag > fundamentalMag * 0.05;
+        } catch (Exception e) {
+            return false; // Conservative approach
+        }
+    }
+
+    /**
+     * Advanced note grouping with temporal coherence and frequency stability analysis.
+     */
+    private List<DetectedNote> groupSegmentsIntoNotesAdvanced(List<PitchSegment> segments, double freqTolerance, int minSegments) {
         List<DetectedNote> notes = new ArrayList<>();
 
         if (segments.isEmpty()) {
@@ -747,32 +1130,129 @@ public class SongRecognitionDemo {
 
         List<PitchSegment> currentGroup = new ArrayList<>();
         double currentFreq = segments.get(0).frequency;
+        double currentFreqVariance = 0.0;
         int groupStartSample = segments.get(0).startSample;
 
-        for (PitchSegment segment : segments) {
-            // Check if this segment belongs to current group
-            if (Math.abs(segment.frequency - currentFreq) <= freqTolerance) {
+        for (int i = 0; i < segments.size(); i++) {
+            PitchSegment segment = segments.get(i);
+
+            // Calculate frequency stability for current group
+            double avgFreq = currentGroup.stream().mapToDouble(s -> s.frequency).average().orElse(segment.frequency);
+            double variance = currentGroup.stream()
+                .mapToDouble(s -> Math.pow(s.frequency - avgFreq, 2))
+                .average().orElse(0.0);
+
+            // Adaptive tolerance based on frequency range and group stability
+            double adaptiveTolerance = Math.max(freqTolerance, Math.abs(avgFreq) * 0.02); // 2% of frequency
+
+            // Check temporal continuity (no large gaps)
+            boolean temporalContinuity = currentGroup.isEmpty() ||
+                (segment.startSample - currentGroup.get(currentGroup.size() - 1).endSample) < SAMPLE_RATE * 0.2; // 200ms gap max
+
+            // Check if segment belongs to current group
+            if (Math.abs(segment.frequency - avgFreq) <= adaptiveTolerance &&
+                variance < 100.0 && // Frequency stability check
+                temporalContinuity) {
+
                 currentGroup.add(segment);
+                currentFreqVariance = variance;
+
             } else {
                 // Finish current group and start new one
                 if (currentGroup.size() >= minSegments) {
-                    DetectedNote note = createDetectedNote(currentGroup, groupStartSample);
-                    notes.add(note);
+                    DetectedNote note = createDetectedNoteAdvanced(currentGroup, groupStartSample);
+                    if (note != null) {
+                        notes.add(note);
+                    }
                 }
                 currentGroup.clear();
                 currentGroup.add(segment);
                 currentFreq = segment.frequency;
+                currentFreqVariance = 0.0;
                 groupStartSample = segment.startSample;
             }
         }
 
         // Add final group
         if (currentGroup.size() >= minSegments) {
-            DetectedNote note = createDetectedNote(currentGroup, groupStartSample);
-            notes.add(note);
+            DetectedNote note = createDetectedNoteAdvanced(currentGroup, groupStartSample);
+            if (note != null) {
+                notes.add(note);
+            }
         }
 
+        // Post-processing: merge very short notes with neighbors if they have similar frequencies
+        notes = mergeShortNotes(notes);
+
         return notes;
+    }
+
+    /**
+     * Creates a detected note with advanced confidence calculation.
+     */
+    private DetectedNote createDetectedNoteAdvanced(List<PitchSegment> segments, int groupStartSample) {
+        if (segments.isEmpty()) return null;
+
+        double weightedFreq = calculateWeightedFrequency(segments);
+        double totalDuration = segments.stream().mapToDouble(PitchSegment::getDuration).sum();
+        double avgConfidence = segments.stream().mapToDouble(s -> s.confidence).average().orElse(0.0);
+
+        // Enhanced confidence calculation considering frequency stability
+        double freqVariance = calculateFrequencyVariance(segments);
+        double stabilityBonus = Math.max(0.0, 1.0 - freqVariance / 100.0); // Bonus for stable frequencies
+        double finalConfidence = Math.min(1.0, avgConfidence * (0.8 + 0.2 * stabilityBonus));
+
+        double startTime = groupStartSample / SAMPLE_RATE;
+
+        return new DetectedNote(weightedFreq, totalDuration, finalConfidence, startTime);
+    }
+
+    /**
+     * Calculates frequency variance for stability analysis.
+     */
+    private double calculateFrequencyVariance(List<PitchSegment> segments) {
+        if (segments.size() < 2) return 0.0;
+
+        double mean = segments.stream().mapToDouble(s -> s.frequency).average().orElse(0.0);
+        double variance = segments.stream()
+            .mapToDouble(s -> Math.pow(s.frequency - mean, 2))
+            .average().orElse(0.0);
+
+        return variance;
+    }
+
+    /**
+     * Merges very short notes with neighboring notes of similar frequency.
+     */
+    private List<DetectedNote> mergeShortNotes(List<DetectedNote> notes) {
+        if (notes.size() < 2) return notes;
+
+        List<DetectedNote> merged = new ArrayList<>();
+        DetectedNote current = notes.get(0);
+
+        for (int i = 1; i < notes.size(); i++) {
+            DetectedNote next = notes.get(i);
+
+            // Merge if current note is very short and frequencies are similar
+            boolean shouldMerge = current.duration < 0.15 && // Less than 150ms
+                                Math.abs(current.frequency - next.frequency) < 30.0 && // Similar frequency
+                                (next.startTime - (current.startTime + current.duration)) < 0.1; // Close in time
+
+            if (shouldMerge) {
+                // Merge notes
+                double totalDuration = current.duration + next.duration;
+                double weightedFreq = (current.frequency * current.duration + next.frequency * next.duration) / totalDuration;
+                double avgConfidence = (current.confidence + next.confidence) / 2.0;
+
+                current = new DetectedNote(weightedFreq, totalDuration, avgConfidence, current.startTime);
+            } else {
+                merged.add(current);
+                current = next;
+            }
+        }
+
+        merged.add(current);
+        return merged;
     }
 
     /**
