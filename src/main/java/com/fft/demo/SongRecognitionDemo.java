@@ -498,8 +498,17 @@ public class SongRecognitionDemo {
         // Enhanced matching with multiple criteria
         List<RecognitionResult> results = findBestMatchesAdvanced(parsonsCode, rhythmPattern, chordSequence, maxResults);
 
-        // Apply confidence-based re-ranking
+        // Apply ensemble method for improved confidence
+        List<RecognitionResult> ensembleResults = applyEnsembleMatching(detectedNotes, maxResults);
+
+        // Combine advanced matching with ensemble results
+        results = combineMatchingResults(results, ensembleResults, maxResults);
+
+        // Apply advanced confidence-based re-ranking with statistical validation
         results = rerankResultsByConfidence(results, detectedNotes);
+
+        // Final validation and filtering
+        results = applyFinalValidation(results, detectedNotes);
 
         return results;
     }
@@ -713,22 +722,386 @@ public class SongRecognitionDemo {
     }
 
     /**
-     * Re-ranks results based on note confidence levels.
+     * Re-ranks results based on note confidence levels and advanced validation.
      */
     private List<RecognitionResult> rerankResultsByConfidence(List<RecognitionResult> results, List<DetectedNote> notes) {
         if (results.isEmpty() || notes.isEmpty()) return results;
 
         double avgNoteConfidence = notes.stream().mapToDouble(n -> n.confidence).average().orElse(0.5);
+        double[] frequencies = notes.stream().mapToDouble(n -> n.frequency).toArray();
 
-        // Boost results when notes have high confidence
+        // Advanced confidence calculation with multiple factors
         return results.stream()
             .map(result -> {
-                double confidenceBonus = avgNoteConfidence > 0.7 ? 0.1 : 0.0;
-                double adjustedConfidence = Math.min(1.0, result.confidence + confidenceBonus);
+                double baseConfidence = result.confidence;
+                double totalBonus = 0.0;
+
+                // Note confidence bonus
+                double confidenceBonus = avgNoteConfidence > 0.8 ? 0.15 :
+                                       avgNoteConfidence > 0.6 ? 0.08 : 0.0;
+                totalBonus += confidenceBonus;
+
+                // Statistical validation bonus
+                double statisticalBonus = validateMelodyStatistics(frequencies, notes) ? 0.1 : 0.0;
+                totalBonus += statisticalBonus;
+
+                // Harmonic coherence bonus
+                double harmonicBonus = validateHarmonicCoherence(frequencies) ? 0.08 : 0.0;
+                totalBonus += harmonicBonus;
+
+                // Musical plausibility bonus
+                double plausibilityBonus = validateMusicalPlausibility(notes) ? 0.07 : 0.0;
+                totalBonus += plausibilityBonus;
+
+                // Length consistency bonus (prefer matches with similar length)
+                MelodyEntry entry = melodyDatabase.get(result.songTitle);
+                if (entry != null) {
+                    double lengthRatio = Math.min(frequencies.length, entry.parsonsCode.length()) /
+                                       (double) Math.max(frequencies.length, entry.parsonsCode.length());
+                    double lengthBonus = lengthRatio > 0.8 ? 0.05 : 0.0;
+                    totalBonus += lengthBonus;
+                }
+
+                double adjustedConfidence = Math.min(1.0, baseConfidence + totalBonus);
                 return new RecognitionResult(result.songTitle, adjustedConfidence, result.matchedCode);
             })
             .sorted((r1, r2) -> Double.compare(r2.confidence, r1.confidence))
             .collect(Collectors.toList());
+    }
+
+    /**
+     * Validates melody statistics to ensure it's musically plausible.
+     */
+    private boolean validateMelodyStatistics(double[] frequencies, List<DetectedNote> notes) {
+        if (frequencies.length < 3) return false;
+
+        // Check frequency range (should span at least an octave for a real melody)
+        double minFreq = Arrays.stream(frequencies).min().orElse(0);
+        double maxFreq = Arrays.stream(frequencies).max().orElse(0);
+        double rangeRatio = maxFreq / minFreq;
+
+        if (rangeRatio < 1.5) return false; // Less than a major sixth
+
+        // Check for reasonable note distribution (not all same note)
+        long uniqueNotes = Arrays.stream(frequencies)
+            .mapToLong(f -> Math.round(f)) // Round to nearest Hz
+            .distinct()
+            .count();
+
+        if (uniqueNotes < frequencies.length * 0.3) return false; // Less than 30% unique notes
+
+        // Check timing consistency
+        double avgDuration = notes.stream().mapToDouble(n -> n.duration).average().orElse(0);
+        double durationVariance = notes.stream()
+            .mapToDouble(n -> Math.pow(n.duration - avgDuration, 2))
+            .average().orElse(0);
+
+        // High variance in duration might indicate noise rather than melody
+        double cvDuration = Math.sqrt(durationVariance) / avgDuration; // Coefficient of variation
+        if (cvDuration > 2.0) return false; // Too much variation
+
+        return true;
+    }
+
+    /**
+     * Validates harmonic coherence of the melody.
+     */
+    private boolean validateHarmonicCoherence(double[] frequencies) {
+        if (frequencies.length < 4) return true; // Not enough data for meaningful analysis
+
+        // Convert to MIDI note numbers for harmonic analysis
+        int[] midiNotes = Arrays.stream(frequencies)
+            .mapToInt(f -> (int) Math.round(12 * Math.log(f / 440.0) / Math.log(2) + 69))
+            .toArray();
+
+        // Check for common scale patterns
+        Set<Integer> uniqueNotes = Arrays.stream(midiNotes)
+            .boxed()
+            .collect(Collectors.toSet());
+
+        // Normalize to root note (find the most common note as potential root)
+        Map<Integer, Long> noteCounts = Arrays.stream(midiNotes)
+            .boxed()
+            .collect(Collectors.groupingBy(Integer::intValue, Collectors.counting()));
+
+        int potentialRoot = noteCounts.entrySet().stream()
+            .max(Map.Entry.comparingByValue())
+            .map(Map.Entry::getKey)
+            .orElse(60);
+
+        // Check if notes fit common scales (major, minor, etc.)
+        boolean fitsMajorScale = fitsScale(uniqueNotes, potentialRoot, new int[]{0, 2, 4, 5, 7, 9, 11});
+        boolean fitsMinorScale = fitsScale(uniqueNotes, potentialRoot, new int[]{0, 2, 3, 5, 7, 8, 10});
+
+        // Check interval distribution (should have mix of small and large intervals)
+        List<Integer> intervals = new ArrayList<>();
+        for (int i = 1; i < midiNotes.length; i++) {
+            intervals.add(Math.abs(midiNotes[i] - midiNotes[i-1]));
+        }
+
+        long smallIntervals = intervals.stream().mapToInt(Integer::intValue).filter(i -> i <= 2).count();
+        long largeIntervals = intervals.stream().mapToInt(Integer::intValue).filter(i -> i >= 7).count();
+
+        // Good melodies have a mix of step-wise motion and leaps
+        boolean goodIntervalDistribution = smallIntervals > intervals.size() * 0.3 &&
+                                         largeIntervals > intervals.size() * 0.1;
+
+        return (fitsMajorScale || fitsMinorScale) && goodIntervalDistribution;
+    }
+
+    /**
+     * Checks if a set of notes fits a given scale pattern.
+     */
+    private boolean fitsScale(Set<Integer> notes, int root, int[] scaleIntervals) {
+        // Normalize notes to root
+        Set<Integer> normalizedNotes = notes.stream()
+            .map(note -> (note - root) % 12)
+            .collect(Collectors.toSet());
+
+        // Count how many notes fit the scale
+        long fittingNotes = normalizedNotes.stream()
+            .filter(interval -> Arrays.stream(scaleIntervals).anyMatch(scale -> scale == interval))
+            .count();
+
+        // At least 60% of notes should fit the scale
+        return (double) fittingNotes / normalizedNotes.size() >= 0.6;
+    }
+
+    /**
+     * Validates musical plausibility of the detected melody.
+     */
+    private boolean validateMusicalPlausibility(List<DetectedNote> notes) {
+        if (notes.size() < 3) return true;
+
+        // Check for unrealistic pitch jumps (octave jumps in single steps)
+        boolean hasRealisticJumps = true;
+        for (int i = 1; i < notes.size(); i++) {
+            double ratio = notes.get(i).frequency / notes.get(i-1).frequency;
+            if (ratio > 2.0 || ratio < 0.5) { // More than octave jump
+                // Allow large jumps only if they are sustained (longer duration)
+                if (notes.get(i).duration < 0.2) { // Less than 200ms
+                    hasRealisticJumps = false;
+                    break;
+                }
+            }
+        }
+
+        // Check for minimum melody length (should be at least a few seconds)
+        double totalDuration = notes.stream().mapToDouble(n -> n.duration).sum();
+        boolean sufficientLength = totalDuration > 2.0; // At least 2 seconds
+
+        // Check for consistent tempo (not too erratic)
+        double avgInterOnsetInterval = 0;
+        for (int i = 1; i < notes.size(); i++) {
+            avgInterOnsetInterval += notes.get(i).startTime - notes.get(i-1).startTime;
+        }
+        avgInterOnsetInterval /= (notes.size() - 1);
+
+        // Calculate tempo consistency
+        double tempoVariance = 0;
+        for (int i = 1; i < notes.size(); i++) {
+            double interval = notes.get(i).startTime - notes.get(i-1).startTime;
+            tempoVariance += Math.pow(interval - avgInterOnsetInterval, 2);
+        }
+        tempoVariance /= (notes.size() - 1);
+        double tempoCV = Math.sqrt(tempoVariance) / avgInterOnsetInterval; // Coefficient of variation
+
+        boolean consistentTempo = tempoCV < 1.5; // Allow some variation but not chaos
+
+        return hasRealisticJumps && sufficientLength && consistentTempo;
+    }
+
+    /**
+     * Combines results from different matching algorithms.
+     */
+    private List<RecognitionResult> combineMatchingResults(List<RecognitionResult> advancedResults,
+                                                         List<RecognitionResult> ensembleResults, int maxResults) {
+        Map<String, Double> combinedScores = new HashMap<>();
+        Map<String, String> matchedCodes = new HashMap<>();
+
+        // Weight the different result sources
+        double advancedWeight = 0.6;
+        double ensembleWeight = 0.4;
+
+        // Add advanced results
+        for (RecognitionResult result : advancedResults) {
+            combinedScores.put(result.songTitle,
+                combinedScores.getOrDefault(result.songTitle, 0.0) + result.confidence * advancedWeight);
+            matchedCodes.put(result.songTitle, result.matchedCode);
+        }
+
+        // Add ensemble results
+        for (RecognitionResult result : ensembleResults) {
+            combinedScores.put(result.songTitle,
+                combinedScores.getOrDefault(result.songTitle, 0.0) + result.confidence * ensembleWeight);
+            if (!matchedCodes.containsKey(result.songTitle)) {
+                matchedCodes.put(result.songTitle, result.matchedCode);
+            }
+        }
+
+        // Convert back to RecognitionResult list
+        return combinedScores.entrySet().stream()
+            .map(entry -> new RecognitionResult(entry.getKey(), entry.getValue(),
+                      matchedCodes.getOrDefault(entry.getKey(), "")))
+            .sorted((r1, r2) -> Double.compare(r2.confidence, r1.confidence))
+            .limit(maxResults)
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Applies final validation and filtering to recognition results.
+     */
+    private List<RecognitionResult> applyFinalValidation(List<RecognitionResult> results, List<DetectedNote> detectedNotes) {
+        if (results.isEmpty()) return results;
+
+        return results.stream()
+            .filter(result -> {
+                // Apply minimum confidence threshold
+                if (result.confidence < 0.4) return false;
+
+                // Validate against melody database entry
+                MelodyEntry entry = melodyDatabase.get(result.songTitle);
+                if (entry == null) return false;
+
+                // Check if the detected melody length is reasonable compared to stored melody
+                double detectedLength = detectedNotes.size();
+                double storedLength = entry.parsonsCode.length();
+                double lengthRatio = Math.min(detectedLength, storedLength) / Math.max(detectedLength, storedLength);
+
+                // Reject if length mismatch is too extreme
+                if (lengthRatio < 0.3) return false;
+
+                // Additional validation: check if confidence is consistent with note quality
+                double avgNoteConfidence = detectedNotes.stream().mapToDouble(n -> n.confidence).average().orElse(0.0);
+                double expectedConfidence = avgNoteConfidence * lengthRatio;
+
+                // Result confidence should be reasonably close to expected confidence
+                return result.confidence >= expectedConfidence * 0.7;
+            })
+            .sorted((r1, r2) -> Double.compare(r2.confidence, r1.confidence))
+            .limit(5) // Keep only top 5 after final validation
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Applies ensemble method combining multiple matching algorithms.
+     */
+    private List<RecognitionResult> applyEnsembleMatching(List<DetectedNote> detectedNotes, int maxResults) {
+        double[] frequencies = detectedNotes.stream().mapToDouble(n -> n.frequency).toArray();
+        double[] confidences = detectedNotes.stream().mapToDouble(n -> n.confidence).toArray();
+
+        // Generate multiple representations
+        String parsonsCode = generateConfidenceWeightedParsonsCode(frequencies, confidences);
+        String rhythmPattern = analyzeAdvancedRhythmPattern(detectedNotes);
+
+        // Try different matching strategies
+        List<RecognitionResult> parsonsResults = findBestMatches(parsonsCode, maxResults * 2);
+        List<RecognitionResult> rhythmResults = findRhythmBasedMatches(rhythmPattern, maxResults * 2);
+        List<RecognitionResult> statisticalResults = findStatisticalMatches(frequencies, maxResults * 2);
+
+        // Combine results using ensemble voting
+        Map<String, Double> ensembleScores = new HashMap<>();
+        Map<String, String> matchedCodes = new HashMap<>();
+
+        // Weight different methods
+        double parsonsWeight = 0.5;
+        double rhythmWeight = 0.3;
+        double statisticalWeight = 0.2;
+
+        // Add Parsons results
+        for (RecognitionResult result : parsonsResults) {
+            ensembleScores.put(result.songTitle, ensembleScores.getOrDefault(result.songTitle, 0.0) + result.confidence * parsonsWeight);
+            matchedCodes.put(result.songTitle, result.matchedCode);
+        }
+
+        // Add rhythm results
+        for (RecognitionResult result : rhythmResults) {
+            ensembleScores.put(result.songTitle, ensembleScores.getOrDefault(result.songTitle, 0.0) + result.confidence * rhythmWeight);
+            if (!matchedCodes.containsKey(result.songTitle)) {
+                matchedCodes.put(result.songTitle, result.matchedCode);
+            }
+        }
+
+        // Add statistical results
+        for (RecognitionResult result : statisticalResults) {
+            ensembleScores.put(result.songTitle, ensembleScores.getOrDefault(result.songTitle, 0.0) + result.confidence * statisticalWeight);
+            if (!matchedCodes.containsKey(result.songTitle)) {
+                matchedCodes.put(result.songTitle, result.matchedCode);
+            }
+        }
+
+        // Convert to final results
+        return ensembleScores.entrySet().stream()
+            .map(entry -> new RecognitionResult(entry.getKey(), entry.getValue(),
+                     matchedCodes.getOrDefault(entry.getKey(), "")))
+            .sorted((r1, r2) -> Double.compare(r2.confidence, r1.confidence))
+            .limit(maxResults)
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Finds matches based on rhythm patterns.
+     */
+    private List<RecognitionResult> findRhythmBasedMatches(String rhythmPattern, int maxResults) {
+        // Simplified rhythm matching - in a real system this would use stored rhythm patterns
+        List<RecognitionResult> results = new ArrayList<>();
+
+        for (Map.Entry<String, MelodyEntry> entry : melodyDatabase.entrySet()) {
+            // For now, give neutral score to all songs
+            // In a real implementation, this would compare against stored rhythm patterns
+            results.add(new RecognitionResult(entry.getKey(), 0.5, entry.getValue().parsonsCode));
+        }
+
+        return results.stream()
+            .sorted((r1, r2) -> Double.compare(r2.confidence, r1.confidence))
+            .limit(maxResults)
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Finds matches based on statistical properties of the melody.
+     */
+    private List<RecognitionResult> findStatisticalMatches(double[] frequencies, int maxResults) {
+        List<RecognitionResult> results = new ArrayList<>();
+
+        // Convert frequencies to MIDI notes for statistical analysis
+        int[] midiNotes = Arrays.stream(frequencies)
+            .mapToInt(f -> (int) Math.round(12 * Math.log(f / 440.0) / Math.log(2) + 69))
+            .toArray();
+
+        for (Map.Entry<String, MelodyEntry> entry : melodyDatabase.entrySet()) {
+            double statisticalScore = calculateStatisticalSimilarity(midiNotes, entry.getValue());
+            results.add(new RecognitionResult(entry.getKey(), statisticalScore, entry.getValue().parsonsCode));
+        }
+
+        return results.stream()
+            .sorted((r1, r2) -> Double.compare(r2.confidence, r1.confidence))
+            .limit(maxResults)
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Calculates statistical similarity between detected notes and stored melody.
+     */
+    private double calculateStatisticalSimilarity(int[] detectedNotes, MelodyEntry storedMelody) {
+        if (detectedNotes.length < 3) return 0.3;
+
+        // Analyze note distribution
+        Map<Integer, Long> detectedDistribution = Arrays.stream(detectedNotes)
+            .boxed()
+            .collect(Collectors.groupingBy(Integer::intValue, Collectors.counting()));
+
+        // For stored melodies, we could pre-compute statistical properties
+        // For now, use a simple heuristic based on melody length similarity
+        double lengthSimilarity = Math.min(detectedNotes.length, storedMelody.parsonsCode.length()) /
+                                (double) Math.max(detectedNotes.length, storedMelody.parsonsCode.length());
+
+        // Check for scale consistency (simplified)
+        Set<Integer> uniqueNotes = Arrays.stream(detectedNotes).boxed().collect(Collectors.toSet());
+        double uniquenessRatio = (double) uniqueNotes.size() / detectedNotes.length;
+
+        // Combine factors
+        return (lengthSimilarity * 0.6 + uniquenessRatio * 0.4);
     }
     
     /**
