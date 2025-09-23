@@ -29,12 +29,21 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <pre>
  * 1. Capture audio samples from microphone
  * 2. Apply windowing function (Hamming window) to reduce spectral leakage
- * 3. Perform FFT using optimized implementation
- * 4. Find frequency bin with maximum magnitude (fundamental frequency)
- * 5. Apply harmonic analysis to improve pitch accuracy
- * 6. Convert frequency to musical note
- * 7. Track pitch changes for Parsons code generation
+ * 3. Perform voicing detection to distinguish sound from silence
+ * 4. Use YIN algorithm for accurate fundamental frequency estimation
+ * 5. Apply spectral analysis as fallback method
+ * 6. Use median filtering for pitch stability
+ * 7. Convert frequency to musical note
+ * 8. Track pitch changes for Parsons code generation
  * </pre>
+ *
+ * <h3>Key Improvements:</h3>
+ * <ul>
+ * <li><b>YIN Algorithm:</b> More accurate pitch detection using autocorrelation</li>
+ * <li><b>Voicing Detection:</b> Distinguishes between sound and silence</li>
+ * <li><b>Median Filtering:</b> Reduces pitch jitter for stable detection</li>
+ * <li><b>Dynamic Processing:</b> Adapts to signal characteristics</li>
+ * </ul>
  * 
  * @author Engine AI Assistant
  * @since 2.0.0
@@ -57,6 +66,15 @@ public class PitchDetectionDemo {
     // Pitch detection parameters
     private static final double MAGNITUDE_THRESHOLD = 0.01;  // Minimum magnitude to consider as valid signal
     private static final int SMOOTHING_WINDOW = 5;  // Number of frames to average for stability
+
+    // YIN algorithm parameters
+    private static final double YIN_THRESHOLD = 0.15;  // Threshold for voicing detection
+    private static final int YIN_MIN_PERIOD = (int)(SAMPLE_RATE / MAX_FREQUENCY);  // Minimum period in samples
+    private static final int YIN_MAX_PERIOD = (int)(SAMPLE_RATE / MIN_FREQUENCY);  // Maximum period in samples
+
+    // Voicing detection parameters
+    private static final double VOICING_THRESHOLD = 0.001;  // RMS threshold for sound detection
+    private static final int VOICING_HISTORY_SIZE = 10;  // Frames to consider for voicing stability
     
     // Musical note data
     private static final String[] NOTE_NAMES = {
@@ -68,7 +86,9 @@ public class PitchDetectionDemo {
     private final AtomicBoolean running = new AtomicBoolean(false);
     private final Queue<Double> recentPitches = new ArrayDeque<>();
     private final List<PitchChange> parsonsSequence = new ArrayList<>();
+    private final Queue<Boolean> voicingHistory = new ArrayDeque<>();
     private double lastStablePitch = 0.0;
+    private boolean isVoiced = false;
     
     /**
      * Application entry point for the real-time pitch detection demo.
@@ -164,16 +184,35 @@ public class PitchDetectionDemo {
             
             // Apply windowing function
             applyHammingWindow(audioSamples);
-            
+
+            // Check if signal is voiced (contains sound)
+            boolean currentVoiced = isSignalVoiced(audioSamples);
+            updateVoicingHistory(currentVoiced);
+
             // Perform FFT analysis
             FFTResult spectrum = FFTUtils.fft(audioSamples);
-            
-            // Detect pitch
-            PitchDetectionResult pitchResult = detectPitch(spectrum);
-            
+
+            PitchDetectionResult pitchResult;
+
+            if (isVoiced) {
+                // Detect pitch using YIN algorithm (more accurate)
+                pitchResult = detectPitchYin(audioSamples);
+
+                // Fallback to spectral method if YIN fails
+                if (pitchResult.frequency == 0.0) {
+                    pitchResult = detectPitch(spectrum);
+                }
+            } else {
+                // No sound detected
+                pitchResult = new PitchDetectionResult(0.0, 0.0, "Silence", 0);
+            }
+
+            // Apply smoothing to pitch detection
+            pitchResult = smoothPitchDetection(pitchResult);
+
             // Display results
             displayResults(frameCount, pitchResult);
-            
+
             // Track for Parsons code
             updateParsonsSequence(pitchResult);
             
@@ -290,8 +329,188 @@ public class PitchDetectionDemo {
     }
     
     /**
+     * Performs pitch detection using the YIN algorithm for improved accuracy.
+     *
+     * @param audioSamples the audio samples to analyze
+     * @return pitch detection result with improved accuracy
+     */
+    private PitchDetectionResult detectPitchYin(double[] audioSamples) {
+        // Apply YIN algorithm for more accurate pitch detection
+        double[] yinBuffer = new double[YIN_MAX_PERIOD];
+        double[] cmnd = new double[YIN_MAX_PERIOD];  // Cumulative Mean Normalized Difference
+
+        // Calculate difference function
+        for (int tau = YIN_MIN_PERIOD; tau < YIN_MAX_PERIOD; tau++) {
+            double sum = 0.0;
+            for (int i = 0; i < audioSamples.length - tau; i++) {
+                double diff = audioSamples[i] - audioSamples[i + tau];
+                sum += diff * diff;
+            }
+            yinBuffer[tau] = sum;
+        }
+
+        // Calculate cumulative mean normalized difference
+        cmnd[0] = 1.0;  // By definition
+        double runningSum = 0.0;
+        for (int tau = YIN_MIN_PERIOD; tau < YIN_MAX_PERIOD; tau++) {
+            runningSum += yinBuffer[tau];
+            cmnd[tau] = yinBuffer[tau] / ((1.0 / tau) * runningSum);
+        }
+
+        // Find minimum below threshold
+        int bestTau = -1;
+        double minCmnd = Double.MAX_VALUE;
+        for (int tau = YIN_MIN_PERIOD; tau < YIN_MAX_PERIOD; tau++) {
+            if (cmnd[tau] < YIN_THRESHOLD && cmnd[tau] < minCmnd) {
+                minCmnd = cmnd[tau];
+                bestTau = tau;
+            }
+        }
+
+        if (bestTau == -1) {
+            // No voiced sound detected
+            return new PitchDetectionResult(0.0, 0.0, "N/A", 0);
+        }
+
+        // Refine the period estimate using parabolic interpolation
+        double refinedTau = refineTauEstimate(cmnd, bestTau);
+
+        // Convert period to frequency
+        double frequency = SAMPLE_RATE / refinedTau;
+
+        // Validate frequency range
+        if (frequency < MIN_FREQUENCY || frequency > MAX_FREQUENCY) {
+            return new PitchDetectionResult(0.0, 0.0, "N/A", 0);
+        }
+
+        // Convert to musical note
+        String noteName = frequencyToNote(frequency);
+        int octave = frequencyToOctave(frequency);
+
+        return new PitchDetectionResult(frequency, minCmnd, noteName, octave);
+    }
+
+    /**
+     * Refines the period estimate using parabolic interpolation around the minimum.
+     *
+     * @param cmnd the cumulative mean normalized difference array
+     * @param tau the initial tau estimate
+     * @return refined tau value
+     */
+    private double refineTauEstimate(double[] cmnd, int tau) {
+        if (tau <= YIN_MIN_PERIOD || tau >= YIN_MAX_PERIOD - 1) {
+            return tau;
+        }
+
+        double x1 = cmnd[tau - 1];
+        double x2 = cmnd[tau];
+        double x3 = cmnd[tau + 1];
+
+        // Parabolic interpolation: y = ax^2 + bx + c
+        double a = (x1 - 2*x2 + x3) / 2;
+        double b = (x3 - x1) / 2;
+
+        if (a != 0) {
+            double delta = -b / (2 * a);
+            return tau + delta;
+        }
+
+        return tau;
+    }
+
+    /**
+     * Determines if the audio signal contains voiced sound (not silence).
+     *
+     * @param samples the audio samples to analyze
+     * @return true if the signal is voiced, false if silent
+     */
+    private boolean isSignalVoiced(double[] samples) {
+        // Calculate RMS (Root Mean Square) energy
+        double sum = 0.0;
+        for (double sample : samples) {
+            sum += sample * sample;
+        }
+        double rms = Math.sqrt(sum / samples.length);
+
+        return rms > VOICING_THRESHOLD;
+    }
+
+    /**
+     * Updates the voicing history for stability analysis.
+     *
+     * @param currentVoiced current voicing state
+     */
+    private void updateVoicingHistory(boolean currentVoiced) {
+        voicingHistory.add(currentVoiced);
+        if (voicingHistory.size() > VOICING_HISTORY_SIZE) {
+            voicingHistory.poll();
+        }
+
+        // Determine stable voicing state (majority vote)
+        long voicedCount = voicingHistory.stream().filter(v -> v).count();
+        isVoiced = voicedCount > voicingHistory.size() / 2;
+    }
+
+    /**
+     * Applies smoothing to pitch detection results for stability.
+     *
+     * @param currentResult the current pitch detection result
+     * @return smoothed pitch detection result
+     */
+    private PitchDetectionResult smoothPitchDetection(PitchDetectionResult currentResult) {
+        if (!isVoiced || currentResult.frequency == 0.0) {
+            // Clear pitch history when no sound is detected
+            recentPitches.clear();
+            lastStablePitch = 0.0;
+            return currentResult;
+        }
+
+        // Add current pitch to history
+        recentPitches.add(currentResult.frequency);
+        if (recentPitches.size() > SMOOTHING_WINDOW) {
+            recentPitches.poll();
+        }
+
+        // Calculate median pitch for stability
+        if (recentPitches.size() >= SMOOTHING_WINDOW / 2) {
+            double[] pitchArray = recentPitches.stream().mapToDouble(Double::doubleValue).toArray();
+            double medianPitch = calculateMedian(pitchArray);
+
+            // Check if pitch is stable (within 5% of median)
+            double stabilityThreshold = medianPitch * 0.05;
+            if (Math.abs(currentResult.frequency - medianPitch) < stabilityThreshold) {
+                lastStablePitch = medianPitch;
+                return new PitchDetectionResult(medianPitch, currentResult.magnitude,
+                                              frequencyToNote(medianPitch), frequencyToOctave(medianPitch));
+            }
+        }
+
+        // Return current result if not stable enough
+        return currentResult;
+    }
+
+    /**
+     * Calculates the median of an array of values.
+     *
+     * @param values the array of values
+     * @return the median value
+     */
+    private double calculateMedian(double[] values) {
+        if (values.length == 0) return 0.0;
+
+        double[] sorted = values.clone();
+        java.util.Arrays.sort(sorted);
+
+        if (sorted.length % 2 == 0) {
+            return (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2.0;
+        } else {
+            return sorted[sorted.length / 2];
+        }
+    }
+
+    /**
      * Performs a simple harmonic analysis to determine the most likely
-     * fundamental frequency.
+     * fundamental frequency (fallback method).
      *
      * @param magnitudes spectrum magnitudes
      * @param candidateFreq initial frequency estimate
@@ -300,21 +519,21 @@ public class PitchDetectionDemo {
     private double findFundamentalFrequency(double[] magnitudes, double candidateFreq) {
         // Simple harmonic analysis - check if this might be a harmonic
         // Look for a potential fundamental at half, third, quarter, etc.
-        
+
         double[] candidates = {candidateFreq, candidateFreq / 2, candidateFreq / 3, candidateFreq / 4};
         double bestScore = 0;
         double bestFreq = candidateFreq;
-        
+
         for (double testFreq : candidates) {
             if (testFreq < MIN_FREQUENCY) continue;
-            
+
             double score = calculateHarmonicScore(magnitudes, testFreq);
             if (score > bestScore) {
                 bestScore = score;
                 bestFreq = testFreq;
             }
         }
-        
+
         return bestFreq;
     }
     
