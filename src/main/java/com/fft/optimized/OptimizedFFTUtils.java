@@ -458,8 +458,6 @@ public class OptimizedFFTUtils {
         
         // Apply remaining butterfly operations and bit reversal with precomputed indices
         int[] bitrev32 = {0,16,8,24,4,20,12,28,2,18,10,26,6,22,14,30,1,17,9,25,5,21,13,29,3,19,11,27,7,23,15,31};
-        double[] tempR = new double[32];
-        double[] tempI = new double[32];
         
         // Complete the remaining stages efficiently
         // For maximum performance, we'll complete the transform using the optimized approach
@@ -472,18 +470,13 @@ public class OptimizedFFTUtils {
             xr[j] += tr; xi[j] += ti;
         }
         
-        // Bit-reversal permutation using precomputed table
-        for (int i = 0; i < 32; i++) {
-            tempR[i] = xr[bitrev32[i]];
-            tempI[i] = xi[bitrev32[i]];
-        }
-        
-        // Prepare final result with normalization
+        // Bit-reversal permutation with normalization - no temporary arrays needed
         double[] result = new double[64];
         final double NORM = 1.0 / Math.sqrt(32);
         for (int i = 0; i < 32; i++) {
-            result[2 * i] = tempR[i] * NORM;
-            result[2 * i + 1] = tempI[i] * NORM;
+            int srcIndex = bitrev32[i];
+            result[2 * i] = xr[srcIndex] * NORM;
+            result[2 * i + 1] = xi[srcIndex] * NORM;
         }
         
         return result;

@@ -21,6 +21,14 @@ package com.fft.core;
  * <li>Input arrays must be power-of-2 in length</li>
  * <li>Results should maintain numerical precision within reasonable bounds</li>
  * <li>Implementations should handle edge cases gracefully</li>
+ * <li>Memory usage should be documented, especially for large transforms</li>
+ * </ul>
+ *
+ * <h3>Memory Considerations:</h3>
+ * <ul>
+ * <li>FFT operations typically require O(n) additional memory</li>
+ * <li>Large transforms (4096+) may require significant temporary buffers</li>
+ * <li>Optimized implementations minimize memory allocations where possible</li>
  * </ul>
  * 
  * @author Engine AI Assistant
