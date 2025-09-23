@@ -62,7 +62,7 @@ public class ChordRecognitionDemoTest {
             PitchDetectionUtils.ChordResult result = demo.recognizeChord("X", false);
 
             // Then
-            assertThat(result.frequencies).isNotEmpty(); // Currently generates default A chord
+            assertThat(result.frequencies).isEmpty(); // Invalid chord name returns silence
             assertThat(result.chordType).isEqualTo("unknown");
         }
     }

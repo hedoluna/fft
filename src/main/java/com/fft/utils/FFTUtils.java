@@ -48,8 +48,9 @@ import com.fft.factory.FFTFactory;
  * @see FFTResult for result processing methods
  */
 public class FFTUtils {
-    
+
     private static volatile FFTFactory DEFAULT_FACTORY;
+    private static final java.util.Random RANDOM = new java.util.Random(42);
 
     /**
      * Returns the default {@link FFTFactory} instance.
@@ -196,9 +197,8 @@ public class FFTUtils {
                 break;
                 
             case "random":
-                java.util.Random random = new java.util.Random(42); // Fixed seed for reproducibility
                 for (int i = 0; i < size; i++) {
-                    signal[i] = random.nextGaussian();
+                    signal[i] = RANDOM.nextGaussian();
                 }
                 break;
                 

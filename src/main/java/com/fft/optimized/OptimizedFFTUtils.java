@@ -189,9 +189,9 @@ public class OptimizedFFTUtils {
     private static final int[] BIT_REVERSE_64 = new int[64];
     
     // Precomputed twiddle factors for FFT128 (memory optimization)
-    public static final double[] TWIDDLES_128_REAL = new double[128];
-    public static final double[] TWIDDLES_128_IMAG = new double[128];
-    public static final double[] TWIDDLES_128_IMAG_NEG = new double[128];
+    static final double[] TWIDDLES_128_REAL = new double[128];
+    static final double[] TWIDDLES_128_IMAG = new double[128];
+    static final double[] TWIDDLES_128_IMAG_NEG = new double[128];
 
     static {
         for (int i = 0; i < 64; i++) {

@@ -41,6 +41,9 @@ public class SongRecognitionDemo {
     private static final int FFT_SIZE = 4096;
     private static final double NOTE_DURATION = 0.4; // seconds per note
     private static final double FREQUENCY_TOLERANCE = 25.0; // Hz for grouping notes
+
+    // Random number generator for noise
+    private static final Random RANDOM = new Random(42);
     
     // Enhanced melody database with more songs and variations
     private final Map<String, MelodyEntry> melodyDatabase;
@@ -1822,9 +1825,8 @@ public class SongRecognitionDemo {
      * Adds white noise to the signal.
      */
     private void addNoise(double[] signal, double noiseLevel) {
-        Random random = new Random(42);
         for (int i = 0; i < signal.length; i++) {
-            signal[i] += noiseLevel * random.nextGaussian();
+            signal[i] += noiseLevel * RANDOM.nextGaussian();
         }
     }
     

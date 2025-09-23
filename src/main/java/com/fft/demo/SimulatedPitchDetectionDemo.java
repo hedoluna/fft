@@ -31,6 +31,9 @@ public class SimulatedPitchDetectionDemo {
     private static final int FFT_SIZE = 4096;
     private static final double NOTE_DURATION = 0.5; // seconds per note
     private static final int SAMPLES_PER_NOTE = (int) (SAMPLE_RATE * NOTE_DURATION);
+
+    // Random number generator for noise
+    private static final Random RANDOM = new Random(42);
     
     // Musical note frequencies (in Hz) - Equal temperament, A4 = 440 Hz
     private static final Map<String, Double> NOTE_FREQUENCIES = new HashMap<>();
@@ -347,10 +350,8 @@ public class SimulatedPitchDetectionDemo {
      * @param noiseLevel standard deviation of the noise
      */
     private void addNoise(double[] signal, double noiseLevel) {
-        Random random = new Random(42); // Fixed seed for reproducibility
-        
         for (int i = 0; i < signal.length; i++) {
-            signal[i] += noiseLevel * random.nextGaussian();
+            signal[i] += noiseLevel * RANDOM.nextGaussian();
         }
     }
     

@@ -221,7 +221,7 @@ public class DefaultFFTFactory implements FFTFactory {
         
         List<Integer> sizes = getSupportedSizes();
         for (Integer size : sizes) {
-            report.append(String.format("Size %d: %s\n", size, getImplementationInfo(size)));
+            report.append(String.format("Size %d: %s%n", size, getImplementationInfo(size)));
             
             List<ImplementationEntry> entries = implementations.get(size);
             if (entries != null && entries.size() > 1) {
@@ -229,7 +229,7 @@ public class DefaultFFTFactory implements FFTFactory {
                 for (int i = 1; i < entries.size(); i++) {
                     ImplementationEntry entry = entries.get(i);
                     FFT instance = entry.supplier.get();
-                    report.append(String.format("    - %s (priority: %d)\n", 
+                    report.append(String.format("    - %s (priority: %d)%n",
                                                instance.getDescription(), entry.priority));
                 }
             }

@@ -41,6 +41,9 @@ public class FFTResult {
      * @throws IllegalArgumentException if the result array length is not even
      */
     public FFTResult(double[] interleavedResult) {
+        if (interleavedResult == null) {
+            throw new IllegalArgumentException("Interleaved result array cannot be null");
+        }
         if (interleavedResult.length % 2 != 0) {
             throw new IllegalArgumentException("Interleaved result array length must be even");
         }
@@ -57,6 +60,9 @@ public class FFTResult {
      * @throws IllegalArgumentException if arrays have different lengths
      */
     public FFTResult(double[] realParts, double[] imaginaryParts) {
+        if (realParts == null || imaginaryParts == null) {
+            throw new IllegalArgumentException("Real and imaginary arrays cannot be null");
+        }
         if (realParts.length != imaginaryParts.length) {
             throw new IllegalArgumentException("Real and imaginary arrays must have same length");
         }

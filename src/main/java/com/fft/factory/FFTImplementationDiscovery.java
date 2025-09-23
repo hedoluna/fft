@@ -200,11 +200,14 @@ public class FFTImplementationDiscovery {
         try {
             java.io.File directory = new java.io.File(resource.toURI());
             if (directory.exists() && directory.isDirectory()) {
-                for (java.io.File file : directory.listFiles()) {
-                    if (file.getName().endsWith(".class")) {
-                        String className = packageName + "." + 
-                            file.getName().substring(0, file.getName().length() - 6);
-                        checkClass(className, implementations);
+                java.io.File[] files = directory.listFiles();
+                if (files != null) {
+                    for (java.io.File file : files) {
+                        if (file.getName().endsWith(".class")) {
+                            String className = packageName + "." +
+                                file.getName().substring(0, file.getName().length() - 6);
+                            checkClass(className, implementations);
+                        }
                     }
                 }
             }
@@ -321,11 +324,11 @@ public class FFTImplementationDiscovery {
         report.append("===================================\n");
         
         if (discovered.isEmpty()) {
-            report.append("No implementations discovered.\n");
+            report.append("No implementations discovered.%n");
         } else {
             for (Map.Entry<Integer, List<DiscoveredImplementation>> entry : discovered.entrySet()) {
                 int size = entry.getKey();
-                report.append(String.format("\nSize %d:\n", size));
+                report.append(String.format("%nSize %d:%n", size));
                 
                 for (DiscoveredImplementation impl : entry.getValue()) {
                     report.append(String.format("  - %s (priority: %d, auto-register: %s)\n",
