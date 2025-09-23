@@ -54,12 +54,12 @@ public class FFTBase implements FFT {
         if (real.length != imaginary.length) {
             throw new IllegalArgumentException("Real and imaginary arrays must have same length");
         }
-        
-        double[] result = fft(real, imaginary, forward);
-        if (result.length == 0) {
-            throw new IllegalArgumentException("Array length must be a power of 2");
+
+        if (!isPowerOfTwo(real.length)) {
+            throw new IllegalArgumentException("Array length must be a power of 2, got: " + real.length);
         }
-        
+
+        double[] result = fft(real, imaginary, forward);
         return new FFTResult(result);
     }
     
@@ -120,30 +120,29 @@ public class FFTBase implements FFT {
      * @param inputImag array of length n (must be a power of 2) containing imaginary parts
      * @param DIRECT true for forward transform (time→frequency), false for inverse transform (frequency→time)
      * @return new array of length 2n with interleaved real and imaginary parts:
-     *         [real0, imag0, real1, imag1, ...], or empty array if input size is not a power of 2
+     *         [real0, imag0, real1, imag1, ...]
+     * @throws IllegalArgumentException if input size is not a power of 2
      * @see #bitreverseReference(int, int) for bit-reversal implementation details
      * 
      * @since 1.0
      */
     public static double[] fft(final double[] inputReal, double[] inputImag, boolean DIRECT) {
         // - n is the dimension of the problem
-        // - nu is its logarithm in base e
         int n = inputReal.length;
 
-        // If n is a power of 2, then ld is an integer (_without_ decimals)
-        double ld = Math.log(n) / Math.log(2.0);
-
-        // Here I check if n is a power of 2. If exist decimals in ld, I quit
-        // from the function returning null.
-        if (((int) ld) - ld != 0) {
-            System.out.println("The number of elements is not a power of 2.");
-            return new double[0];
+        // Validate that n is a power of 2 using reliable bit operation
+        if (!isPowerOfTwo(n)) {
+            throw new IllegalArgumentException("Array length must be a power of 2, got: " + n);
         }
 
         // Declaration and initialization of the variables
-        // ld should be an integer, actually, so I don't lose any information in
-        // the cast
-        int nu = (int) ld;
+        // Calculate log2(n) using bit operations for precision
+        int nu = 0;
+        int temp = n;
+        while (temp > 1) {
+            temp >>= 1;
+            nu++;
+        }
         int n2 = n / 2;
         int nu1 = nu - 1;
         double[] xReal = new double[n];
