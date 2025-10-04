@@ -89,7 +89,9 @@ public class FFTOptimized256 implements FFT {
      * @return a new array of length 512 (interleaved real and imaginary parts)
      */
     public static double[] fft256(final double[] inputReal, final double[] inputImag, boolean forward) {
-        // Use hybrid framework with micro-optimized safe path
-        return OptimizedFFTFramework.computeFFT(SIZE, inputReal, inputImag, forward, null);
+        // Direct FFTBase call - eliminates framework overhead
+        com.fft.core.FFTBase base = new com.fft.core.FFTBase();
+        com.fft.core.FFTResult fftResult = base.transform(inputReal, inputImag, forward);
+        return fftResult.getInterleavedResult();
     }
 }

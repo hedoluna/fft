@@ -7,19 +7,21 @@ import java.util.function.BiFunction;
 
 /**
  * Unified FFT Optimization Framework
- * 
- * Implements the hybrid safety-performance architecture that provides:
- * 1. Micro-optimized delegation to eliminate FFTBase overhead
- * 2. Dual-path implementation (optimized + safe fallback)
- * 3. Automatic correctness validation
- * 4. Performance monitoring and fallback triggers
- * 
- * This framework addresses both Phase 2 (delegation optimization) and 
- * Phase 3 (hybrid architecture) of the performance improvement plan.
- * 
+ *
+ * @deprecated This framework introduced 10x performance overhead due to HashMap operations,
+ * lambda invocations, and validation logic. All optimized implementations now call FFTBase directly.
+ * This class is kept for historical reference and may be removed in future versions.
+ *
+ * Previous architecture:
+ * - User → FFTOptimized* → OptimizedFFTFramework → fft*Optimized → FFTBase (10x overhead)
+ *
+ * Current architecture:
+ * - User → FFTOptimized* → FFTBase (direct call, minimal overhead)
+ *
  * @author Claude Code Assistant
  * @since 2.0.1
  */
+@Deprecated
 public class OptimizedFFTFramework {
     
     // Configuration flags - can be overridden via system properties

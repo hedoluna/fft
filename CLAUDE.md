@@ -53,6 +53,18 @@ mvn exec:java -Dexec.mainClass="com.fft.demo.SongRecognitionDemo"
 mvn test -Dtest="FFTPerformanceBenchmarkTest"
 ```
 
+**Running Individual Tests:**
+```bash
+# Run a specific test class
+mvn test -Dtest=FFTBaseTest
+
+# Run a specific test method
+mvn test -Dtest=FFTBaseTest#testTransformPowerOfTwo
+
+# Run tests matching a pattern
+mvn test -Dtest="*Optimized*Test"
+```
+
 ## Core Architecture
 
 **Package Structure:**
@@ -73,6 +85,12 @@ mvn test -Dtest="FFTPerformanceBenchmarkTest"
 2. Highest priority implementation selection
 3. Fallback to generic FFTBase for unsupported sizes
 
+**Auto-Discovery Mechanism:**
+- Implementations are marked with `@FFTImplementation(size=X, priority=Y)` annotation
+- Discovery scans packages: `com.fft.optimized`, `com.fft.experimental`, `com.fft.custom`
+- Implementations are automatically registered at factory initialization
+- No manual registration required for new optimized implementations
+
 ## Implementation Strategy
 
 **When adding new optimized implementations:**
@@ -86,6 +104,47 @@ mvn test -Dtest="FFTPerformanceBenchmarkTest"
 - Maintain backward compatibility with legacy FFTUtils API
 - Ensure thread safety for all result objects
 - Update both unit and integration tests
+
+## Debugging and Troubleshooting
+
+**Verify Factory Registration:**
+```bash
+# Run any test to see auto-discovery logs
+mvn test -Dtest=FFTBaseTest
+# Look for "Discovered FFT implementation" messages
+```
+
+**Check Implementation Selection:**
+```java
+// Add to test or demo code to verify which implementation is used
+FFTFactory factory = FFTUtils.createFactory();
+System.out.println(factory.getRegistryReport());
+System.out.println(FFTUtils.getImplementationInfo(1024));
+```
+
+**Enable Verbose Logging:**
+```bash
+# Create logging.properties with:
+# .level=INFO
+# com.fft.level=FINE
+mvn test -Djava.util.logging.config.file=logging.properties
+```
+
+**Performance Investigation:**
+```bash
+# Run performance benchmarks with detailed output
+mvn test -Dtest=FFTPerformanceBenchmarkTest
+
+# Generate coverage report to find untested paths
+mvn clean test jacoco:report
+# Open target/site/jacoco/index.html
+```
+
+**Common Issues:**
+- **Implementation not found**: Verify @FFTImplementation annotation is present and package is scanned
+- **Performance regression**: Check if factory is selecting base implementation instead of optimized
+- **Test failures in audio processing**: Verify sample rate and buffer size match expected values
+- **Coverage issues**: Run `mvn clean test jacoco:report` to generate fresh report
 
 ## Test Organization
 
@@ -105,24 +164,33 @@ mvn test -Dtest="FFTPerformanceBenchmarkTest"
 - Test suite includes nested test classes for better organization
 - Auto-discovery logs show all 14 implementations being found and registered
 
-## Current Development Focus
+## Development Guidelines
 
-**✅ COMPLETED OBJECTIVES**:
-1. **All tests passing** - 296 tests with 100% pass rate across 25 test class files
-2. **Complete optimized implementations** - 14 FFT implementations discovered and registered automatically
-3. **Outstanding performance results** - 9 implementations with major speedups using cutting-edge optimization techniques
-4. **Production-ready architecture** - Factory pattern, auto-discovery, comprehensive test coverage
+**Architecture Principles**:
+- Factory pattern provides automatic implementation selection based on size and priority
+- All power-of-2 sizes from 8 to 65536 have dedicated optimized implementations
+- FFTBase serves as the reference implementation and fallback for unsupported sizes
+- Immutable FFTResult objects ensure thread safety
 
-**Current Reality**:
-- ✅ **Core functionality working** (FFTBase, factory pattern, auto-discovery system)
-- 🚀 **Advanced optimizations successful** - 9 sizes with excellent speedups (1.60x-3.43x) using world-class techniques
-- ✅ **Test suite comprehensive** (296 tests passing, performance benchmarks, integration tests)
-- ✅ **Complete size coverage** (All power-of-2 sizes 8-65536 have dedicated implementations)
-- ✅ **Code coverage reporting** functional (JaCoCo successfully analyzes 34 classes)
+**Performance Optimization Focus**:
+- Optimized implementations use advanced techniques: split-radix, Karatsuba multiplication, precomputed twiddle factors
+- Performance benchmarks validate optimizations (target: 1.5x-3.5x speedup over FFTBase)
+- Cache-friendly algorithms with in-place computation for memory efficiency
+- Some implementations show exceptional speedup (FFTOptimized32: ~3.43x, FFTOptimized2048: ~2.77x)
 
 **Audio Processing Features**:
-- ✅ **Framework fully functional** with sophisticated design
-- ✅ **Comprehensive testing** - All demos and audio processing features tested
-- ✅ **Core algorithms validated** (spectral analysis, pattern matching, pitch detection)
-- 🚀 **Performance excellence** - World-class FFT optimizations with cutting-edge techniques delivering major speedups
-- always check for correctness and avoid regressions on this area
+- Real-time pitch detection using YIN algorithm
+- Song recognition via Parsons code methodology
+- Voicing detection and noise filtering for robust operation
+- Always verify correctness when modifying audio processing components to avoid regressions
+
+**Testing Strategy**:
+- Comprehensive test suite with unit, integration, and performance tests
+- Property-based testing validates mathematical correctness (Parseval's theorem, energy conservation)
+- JaCoCo enforces coverage targets (90% line, 85% branch)
+- Performance regression tests prevent optimization degradation
+
+**Performance Optimization Status**:
+- See `PERFORMANCE_OPTIMIZATION_STATUS.md` for detailed status and roadmap
+- FASE 1 COMPLETATA: Framework overhead eliminated (3.1x speedup on small sizes)
+- FASE 2 IN ATTESA: Real optimizations for sizes 8-512 (target: 1.5x-2.5x speedup)
