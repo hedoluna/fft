@@ -17,17 +17,21 @@ Use the provided helper scripts which run JMH with direct `java -cp` command, en
 
 ### Windows
 ```bash
-run-jmh-benchmarks.bat                    # Run all benchmarks
-run-jmh-benchmarks.bat FFT8              # Run specific benchmark
-run-jmh-benchmarks.bat FFT8 -f 3 -wi 10  # With custom JMH options
+run-jmh-benchmarks.bat                      # Run ALL benchmarks
+run-jmh-benchmarks.bat FFT8                # Run benchmarks matching "FFT8"
+run-jmh-benchmarks.bat FFTBaseProfiling    # Run all FFTBaseProfiling benchmarks
+run-jmh-benchmarks.bat FFT8 -f 3 -wi 10    # With custom JMH options
 ```
 
 ### Linux/Mac
 ```bash
-./run-jmh-benchmarks.sh                    # Run all benchmarks
-./run-jmh-benchmarks.sh FFT8              # Run specific benchmark
-./run-jmh-benchmarks.sh FFT8 -f 3 -wi 10  # With custom JMH options
+./run-jmh-benchmarks.sh                      # Run ALL benchmarks
+./run-jmh-benchmarks.sh FFT8                # Run benchmarks matching "FFT8"
+./run-jmh-benchmarks.sh FFTBaseProfiling    # Run all FFTBaseProfiling benchmarks
+./run-jmh-benchmarks.sh FFT8 -f 3 -wi 10    # With custom JMH options
 ```
+
+**Note**: When no pattern is specified, JMH runs ALL benchmarks. Do NOT use `.*` as a pattern - it won't match anything. Use specific patterns like `FFT8`, `FFTBaseProfiling`, or leave empty for all.
 
 ## How It Works
 
