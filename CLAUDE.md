@@ -11,6 +11,49 @@ Java Fast Fourier Transform (FFT) library with factory pattern, auto-discovery, 
 **✅ COVERAGE**: JaCoCo enforces 90% line / 85% branch coverage
 **📊 PROFILING**: Complete - Twiddle factors were #1 bottleneck (43-56%), now optimized with precomputed cache
 
+## ⚡ Quick Reference
+
+**Build & Test:**
+```bash
+mvn clean compile test                    # Full build with tests
+mvn test -Dtest=FFTBaseTest              # Single test class
+mvn test -Dtest=FFTBaseTest#testMethod   # Specific test method
+mvn clean test jacoco:report             # Coverage report
+```
+
+**Performance Benchmarking:**
+```bash
+mvn test -Dtest=FFTPerformanceBenchmarkTest                    # Quick benchmark
+mvn clean test-compile exec:java -Dexec.mainClass="org.openjdk.jmh.Main" \
+  -Dexec.args="FFT8" -Dexec.classpathScope=test              # JMH rigorous
+```
+
+**Run Demos:**
+```bash
+mvn exec:java -Dexec.mainClass="com.fft.demo.PitchDetectionDemo"      # Pitch detection
+mvn exec:java -Dexec.mainClass="com.fft.demo.SongRecognitionDemo"     # Song recognition
+```
+
+**Current Performance Status (October 2025):**
+- **FFT8**: 2.27x verified (complete loop unrolling)
+- **Twiddle Cache**: 30-50% speedup across ALL sizes (universal optimization)
+- **FFT128**: 1.42x speedup (existing optimizations)
+- **All Others**: Neutral/baseline with twiddle cache benefit
+
+**Key Documentation:**
+- **Master Index**: `DOCUMENTATION_INDEX.md` - organized navigation by role
+- **Status**: `PERFORMANCE_OPTIMIZATION_STATUS.md` - FASE 1-2 complete
+- **Lessons**: `FASE_2_LESSONS_LEARNED.md` - what worked (twiddle cache, FFT8) vs didn't (manual unrolling FFT16+)
+- **Profiling**: `PROFILING_RESULTS.md` - twiddle factors #1 bottleneck (43-56%)
+- **Benchmarking**: `JMH_BENCHMARKING_GUIDE.md` - proper methodology (10K+ warmup)
+- **Archive**: `docs/archive/README.md` - 12 historical/duplicate docs
+
+**Critical Insights:**
+- ✅ **Profile first, optimize second** - twiddle cache was biggest win
+- ✅ **Proper warmup essential** - 10,000+ iterations for complex optimized code
+- ✅ **Direct implementation > delegation** - eliminated 5-16% overhead
+- ❌ **Manual unrolling beyond FFT8 not worth it** - twiddle cache already provides 30-50%
+
 ## Build Commands
 
 **Standard Workflow:**
