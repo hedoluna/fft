@@ -344,4 +344,43 @@ public class SimpleProfilingTest {
         System.out.println("\nNote: This test uses heavy warmup (10,000 iterations) to ensure");
         System.out.println("      JIT compilation is complete before measurement.");
     }
+
+    @Test
+    public void measureTwiddleCacheImpact() {
+        System.out.println("\n=== Twiddle Cache Performance Impact ===\n");
+
+        System.out.println("Profiling Prediction:");
+        System.out.println("  - Twiddle factors: 43-56% of FFT time");
+        System.out.println("  - Precomputation speedup: 2.3-3.2x for twiddle operations");
+        System.out.println("  - Expected overall improvement: 30-50%\n");
+
+        for (int size : new int[]{32, 64, 128, 256}) {
+            double[] real = new double[size];
+            double[] imag = new double[size];
+            for (int i = 0; i < size; i++) {
+                real[i] = Math.sin(2 * Math.PI * 3 * i / size);
+                imag[i] = Math.cos(2 * Math.PI * 5 * i / size);
+            }
+
+            FFTBase fftBase = new FFTBase();
+
+            // Warmup
+            for (int i = 0; i < WARMUP_ITERATIONS; i++) {
+                fftBase.transform(real.clone(), imag.clone(), true);
+            }
+
+            // Measure
+            long start = System.nanoTime();
+            for (int i = 0; i < MEASUREMENT_ITERATIONS; i++) {
+                fftBase.transform(real.clone(), imag.clone(), true);
+            }
+            long time = (System.nanoTime() - start) / MEASUREMENT_ITERATIONS;
+
+            System.out.printf("Size %d:  %,10d ns  (with twiddle cache)\n", size, time);
+        }
+
+        System.out.println("\nCache Status: " + com.fft.core.TwiddleFactorCache.getCacheStats());
+        System.out.println("\nNote: FFTBase now uses precomputed twiddle factors for sizes 8-4096.");
+        System.out.println("      Compare with profiling-results.txt baseline (before optimization).");
+    }
 }
