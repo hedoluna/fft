@@ -130,12 +130,25 @@ mvn exec:java -Dexec.mainClass="com.fft.demo.SimulatedPitchDetectionDemo"
 
 **Performance Investigation:**
 ```bash
-# Run benchmarks
+# Run unit test benchmarks (quick, less rigorous)
 mvn test -Dtest=FFTPerformanceBenchmarkTest
+
+# Run JMH benchmarks (rigorous, statistical variance)
+mvn clean test-compile exec:java \
+  -Dexec.mainClass="org.openjdk.jmh.Main" \
+  -Dexec.classpathScope=test
+
+# Run JMH for specific size (e.g., FFT8)
+mvn clean test-compile exec:java \
+  -Dexec.mainClass="org.openjdk.jmh.Main" \
+  -Dexec.args="FFT8" \
+  -Dexec.classpathScope=test
 
 # Verify implementation selection
 # Add to test: System.out.println(FFTUtils.getImplementationInfo(1024));
 ```
+
+**See JMH_BENCHMARKING_GUIDE.md for detailed benchmarking instructions**
 
 ## Testing & Quality
 
@@ -240,7 +253,9 @@ mvn test -Djava.util.logging.config.file=logging.properties
 - Parsons code generation requires stable pitch tracking
 
 **Key Files for Reference:**
-- `OPTIMIZATION_LESSONS_LEARNED.md`: **NEW** - What worked and didn't work in FASE 2 (essential reading)
+- `CONSENSUS_ANALYSIS.md`: **NEW** - Multi-agent analysis revealing performance variance issues
+- `JMH_BENCHMARKING_GUIDE.md`: **NEW** - Rigorous performance measurement methodology
+- `OPTIMIZATION_LESSONS_LEARNED.md`: What worked and didn't work in FASE 2 (essential reading)
 - `FASE2_OVERHEAD_REMOVAL.md`: FASE 2 delegation overhead removal results
 - `FASE2_FINAL_REPORT.md`: Complete FASE 2 analysis and findings
 - `PERFORMANCE_OPTIMIZATION_STATUS.md`: Performance roadmap (FASE 1 & 2 completed)
