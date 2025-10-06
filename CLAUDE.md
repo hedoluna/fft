@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Java Fast Fourier Transform (FFT) library with factory pattern, auto-discovery, and audio processing. Provides size-specific optimized implementations (8-65536) with automatic selection.
 
 **✅ BUILD STATUS**: Maven 3.6.3 + Java 17, all tests passing
-**🚀 PERFORMANCE**: FASE 2 progress - FFT8: 3.36x, FFT128: 1.42x, delegation overhead removed
+**🚀 PERFORMANCE**: FASE 2 progress - FFT8: ~3.0x ±15% (avg 2.7-3.0x, peak 3.36x), FFT128: 1.42x, delegation overhead removed
 **✅ COVERAGE**: JaCoCo enforces 90% line / 85% branch coverage
 
 ## Build Commands
@@ -103,13 +103,13 @@ mvn exec:java -Dexec.mainClass="com.fft.demo.SimulatedPitchDetectionDemo"
 **Current Status (see OPTIMIZATION_LESSONS_LEARNED.md, FASE2_OVERHEAD_REMOVAL.md, FASE2_FINAL_REPORT.md):**
 - **FASE 1 COMPLETATA**: Framework overhead eliminated (3.1x speedup on small sizes)
 - **FASE 2 COMPLETED**: Delegation overhead removed, all regressions eliminated
-  - ✅ FFT8: 3.36x speedup (complete loop unrolling, hardcoded twiddles)
+  - ✅ FFT8: ~3.0x ±15% speedup (avg 2.7-3.0x, peak 3.36x - complete loop unrolling, hardcoded twiddles)
   - ✅ FFT16-64: Neutral performance (0.99x-1.12x, overhead removed)
   - ✅ FFT128: 1.42x speedup (existing optimizations confirmed working)
   - ✅ All sizes: 100% correctness maintained
 
 **What Worked (see OPTIMIZATION_LESSONS_LEARNED.md for full details):**
-- ✅ Complete loop unrolling for small sizes (FFT8: 3.36x)
+- ✅ Complete loop unrolling for small sizes (FFT8: ~3.0x ±15%, avg 2.7-3.0x)
 - ✅ Hardcoded twiddle factors as static final constants
 - ✅ Direct implementation (no delegation layers)
 - ✅ Manual unrolled array copying

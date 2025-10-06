@@ -8,7 +8,7 @@ Enhanced and refactored in 2025 with modern Java patterns, comprehensive testing
 
 ## ✨ Key Features
 
-- **🚀 High Performance**: FASE 2 optimizations complete - FFT8 (3.36x speedup), FFT128 (1.42x), all regressions eliminated
+- **🚀 High Performance**: FASE 2 optimizations complete - FFT8 (~3.0x ±15% speedup), FFT128 (1.42x), all regressions eliminated
 - **🏭 Factory Pattern**: Automatic implementation selection with 14 size-specific implementations (8-65536)
 - **🎯 Type Safety**: Modern API with immutable result objects and rich data extraction
 - **🧪 Comprehensive Testing**: 296+ unit tests across 25 test class files with 100% pass rate
@@ -31,7 +31,7 @@ com.fft.factory/      # Implementation selection and factory pattern
 └── FFTImplementationDiscovery.java # Auto-registration system
 
 com.fft.optimized/    # Size-specific optimized implementations (14 total)
-├── FFTOptimized8.java    # 8-point FFT (3.36x speedup - complete loop unrolling)
+├── FFTOptimized8.java    # 8-point FFT (~3.0x ±15% speedup - complete loop unrolling)
 ├── FFTOptimized16.java   # 16-point FFT (neutral - delegation overhead removed)
 ├── FFTOptimized32.java   # 32-point FFT (1.12x speedup - overhead removed)
 ├── FFTOptimized64.java   # 64-point FFT (neutral - overhead removed)
@@ -178,7 +178,7 @@ System.out.println("Parsons code: " + parsonsCode); // e.g., "*UDUDRDU"
 
 | Size | Implementation | Optimization Status | Actual Performance |
 |------|---------------|---------------------|--------------------|
-| 8 | FFTOptimized8 | 🏆 **Excellent Optimization** | 3.36x speedup (complete loop unrolling, hardcoded twiddles) |
+| 8 | FFTOptimized8 | 🏆 **Excellent Optimization** | ~3.0x ±15% speedup (complete loop unrolling, hardcoded twiddles) |
 | 16 | FFTOptimized16 | ✅ **Neutral (Overhead Removed)** | 0.99x speedup (delegation overhead eliminated) |
 | 32 | FFTOptimized32 | ✅ **Small Gain** | 1.12x speedup (overhead removed) |
 | 64 | FFTOptimized64 | ✅ **Neutral (Overhead Removed)** | 1.01x speedup (delegation overhead eliminated) |
@@ -188,7 +188,7 @@ System.out.println("Parsons code: " + parsonsCode); // e.g., "*UDUDRDU"
 | 1024+ | FFTOptimized* | ✅ **Baseline** | ~1.00x speedup (uses base implementation) |
 
 **Performance Reality (FASE 2 Complete):**
-- 🏆 **FFTOptimized8**: Excellent 3.36x speedup (70.2% efficiency) - complete loop unrolling with hardcoded constants
+- 🏆 **FFTOptimized8**: Excellent ~3.0x ±15% speedup (avg 2.7-3.0x, peak 3.36x) - complete loop unrolling with hardcoded constants
 - ✅ **FFTOptimized128**: Good 1.42x speedup (29.6% efficiency) - direct FFTBase implementation working well
 - ✅ **FFTOptimized32**: Small gain 1.12x speedup (10.5% efficiency) - delegation overhead removed
 - ✅ **FFTOptimized16/64/512**: Neutral ~1.00x - delegation overhead eliminated, no regressions
@@ -199,7 +199,7 @@ System.out.println("Parsons code: " + parsonsCode); // e.g., "*UDUDRDU"
 ### 🔬 Optimization Techniques (FASE 2 Learnings)
 
 **✅ What Worked Successfully:**
-- ✅ **Complete loop unrolling** (FFT8: 3.36x speedup)
+- ✅ **Complete loop unrolling** (FFT8: ~3.0x ±15% speedup, avg 2.7-3.0x)
 - ✅ **Hardcoded twiddle factors** as static final constants
 - ✅ **Direct FFTBase implementation** (no delegation layers)
 - ✅ **Manual unrolled array copying** for small sizes

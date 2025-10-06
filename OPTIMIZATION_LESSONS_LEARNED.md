@@ -7,7 +7,7 @@
 
 ## ✅ WHAT WORKED SUCCESSFULLY
 
-### 1. FFT8 Complete Loop Unrolling (3.36x speedup)
+### 1. FFT8 Complete Loop Unrolling (~3.0x ±15% speedup, avg 2.7-3.0x, peak 3.36x)
 
 **Technique**: Manual unrolling of all 3 stages (span 4, 2, 1)
 
@@ -239,7 +239,7 @@ FFTOptimized16.transform() →
 
 | Size | Speedup | Technique | Status |
 |------|---------|-----------|--------|
-| **8** | **3.36x** | Complete loop unrolling | ✅ Excellent |
+| **8** | **~3.0x ±15%** (avg 2.7-3.0x, peak 3.36x) | Complete loop unrolling | ✅ Excellent (variable) |
 | **16** | 0.99x | Overhead removed | ✅ Neutral |
 | **32** | 1.12x | Overhead removed | ✅ Small gain |
 | **64** | 1.01x | Overhead removed | ✅ Neutral |

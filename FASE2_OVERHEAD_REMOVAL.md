@@ -49,7 +49,7 @@ public FFTResult transform(double[] real, double[] imaginary, boolean forward) {
 ### Before (with delegation overhead)
 | Size | Speedup | Status |
 |------|---------|--------|
-| 8    | 3.47x   | ✅ Optimized |
+| 8    | ~3.0x ±15% (peak 3.47x)   | ✅ Optimized |
 | 16   | 0.88x   | ❌ 12% regression |
 | 32   | 0.95x   | ❌ 5% regression |
 | 64   | 0.84x   | ❌ 16% regression |
@@ -59,7 +59,7 @@ public FFTResult transform(double[] real, double[] imaginary, boolean forward) {
 ### After (overhead removed)
 | Size | Speedup | Improvement | Status |
 |------|---------|-------------|--------|
-| 8    | 3.36x   | -3% (variance) | ✅ Excellent |
+| 8    | ~3.0x ±15% (avg 2.7-3.0x, peak 3.36x) | Variance identified | ✅ Excellent |
 | 16   | 0.99x   | +11% | ✅ Neutral |
 | 32   | 1.12x   | +17% | ✅ Small speedup |
 | 64   | 1.01x   | +17% | ✅ Neutral |
@@ -73,7 +73,7 @@ public FFTResult transform(double[] real, double[] imaginary, boolean forward) {
 ### Positive Outcomes
 - **Eliminated all performance regressions**
 - **FFT128 gained 1.42x speedup** (unexpected bonus from existing optimizations)
-- **FFT8 maintained 3.36x speedup** (proven optimization preserved)
+- **FFT8 maintained ~3.0x ±15% speedup** (avg 2.7-3.0x, peak 3.36x - proven optimization with variance)
 - **100% test correctness** maintained across all sizes
 
 ### Sizes Fixed

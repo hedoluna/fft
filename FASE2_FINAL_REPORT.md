@@ -7,7 +7,9 @@
 
 ## Executive Summary
 
-FASE 2 achieved significant success with FFT8 optimization (3.47x speedup) but revealed that extending this approach to larger sizes requires more careful algorithm verification. FFT16-512 currently show performance regressions due to delegation overhead rather than true optimization.
+FASE 2 achieved significant success with FFT8 optimization (~3.0x ±15% speedup, avg 2.7-3.0x, peak 3.47x) but revealed that extending this approach to larger sizes requires more careful algorithm verification. FFT16-512 currently show performance regressions due to delegation overhead rather than true optimization.
+
+**Note on FFT8 Performance Variance**: Multi-agent consensus analysis revealed FFT8 performance varies from 2.36x-3.47x depending on measurement conditions (JIT warmup, system load). See CONSENSUS_ANALYSIS.md for detailed findings.
 
 ---
 
