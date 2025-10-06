@@ -6,10 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Java Fast Fourier Transform (FFT) library with factory pattern, auto-discovery, and audio processing. Provides size-specific optimized implementations (8-65536) with automatic selection.
 
-**✅ BUILD STATUS**: Maven 3.6.3 + Java 17, all tests passing (296+/296+)
+**✅ BUILD STATUS**: Maven 3.6.3 + Java 17, all tests passing (305+/305+)
 **🚀 PERFORMANCE**: FFT8: 2.27x verified, Twiddle cache: 30-50% overall speedup, all optimizations validated
 **✅ COVERAGE**: JaCoCo enforces 90% line / 85% branch coverage
 **📊 PROFILING**: Complete - Twiddle factors were #1 bottleneck (43-56%), now optimized with precomputed cache
+**🎯 PITCH ACCURACY**: Spectral method 44x more accurate than YIN (0.92% vs 40.6% error) - See PITCH_DETECTION_ANALYSIS.md
 
 ## ⚡ Quick Reference
 
@@ -94,17 +95,20 @@ mvn test -Dtest=FFTPerformanceBenchmarkTest
 
 **Demo Execution:**
 ```bash
-# Real-time pitch detection (YIN algorithm)
+# Real-time pitch detection (spectral FFT + YIN validation, 0.92% error)
 mvn exec:java -Dexec.mainClass="com.fft.demo.PitchDetectionDemo"
 
-# Song recognition (Parsons code)
+# Song recognition (Parsons code, 60-80% accuracy)
 mvn exec:java -Dexec.mainClass="com.fft.demo.SongRecognitionDemo"
 
-# Chord recognition (harmonic analysis)
+# Chord recognition (harmonic analysis, major/minor/7th detection)
 mvn exec:java -Dexec.mainClass="com.fft.demo.ChordRecognitionDemo"
 
-# Simulated pitch detection for performance validation
+# Simulated pitch detection (testing framework without microphone)
 mvn exec:java -Dexec.mainClass="com.fft.demo.SimulatedPitchDetectionDemo"
+
+# Architecture showcase (factory pattern, optimized implementations)
+mvn exec:java -Dexec.mainClass="com.fft.demo.RefactoringDemo"
 ```
 
 ## Core Architecture
@@ -206,7 +210,8 @@ mvn test -Dtest=FFTPerformanceBenchmarkTest
 ## Testing & Quality
 
 **Test Organization:**
-- Unit tests: `src/test/java/**/*Test.java` (301 active tests, 5 disabled for deprecated code, across 24 files)
+- Unit tests: `src/test/java/**/*Test.java` (305+ active tests, 5 disabled for deprecated code, across 25 files)
+- Accuracy tests: `src/test/java/com/fft/analysis/PitchDetectionAccuracyTest.java` (4 test scenarios)
 - Integration tests: `src/test/java/**/*IntegrationTest.java`
 - Performance tests: Nested classes within test files (e.g., `PerformanceTests`)
 - Surefire excludes `*IntegrationTest.java` by default
@@ -226,22 +231,111 @@ mvn test -Dtest=FFTPerformanceBenchmarkTest
 
 ## Audio Processing Features
 
+**⭐ CRITICAL UPDATE (October 2025):** Spectral method now primary after discovering YIN has 40.6% mean error on pure tones due to subharmonic detection. See **PITCH_DETECTION_ANALYSIS.md** for complete analysis.
+
 **Advanced Pitch Detection:**
-- **YIN Algorithm**: Autocorrelation-based, <0.5% error across 80Hz-2000Hz
-- **Voicing Detection**: RMS-based sound/silence discrimination
-- **Median Filtering**: Pitch stability enhancement
-- **Shared Utilities**: PitchDetectionUtils provides YIN and spectral methods
+- **Spectral Method (Primary)**: FFT-based peak detection, **0.92% error** across 80Hz-2000Hz
+  - Parabolic interpolation for sub-bin accuracy
+  - Harmonic analysis for fundamental frequency extraction
+  - 26% faster than YIN (O(N log N) vs O(N²))
+- **YIN Algorithm (Validation)**: Autocorrelation-based, used to detect subharmonic issues
+  - High confidence but prone to subharmonic errors (detecting 110Hz instead of 440Hz)
+  - Used as validation check, not primary method
+- **Hybrid Approach**: Combines both methods for best accuracy
+  - Spectral method as primary (most accurate)
+  - YIN validation detects subharmonic issues
+  - Results averaged when both agree (within 5%)
+- **Voicing Detection**: RMS-based sound/silence discrimination (0.001 threshold)
+- **Median Filtering**: Pitch stability enhancement (5-frame window)
+- **Shared Utilities**: PitchDetectionUtils provides spectral, YIN, and hybrid methods
+
+**Test Suite (PitchDetectionAccuracyTest.java):**
+- 10 test frequencies: 82.41 Hz (E2) to 1318.51 Hz (E6)
+- Complex waveform testing (harmonically rich signals)
+- Noise tolerance analysis (SNR 5-30 dB)
+- Performance benchmarking (1000 iterations)
+- Validates FFT implementation choice doesn't affect accuracy
 
 **Song Recognition:**
 - **Parsons Code**: Melody contour analysis (*UDUDRDU format)
-- **Integration**: Uses improved YIN pitch detection
+- **Integration**: Uses improved spectral pitch detection with YIN validation
 - **Performance**: 60-80% accuracy for partial melody sequences
 - **Noise Robustness**: Maintains accuracy down to 6dB SNR
+- **Database**: 15+ famous melodies (Twinkle Twinkle, Happy Birthday, Beethoven, etc.)
+- **Learning System**: Continuous improvement with usage
+
+**Chord Recognition:**
+- **Multi-Pitch Detection**: Extracts up to 4 simultaneous frequencies
+- **Chord Types**: Major, Minor, 7th, Augmented, Diminished, Suspended
+- **Progressions**: Recognizes common patterns (I-V-vi-IV, II-V-I jazz)
+- **Harmonic Analysis**: Interval relationships and chord quality
 
 **Performance Characteristics:**
 - Real-time capability: 44.1 kHz sampling rate
-- Pitch detection: 12,000+ recognitions/second
+- Pitch detection: 12,000+ detections/second
 - FFT processing: 4096-point in ~75ms
+- Spectral method: 1,374,480 ns/op (with FFTOptimized)
+- YIN algorithm: 1,978,400 ns/op (baseline)
+
+## Demo Applications
+
+The library includes 5 comprehensive demo applications showcasing real-world FFT use cases:
+
+**1. PitchDetectionDemo (811 lines)** - Real-time pitch detection from microphone
+- **Input**: Live microphone audio (44.1 kHz)
+- **Algorithm**: Spectral FFT + YIN validation (0.92% error)
+- **Output**: Musical note (e.g., "A4 440Hz"), Parsons code (*UDUDRD...)
+- **Features**: Hamming window, voicing detection, median filtering, subharmonic validation
+- **Use Cases**: Instrument tuners, vocal training, automatic transcription, music games
+- **Run**: `mvn exec:java -Dexec.mainClass="com.fft.demo.PitchDetectionDemo"`
+
+**2. SongRecognitionDemo (2000 lines)** - Complete melody recognition system
+- **Algorithm**: Parsons code matching with machine learning
+- **Database**: 15+ famous melodies (Twinkle Twinkle, Happy Birthday, Beethoven, etc.)
+- **Features**: Partial matching, noise tolerance, learning system, LRU caching
+- **Performance**: 60-80% accuracy on melody fragments, works down to 6dB SNR
+- **Demos**: 7 scenarios (basic, partial, noisy, variations, real-time, advanced, performance)
+- **Use Cases**: Shazam-like for hummed melodies, music education, cataloging
+- **Run**: `mvn exec:java -Dexec.mainClass="com.fft.demo.SongRecognitionDemo"`
+
+**3. ChordRecognitionDemo (621 lines)** - Multi-pitch chord detection
+- **Algorithm**: Multi-pitch FFT peak detection + harmonic analysis
+- **Chord Types**: Major, Minor, 7th, Augmented, Diminished, Suspended
+- **Features**: Up to 4 simultaneous frequencies, progression recognition (I-V-vi-IV, II-V-I)
+- **Demos**: Basic chord detection, progression recognition, harmonic analysis, melody+harmony
+- **Use Cases**: Automatic chord charts, theory education, backing track generation
+- **Run**: `mvn exec:java -Dexec.mainClass="com.fft.demo.ChordRecognitionDemo"`
+
+**4. SimulatedPitchDetectionDemo (492 lines)** - Testing framework without hardware
+- **Purpose**: Test pitch detection with synthetic signals (no microphone needed)
+- **Signals**: Pure tones, chords, melodies, noise, harmonics, vibrato
+- **Coverage**: All notes C0-B8 (108 notes, equal temperament A4=440Hz)
+- **Demos**: Single tones, chords, melodies, noisy signals, performance comparison
+- **Use Cases**: Automated testing, algorithm validation, benchmarking, demos
+- **Run**: `mvn exec:java -Dexec.mainClass="com.fft.demo.SimulatedPitchDetectionDemo"`
+
+**5. RefactoringDemo (177 lines)** - Architecture showcase
+- **Purpose**: Educational demo of library architecture
+- **Features**: New API, factory pattern, auto-selection, backward compatibility
+- **Demos**: Type-safe API, implementation selection, performance, legacy API, FFTResult wrapper
+- **Use Cases**: Developer onboarding, API documentation, architecture tutorial
+- **Run**: `mvn exec:java -Dexec.mainClass="com.fft.demo.RefactoringDemo"`
+
+**Demo Comparison:**
+
+| Demo | Real-Time | Complexity | Accuracy | Primary Use Case |
+|------|-----------|------------|----------|------------------|
+| PitchDetection | ✅ Yes | Medium | 0.92% error | Instrument tuning, vocal training |
+| SongRecognition | ✅ Yes | High | 60-80% | Melody identification, music education |
+| ChordRecognition | ✅ Yes | High | ~85% | Chord charts, harmonic analysis |
+| SimulatedPitch | ❌ No | Low | 100% (synthetic) | Testing, validation, benchmarking |
+| Refactoring | ❌ No | Low | N/A | Developer education, API showcase |
+
+**Application Domains:**
+- 🎓 **Music Education**: Interactive learning, ear training, theory visualization
+- 🎵 **Music Production**: Auto-tuning, chord chart generation, transcription tools
+- 🎤 **Performance Analysis**: Intonation monitoring, live chord display, setlist recognition
+- 🎮 **Interactive Games**: Singing games, chord matching, "Name That Tune" style games
 
 ## Debugging & Troubleshooting
 
@@ -339,10 +433,14 @@ mvn test -Djava.util.logging.config.file=logging.properties
 - See PERFORMANCE_OPTIMIZATION_STATUS.md for roadmap
 
 **Audio Processing:**
+- ⚠️ **CRITICAL**: Spectral method is primary (0.92% error), YIN is validation only (40.6% error)
 - Always verify correctness when modifying pitch detection to avoid regressions
-- YIN algorithm in PitchDetectionUtils is the reference implementation
+- Test with PitchDetectionAccuracyTest.java to validate algorithm changes
+- Spectral method in PitchDetectionUtils is the reference implementation
+- YIN algorithm used for subharmonic detection validation only
 - Voicing detection prevents false positives from background noise
 - Parsons code generation requires stable pitch tracking
+- See PITCH_DETECTION_ANALYSIS.md for complete accuracy analysis
 
 **Key Files for Reference:**
 
@@ -361,6 +459,10 @@ mvn test -Djava.util.logging.config.file=logging.properties
 - `JMH_BENCHMARKING_GUIDE.md`: Rigorous performance measurement methodology (10K+ warmup essential)
 - `VALIDATION_FRAMEWORK.md`: Stage-by-stage FFT validation for debugging optimizations
 - `TESTING_COMPLIANCE.md`: Test coverage requirements and quality gates
+
+**Audio Processing & Accuracy:**
+- `PITCH_DETECTION_ANALYSIS.md`: **Complete pitch detection accuracy analysis** (spectral 0.92% vs YIN 40.6% error)
+- `src/test/java/com/fft/analysis/PitchDetectionAccuracyTest.java`: Comprehensive accuracy test suite (4 scenarios, 10 frequencies)
 
 **Implementation Reports:**
 - `P0_IMPLEMENTATION_SUMMARY.md`: JMH + accurate documentation recommendations
@@ -385,7 +487,13 @@ mvn test -Djava.util.logging.config.file=logging.properties
 
 **Important Notes:**
 - **OptimizedFFTFramework is deprecated**: FASE 1 eliminated framework overhead (10x) by making implementations call FFTBase directly
-- **Test count**: 306 total tests (301 active, 5 disabled for deprecated framework)
+- **Test count**: 310+ total tests (305+ active, 5 disabled for deprecated framework) - **Updated Oct 2025**
+  - Added PitchDetectionAccuracyTest.java (4 comprehensive test scenarios)
+  - Validates spectral method accuracy (0.92% error) vs YIN (40.6% error)
+- **Pitch detection strategy changed**: Spectral method now primary, YIN validation only - **Updated Oct 2025**
+  - YIN has 40.6% error on pure tones due to subharmonic detection
+  - Spectral FFT-based method achieves 0.92% error (44x better)
+  - See PITCH_DETECTION_ANALYSIS.md for complete analysis
 - **Maven forkCount=0**: Tests run in-process for faster execution, JaCoCo coverage uses ${argLine}
 - **SpotBugs disabled**: Incompatible with Java 17 bytecode, run manually if needed with `mvn spotbugs:spotbugs`
 - **Logging**: All code uses SLF4J API (production + demos) - **Updated Oct 2025**

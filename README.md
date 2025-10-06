@@ -17,7 +17,7 @@ Enhanced and refactored in 2025 with modern Java patterns, comprehensive testing
 - **🚀 High Performance**: FASE 2 optimizations complete - FFT8 (~3.0x ±15% speedup), FFT128 (1.42x), all regressions eliminated
 - **🏭 Factory Pattern**: Automatic implementation selection with 14 size-specific implementations (8-65536)
 - **🎯 Type Safety**: Modern API with immutable result objects and rich data extraction
-- **🧪 Comprehensive Testing**: 296+ unit tests across 25 test class files with 100% pass rate
+- **🧪 Comprehensive Testing**: 305+ unit tests across 25 test class files with 100% pass rate
 - **🎵 Audio Processing**: Real-time pitch detection and song recognition using Parsons code methodology
 - **📦 Zero Dependencies**: Pure Java 17 implementation (uses javax.sound for audio demos only)
 - **🔧 Maven Build**: Modern build system with quality gates and code coverage
@@ -131,23 +131,32 @@ double[] magnitudes = FFTUtils.getMagnitudes(result);
 
 ## 🎵 Audio Processing Capabilities
 
-### Advanced Pitch Detection
+### 🎯 Advanced Pitch Detection (Updated October 2025)
 
-The library now features state-of-the-art pitch detection using multiple algorithms:
+**CRITICAL UPDATE**: After comprehensive accuracy analysis, the library now uses **spectral FFT-based method as primary** (0.92% error vs YIN's 40.6% error on pure tones). See `PITCH_DETECTION_ANALYSIS.md` for complete details.
 
-- **YIN Algorithm**: Autocorrelation-based pitch detection for superior accuracy
-- **Spectral Analysis**: FFT-based fundamental frequency estimation
-- **Voicing Detection**: Distinguishes between voiced and unvoiced sounds
-- **Harmonic Analysis**: Improves accuracy by analyzing overtone structure
+The library features state-of-the-art pitch detection using hybrid approach:
+
+- **Spectral Method (Primary)**: FFT-based peak detection with **0.92% error** (44x more accurate than YIN alone)
+  - Parabolic interpolation for sub-bin accuracy
+  - Harmonic analysis for fundamental frequency extraction
+  - 26% faster than YIN (O(N log N) vs O(N²))
+- **YIN Algorithm (Validation)**: Autocorrelation-based, used to detect subharmonic issues
+  - Prone to subharmonic errors on pure tones (detects 110Hz instead of 440Hz)
+  - Used as validation check, not primary method
+- **Hybrid Approach**: Combines both methods for best accuracy
+  - Results averaged when both agree (within 5%)
+  - Subharmonic detection prevents octave errors
+- **Voicing Detection**: RMS-based sound/silence discrimination
 - **Median Filtering**: Reduces pitch jitter for stable detection
 
 ```java
 import com.fft.utils.PitchDetectionUtils;
 import com.fft.demo.PitchDetectionDemo;
 
-// Advanced pitch detection using YIN algorithm
+// Recommended: Hybrid pitch detection (spectral + YIN validation)
 double[] audioBuffer = captureAudio();
-PitchDetectionUtils.PitchResult result = PitchDetectionUtils.detectPitchYin(audioBuffer, 44100.0);
+PitchDetectionUtils.PitchResult result = PitchDetectionUtils.detectPitchHybrid(audioBuffer, 44100.0);
 if (result.isVoiced) {
     System.out.printf("Detected: %.2f Hz (confidence: %.2f)\n",
         result.frequency, result.confidence);
@@ -155,7 +164,7 @@ if (result.isVoiced) {
 
 // Real-time pitch detection from microphone
 PitchDetectionDemo demo = new PitchDetectionDemo();
-demo.runDemo(); // Features YIN algorithm, voicing detection, and Parsons code tracking
+demo.runDemo(); // Features spectral method + YIN validation, 0.92% error
 ```
 
 ### Song Recognition
@@ -202,8 +211,9 @@ System.out.println("Parsons code: " + parsonsCode); // e.g., "*UDUDRDU"
 - 🏆 **FFTOptimized8**: **2.27x verified** with clean methodology (10,000 warmup iterations)
   - Previous claims of 3.36x were measurement artifacts (insufficient warmup)
   - Actual 2.27x is solid and reproducible
-- ✅ **All Optimizations Validated**: 296+/296+ tests passing
+- ✅ **All Optimizations Validated**: 305+/305+ tests passing (including pitch detection accuracy tests)
 - ✅ **Zero Regressions**: Twiddle cache maintains 100% correctness
+- 🎯 **Pitch Detection Validated**: PitchDetectionAccuracyTest proves spectral method 44x more accurate than YIN
 
 **Performance Breakdown (from PROFILING_RESULTS.md):**
 ```
