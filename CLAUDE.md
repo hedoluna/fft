@@ -273,13 +273,51 @@ mvn test -Djava.util.logging.config.file=logging.properties
 
 **Dependencies:**
 - **SLF4J 2.0.9**: Logging API (compile scope)
-- **Logback 1.4.11**: Logging implementation (test scope only)
+- **Logback 1.5.19**: Logging implementation (test scope only) - **Updated Oct 2025**
 - **JUnit Jupiter 5.9.2**: Primary testing framework
+  - **JUnit Jupiter API**: Explicit dependency for test annotations
+  - **JUnit Jupiter Params**: Explicit dependency for parameterized tests
 - **JUnit 4.13.2 + Vintage Engine**: Backward compatibility for legacy tests
 - **AssertJ 3.24.2**: Fluent assertion library
 - **Mockito 5.1.1**: Mocking framework
-- **JMH 1.37**: Benchmarking (test scope)
+- **JMH 1.37**: Benchmarking (test scope) with annotation processor configured
 - **Minimal runtime dependencies**: Core library only depends on SLF4J API
+
+## CI/CD & Infrastructure
+
+**GitHub Actions Workflows:**
+- **ci.yml**: Automated build and test on push/PR to main/develop
+  - Runs on Java 17 and Java 21 (matrix build)
+  - Executes full test suite with coverage
+  - Uploads coverage to Codecov
+  - Badge status visible on README.md
+- **dependency-check.yml**: Weekly automated dependency security checks
+  - Runs Monday at 00:00 UTC
+  - Checks for outdated dependencies (`mvn versions:display-dependency-updates`)
+  - Analyzes dependency issues (`mvn dependency:analyze`)
+- **javadoc.yml**: Automated Javadoc deployment to GitHub Pages
+  - Deploys on push to main branch
+  - Generates API documentation with `mvn javadoc:javadoc`
+  - Published at project's GitHub Pages URL
+
+**Code Style & Formatting:**
+- **.editorconfig**: Consistent formatting across editors/IDEs
+  - Java: 4 spaces indent, max line 120, UTF-8
+  - XML/YAML/JSON: Configured appropriately
+  - Prevents formatting conflicts in pull requests
+  - Supported by all major editors (VS Code, IntelliJ, Eclipse, etc.)
+
+**Code Coverage:**
+- **Codecov Integration**: Automated coverage tracking
+  - Badge on README.md shows current coverage
+  - CI uploads coverage reports after each build
+  - Trend analysis for coverage changes over time
+
+**Build Configuration:**
+- **JMH Annotation Processor**: Configured in pom.xml for proper benchmark support
+  - Fixes "Unable to find META-INF/BenchmarkList" errors
+  - Enables rigorous performance benchmarking with JMH
+  - Run benchmarks: `mvn clean test-compile exec:java -Dexec.mainClass="org.openjdk.jmh.Main"`
 
 ## Development Guidelines
 
@@ -345,4 +383,6 @@ mvn test -Djava.util.logging.config.file=logging.properties
 - **Test count**: 306 total tests (301 active, 5 disabled for deprecated framework)
 - **Maven forkCount=0**: Tests run in-process for faster execution, JaCoCo coverage uses ${argLine}
 - **SpotBugs disabled**: Incompatible with Java 17 bytecode, run manually if needed with `mvn spotbugs:spotbugs`
-- **Logging**: Production code uses SLF4J API, demos use System.out (appropriate for user-facing output)
+- **Logging**: All code uses SLF4J API (production + demos) - **Updated Oct 2025**
+  - Demo classes migrated from System.out to logger.info() for professional logging
+  - Configurable logging levels via Logback configuration (test scope)

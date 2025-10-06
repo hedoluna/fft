@@ -63,6 +63,13 @@ mvn clean test jacoco:report
 - Keep methods focused and concise
 - Add JavaDoc for all public classes and methods
 - Include code examples in JavaDoc where appropriate
+- **EditorConfig**: Project includes `.editorconfig` for consistent formatting
+  - Java: 4 spaces indent, max line 120 characters
+  - Automatically enforced by most editors (VS Code, IntelliJ, Eclipse)
+- **Logging**: Use SLF4J API for all logging
+  - Production code: `LoggerFactory.getLogger(ClassName.class)`
+  - Demo classes: Use `logger.info()` instead of `System.out.println()`
+  - No `System.out` or `System.err` in production or demo code
 
 ### Testing Requirements
 
@@ -208,6 +215,54 @@ To add a new size-specific optimized implementation:
    - Address review comments promptly
    - Update tests/docs as needed
    - Keep commits clean and organized
+
+## Continuous Integration
+
+The project uses **GitHub Actions** for automated quality checks. All pull requests must pass:
+
+### Automated Checks
+
+1. **Build & Test** (ci.yml)
+   - Runs on Java 17 and Java 21
+   - Executes full test suite (296+ tests)
+   - Generates code coverage report
+   - Uploads coverage to Codecov
+   - **Must pass before merge**
+
+2. **Code Coverage**
+   - Minimum 90% line coverage required
+   - Minimum 85% branch coverage required
+   - Coverage badge updated automatically on README.md
+   - View detailed reports on Codecov
+
+3. **Dependency Security** (dependency-check.yml)
+   - Weekly automated scans for outdated dependencies
+   - Checks for known vulnerabilities
+   - Runs on schedule (Mondays at 00:00 UTC)
+
+4. **API Documentation** (javadoc.yml)
+   - Automatically deploys Javadoc to GitHub Pages
+   - Runs on push to main branch
+   - Public documentation available at project's GitHub Pages URL
+
+### Local Pre-Commit Checks
+
+Before pushing, run these commands locally:
+
+```bash
+# Verify build and tests
+mvn clean compile test
+
+# Check code coverage meets requirements
+mvn clean test jacoco:report
+# Open target/site/jacoco/index.html and verify 90%/85%
+
+# Run integration tests
+mvn verify
+
+# (Optional) Run JMH benchmarks if performance-related changes
+mvn clean test-compile exec:java -Dexec.mainClass="org.openjdk.jmh.Main"
+```
 
 ## Architecture Overview
 
