@@ -20,7 +20,20 @@
       "Bash(java:*)",
       "Bash(rm:*)",
       "Bash(git rebase:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(mvn help:describe:*)",
+      "Bash(xargs:*)",
+      "mcp__mem0__add_memory",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "mcp__fetch__fetch",
+      "WebSearch",
+      "Read(//c/Users/orlan/.claude/**)",
+      "mcp__mem0__search_memory",
+      "Bash(mvn spotbugs:check:*)",
+      "Bash(cat:*)",
+      "Bash(mvn dependency:tree:*)",
+      "Bash(mvn jacoco:report:*)"
     ]
   },
   "enableAllProjectMcpServers": false

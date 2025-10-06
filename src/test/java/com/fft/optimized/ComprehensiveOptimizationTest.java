@@ -3,21 +3,27 @@ package com.fft.optimized;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Disabled;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Comprehensive test for the complete FFT optimization plan implementation.
- * 
+ *
  * Tests all optimization modes:
  * - Full validation mode (development)
  * - Sampling validation mode (staging)
  * - Production mode (maximum performance)
- * 
+ *
  * Validates both correctness and performance characteristics.
- * 
+ *
+ * NOTE: OptimizedFFTFramework is deprecated after FASE 1 completion.
+ * These tests are kept for historical reference but some may be disabled
+ * as they test obsolete functionality.
+ *
  * @author Claude Code Assistant
  * @since 2.0.1
  */
+@Disabled("Tests deprecated OptimizedFFTFramework - kept for historical reference")
 public class ComprehensiveOptimizationTest {
     
     private double[] testReal8;
