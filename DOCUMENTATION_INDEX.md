@@ -1,8 +1,9 @@
 # FFT Library - Documentation Index
 
 **Last Updated**: October 6, 2025
+**Major Cleanup**: 12 documents archived, duplicates eliminated
 
-This index organizes all documentation in the FFT library for easy navigation. Documentation is categorized by purpose and audience.
+This index organizes all documentation in the FFT library for easy navigation. Documentation is categorized by purpose and audience. **12 obsolete/duplicate documents have been archived** to docs/archive/ for reference.
 
 ---
 
@@ -35,16 +36,14 @@ This index organizes all documentation in the FFT library for easy navigation. D
 | Document | Content | Status |
 |----------|---------|--------|
 | [PERFORMANCE_MEASUREMENT_CRISIS.md](PERFORMANCE_MEASUREMENT_CRISIS.md) | Investigation of measurement discrepancies | ✅ Resolved |
-| [OPTIMIZATION_LESSONS_LEARNED.md](OPTIMIZATION_LESSONS_LEARNED.md) | Early optimization insights | ⚠️ See FASE_2_LESSONS_LEARNED |
-| [CONSENSUS_ANALYSIS.md](CONSENSUS_ANALYSIS.md) | Multi-agent performance review | ✅ Complete |
+| [CONSENSUS_ANALYSIS.md](CONSENSUS_ANALYSIS.md) | Multi-agent FFT8 variance analysis | ✅ Complete |
 
 ### Implementation Reports
 | Document | Content | Status |
 |----------|---------|--------|
 | [P0_IMPLEMENTATION_SUMMARY.md](P0_IMPLEMENTATION_SUMMARY.md) | P0 work (JMH, framework removal) | ✅ Complete |
 | [P1_IMPLEMENTATION_SUMMARY.md](P1_IMPLEMENTATION_SUMMARY.md) | P1 work (profiling, validation) | ✅ Complete |
-| [FASE2_FINAL_REPORT.md](FASE2_FINAL_REPORT.md) | FASE 2 final report | ✅ Complete |
-| [FASE2_OVERHEAD_REMOVAL.md](FASE2_OVERHEAD_REMOVAL.md) | Framework overhead elimination | ✅ Complete |
+| [FASE2_FINAL_REPORT.md](FASE2_FINAL_REPORT.md) | FASE 2 comprehensive report | ✅ Complete |
 
 ---
 
@@ -62,9 +61,7 @@ This index organizes all documentation in the FFT library for easy navigation. D
 
 | Document | Content | Status |
 |----------|---------|--------|
-| [REFACTORING_SUMMARY.md](REFACTORING_SUMMARY.md) | High-level refactoring overview | ✅ Current |
-| [REFACTORING_ROADMAP.md](REFACTORING_ROADMAP.md) | Detailed refactoring plan | ⚠️ Historical (23K) |
-| [CURRENT_STATUS_SUMMARY.md](CURRENT_STATUS_SUMMARY.md) | Project status snapshot | ⚠️ May be outdated |
+| [REFACTORING_SUMMARY.md](REFACTORING_SUMMARY.md) | Refactoring Phase 1-2 summary | ✅ Current |
 
 ---
 
@@ -78,22 +75,31 @@ This index organizes all documentation in the FFT library for easy navigation. D
 
 ---
 
-## 📋 Historical/Archive (Completed Work)
+## 📋 Archived Documentation
 
-These documents capture completed work and may be archived:
+**12 documents archived** on October 6, 2025 to eliminate duplication and preserve history.
 
-| Document | Content | Date | Archive? |
-|----------|---------|------|----------|
-| [CLEANUP_PLAN.md](CLEANUP_PLAN.md) | Cleanup strategy | Old | ✅ Yes |
-| [CLEANUP_SUMMARY.md](CLEANUP_SUMMARY.md) | Cleanup results | Old | ✅ Yes |
-| [FIXES_APPLIED.md](FIXES_APPLIED.md) | Applied fixes log | Old | ✅ Yes |
-| [CRITICAL_ISSUES.md](CRITICAL_ISSUES.md) | Issue tracking | Old | ✅ Yes |
-| [CORRECTED_ANALYSIS.md](CORRECTED_ANALYSIS.md) | Analysis corrections | Old | ✅ Yes |
-| [AGENTS.md](AGENTS.md) | Multi-agent coordination | Oct 2025 | ? Keep |
-| [OPTIMIZATION_ACTIONS.md](OPTIMIZATION_ACTIONS.md) | Action items | Old | ✅ Yes |
-| [PERFORMANCE_IMPROVEMENT_PLAN.md](PERFORMANCE_IMPROVEMENT_PLAN.md) | Improvement plan | Old | ⚠️ See STATUS |
+### Archive Location
+See [docs/archive/README.md](docs/archive/README.md) for complete archive index.
 
-**Recommendation**: Move documents marked "✅ Yes" to `docs/archive/` directory.
+### Archived Categories
+
+#### Historical Documents (10 files) → docs/archive/historical/
+- CLEANUP_PLAN.md, CLEANUP_SUMMARY.md, FIXES_APPLIED.md
+- CRITICAL_ISSUES.md, CORRECTED_ANALYSIS.md, OPTIMIZATION_ACTIONS.md
+- CURRENT_STATUS_SUMMARY.md (superseded by PERFORMANCE_OPTIMIZATION_STATUS.md)
+- PERFORMANCE_IMPROVEMENT_PLAN.md (work completed in FASE 1/2)
+- REFACTORING_ROADMAP.md (Phase 1-2 completed, see REFACTORING_SUMMARY.md)
+- AGENTS.md (brief coordination notes, no longer needed)
+
+#### FASE 2 Duplicates (2 files) → docs/archive/fase2/
+- OPTIMIZATION_LESSONS_LEARNED.md (consolidated into FASE_2_LESSONS_LEARNED.md)
+- FASE2_OVERHEAD_REMOVAL.md (subset of FASE2_FINAL_REPORT.md)
+
+### Deduplication Results
+- **Eliminated**: 2,344 lines of duplicate/obsolete documentation
+- **Preserved**: Full git history + organized archive
+- **Single Source of Truth**: Each topic now has ONE authoritative document
 
 ---
 
@@ -127,33 +133,55 @@ These documents capture completed work and may be archived:
 1. [CLAUDE.md](CLAUDE.md) - **Primary reference**
 2. [PERFORMANCE_OPTIMIZATION_STATUS.md](PERFORMANCE_OPTIMIZATION_STATUS.md) - Optimization state
 3. [DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md) - This file
+4. [docs/archive/README.md](docs/archive/README.md) - Historical documentation
 
 ---
 
 ## 📦 Documentation Statistics
 
-- **Total Markdown Files**: 28
-- **Package JavaDocs**: 6 (NEW!)
-- **Primary Docs**: 5 (README, CLAUDE, 3 performance docs)
-- **Historical Docs**: 11 (candidates for archival)
-- **Test/QA Docs**: 3
-- **Demo Docs**: 3
+**Before Cleanup** (Oct 6, 2025 morning):
+- Total Markdown Files: 28
+- Duplicates/Obsolete: 12
+- Total Lines: 6,524
+
+**After Cleanup** (Oct 6, 2025):
+- **Active Markdown Files**: 16 (root + docs/)
+- **Archived Docs**: 12 (docs/archive/)
+- **Package JavaDocs**: 6
+- **Active Lines**: ~4,180 (2,344 lines archived)
+- **Deduplication Plan**: DOCUMENTATION_DEDUPLICATION_PLAN.md
+
+**Breakdown by Category**:
+- **Primary Docs**: 3 (README, CLAUDE, DOCUMENTATION_INDEX)
+- **Performance**: 5 (STATUS, PROFILING, LESSONS, FINAL_REPORT, CRISIS, CONSENSUS)
+- **Testing/QA**: 3 (VALIDATION, JMH_GUIDE, COMPLIANCE)
+- **Architecture**: 1 (REFACTORING_SUMMARY)
+- **Implementation**: 2 (P0_SUMMARY, P1_SUMMARY)
+- **Demo Docs**: 3 (docs/DEMO_*.md)
 
 ---
 
 ## 🔄 Maintenance Notes
 
 **Last Major Update**: October 6, 2025
+
+### Morning (Documentation Foundation)
 - Added 6 package-info.java files (CRITICAL GAP FILLED!)
+- Created DOCUMENTATION_INDEX.md master index
 - Updated performance documentation with FASE 2 results
-- Twiddle cache implementation documented
-- FFT8 2.27x speedup verified and documented
+
+### Afternoon (Deduplication & Cleanup)
+- ✅ Archived 12 obsolete/duplicate documents to docs/archive/
+- ✅ Eliminated 2,344 lines of duplicate content
+- ✅ Established single source of truth for each topic
+- ✅ Created organized archive structure with README
+- ✅ Updated DOCUMENTATION_INDEX.md with new structure
 
 **Next Steps**:
-1. Archive old historical documents to docs/archive/
-2. Consolidate overlapping performance documents
-3. Keep CLAUDE.md and README.md as single sources of truth
-4. Maintain package-info.java files as primary API documentation
+1. Maintain package-info.java files as primary API documentation
+2. Keep CLAUDE.md and README.md as single sources of truth
+3. Archive policy: Move completed work to docs/archive/ quarterly
+4. Update PERFORMANCE_OPTIMIZATION_STATUS.md as work progresses
 
 ---
 
