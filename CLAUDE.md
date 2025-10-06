@@ -111,7 +111,7 @@ mvn exec:java -Dexec.mainClass="com.fft.demo.SimulatedPitchDetectionDemo"
   - ✅ FFT128: 1.42x speedup (existing optimizations confirmed working)
   - ✅ All sizes: 100% correctness maintained (296+/296+ tests passing)
 
-**What Worked (see OPTIMIZATION_LESSONS_LEARNED.md, PROFILING_RESULTS.md):**
+**What Worked (see FASE_2_LESSONS_LEARNED.md, PROFILING_RESULTS.md):**
 - ✅ **Precomputed twiddle factors** (TwiddleFactorCache): 2.3-3.2x speedup for twiddle operations, 30-50% overall improvement
 - ✅ Complete loop unrolling for small sizes (FFT8: 2.27x verified with heavy warmup)
 - ✅ Hardcoded twiddle factors as static final constants (FFT8)
@@ -260,34 +260,42 @@ mvn test -Djava.util.logging.config.file=logging.properties
 
 **Key Files for Reference:**
 
+**⭐ Start Here:**
+- `DOCUMENTATION_INDEX.md`: **Master index** - organized navigation to all docs by role/category
+
 **Performance & Optimization (Essential):**
-- `PROFILING_RESULTS.md`: ✅ **COMPLETED** - Actual profiling data showing twiddle factors as #1 bottleneck (43-56%)
-- `PERFORMANCE_MEASUREMENT_CRISIS.md`: ✅ **RESOLVED** - Investigation showing FFT8 2.27x speedup (not 0.14x)
-- `OPTIMIZATION_LESSONS_LEARNED.md`: What worked and didn't work in FASE 2 (essential reading)
-- `CONSENSUS_ANALYSIS.md`: Multi-agent analysis revealing performance variance issues
-- `PERFORMANCE_OPTIMIZATION_STATUS.md`: Performance roadmap (FASE 1 & 2 completed)
+- `PERFORMANCE_OPTIMIZATION_STATUS.md`: Current status - FASE 1 & 2 complete, twiddle cache + FFT8 verified
+- `FASE_2_LESSONS_LEARNED.md`: What worked (twiddle cache 30-50%, FFT8 2.27x) vs didn't (manual unrolling FFT16+)
+- `FASE2_FINAL_REPORT.md`: Comprehensive FASE 2 analysis - FFT8 success, FFT16-512 delegation removal
+- `PROFILING_RESULTS.md`: Profiling data showing twiddle factors #1 bottleneck (43-56% of time)
+- `PERFORMANCE_MEASUREMENT_CRISIS.md`: Investigation resolving FFT8 measurement issues (warmup critical)
+- `CONSENSUS_ANALYSIS.md`: Multi-agent FFT8 variance analysis (2.36x-3.47x depending on conditions)
 
-**Implementation Guides:**
-- `P0_IMPLEMENTATION_SUMMARY.md`: P0 critical recommendations (JMH + accurate docs)
-- `P1_IMPLEMENTATION_SUMMARY.md`: P1 priorities (profiling + validation + test fixes) - ✅ COMPLETED
-- `JMH_BENCHMARKING_GUIDE.md`: Rigorous performance measurement methodology
-- `VALIDATION_FRAMEWORK.md`: Stage-by-stage FFT validation guide for debugging
+**Testing & Benchmarking:**
+- `JMH_BENCHMARKING_GUIDE.md`: Rigorous performance measurement methodology (10K+ warmup essential)
+- `VALIDATION_FRAMEWORK.md`: Stage-by-stage FFT validation for debugging optimizations
+- `TESTING_COMPLIANCE.md`: Test coverage requirements and quality gates
 
-**Analysis Reports:**
-- `FASE2_OVERHEAD_REMOVAL.md`: FASE 2 delegation overhead removal results
-- `FASE2_FINAL_REPORT.md`: Complete FASE 2 analysis and findings
+**Implementation Reports:**
+- `P0_IMPLEMENTATION_SUMMARY.md`: JMH + accurate documentation recommendations
+- `P1_IMPLEMENTATION_SUMMARY.md`: Profiling + validation + test fixes (✅ COMPLETED)
+
+**Architecture:**
+- `REFACTORING_SUMMARY.md`: Phase 1-2 refactoring summary (package structure, factory pattern)
 
 **Core Implementation:**
-- `src/main/java/com/fft/core/TwiddleFactorCache.java`: ✅ **NEW** - Precomputed cos/sin tables (30-50% speedup)
-- `src/main/java/com/fft/core/FFTBase.java`: Reference implementation (now uses twiddle cache)
-- `src/test/java/com/fft/performance/SimpleProfilingTest.java`: Profiling benchmarks with proper warmup
-- `src/test/java/com/fft/validation/FFTValidationFramework.java`: Stage-by-stage validation tool
-- `src/main/java/com/fft/optimized/OptimizedFFTUtils.java`: Hardcoded twiddle constants for specific sizes
-- `src/main/java/com/fft/optimized/OptimizedFFTFramework.java`: DEPRECATED (10x overhead, see FASE 1)
+- `src/main/java/com/fft/core/TwiddleFactorCache.java`: Precomputed cos/sin tables (30-50% speedup)
+- `src/main/java/com/fft/core/FFTBase.java`: Reference implementation using twiddle cache
+- `src/main/java/com/fft/optimized/FFTOptimized8.java`: Complete loop unrolling (2.27x verified)
+- `src/main/java/com/fft/optimized/OptimizedFFTFramework.java`: DEPRECATED (10x overhead eliminated in FASE 1)
 
 **User Documentation:**
-- `README.md`: User-facing documentation and examples
-- `REFACTORING_ROADMAP.md`, `REFACTORING_SUMMARY.md`: Historical context
+- `README.md`: User-facing documentation with quick start and examples
+
+**📦 Archived Documentation** (see `docs/archive/README.md`):
+- 12 obsolete/duplicate documents archived October 6, 2025
+- Historical planning, completed work, duplicate FASE 2 docs
+- Full git history preserved for reference
 
 **Important Notes:**
 - **OptimizedFFTFramework is deprecated**: FASE 1 eliminated framework overhead (10x) by making implementations call FFTBase directly
