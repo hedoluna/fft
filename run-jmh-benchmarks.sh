@@ -18,9 +18,6 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Set benchmark pattern (default: run all)
-BENCHMARK_PATTERN=${1:-".*"}
-
 # Build classpath
 CP="target/test-classes:target/classes"
 CP="$CP:$HOME/.m2/repository/org/openjdk/jmh/jmh-core/1.37/jmh-core-1.37.jar"
@@ -31,15 +28,20 @@ CP="$CP:$HOME/.m2/repository/org/slf4j/slf4j-api/2.0.9/slf4j-api-2.0.9.jar"
 CP="$CP:$HOME/.m2/repository/ch/qos/logback/logback-classic/1.5.19/logback-classic-1.5.19.jar"
 CP="$CP:$HOME/.m2/repository/ch/qos/logback/logback-core/1.5.19/logback-core-1.5.19.jar"
 
+# Set benchmark pattern (empty means run all)
+BENCHMARK_PATTERN=$1
+
 echo ""
-echo "Running JMH benchmarks for pattern: $BENCHMARK_PATTERN"
+if [ -z "$BENCHMARK_PATTERN" ]; then
+    echo "Running ALL JMH benchmarks..."
+else
+    echo "Running JMH benchmarks matching pattern: $BENCHMARK_PATTERN"
+    shift  # Remove first argument (benchmark pattern) so remaining args are passed to JMH
+fi
 echo ""
 
-# Shift to remove first argument (benchmark pattern) and pass remaining args to JMH
-shift
-
-# Run JMH with the specified benchmark pattern and any additional arguments
-java -cp "$CP" org.openjdk.jmh.Main "$BENCHMARK_PATTERN" "$@"
+# Run JMH with the specified benchmark pattern (or all if empty) and any additional arguments
+java -cp "$CP" org.openjdk.jmh.Main $BENCHMARK_PATTERN "$@"
 
 echo ""
 echo "Benchmark run complete!"

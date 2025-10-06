@@ -16,10 +16,6 @@ if %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 
-REM Set benchmark pattern (default: run all)
-set BENCHMARK_PATTERN=%1
-if "%BENCHMARK_PATTERN%"=="" set BENCHMARK_PATTERN=.*
-
 REM Build classpath
 set CP=target\test-classes;target\classes
 set CP=%CP%;%USERPROFILE%\.m2\repository\org\openjdk\jmh\jmh-core\1.37\jmh-core-1.37.jar
@@ -30,11 +26,18 @@ set CP=%CP%;%USERPROFILE%\.m2\repository\org\slf4j\slf4j-api\2.0.9\slf4j-api-2.0
 set CP=%CP%;%USERPROFILE%\.m2\repository\ch\qos\logback\logback-classic\1.5.19\logback-classic-1.5.19.jar
 set CP=%CP%;%USERPROFILE%\.m2\repository\ch\qos\logback\logback-core\1.5.19\logback-core-1.5.19.jar
 
+REM Set benchmark pattern (empty means run all)
+set BENCHMARK_PATTERN=%1
+
 echo.
-echo Running JMH benchmarks for pattern: %BENCHMARK_PATTERN%
+if "%BENCHMARK_PATTERN%"=="" (
+    echo Running ALL JMH benchmarks...
+) else (
+    echo Running JMH benchmarks matching pattern: %BENCHMARK_PATTERN%
+)
 echo.
 
-REM Run JMH with the specified benchmark pattern
+REM Run JMH with the specified benchmark pattern (or all if empty)
 java -cp "%CP%" org.openjdk.jmh.Main %BENCHMARK_PATTERN% %2 %3 %4 %5 %6 %7 %8 %9
 
 echo.

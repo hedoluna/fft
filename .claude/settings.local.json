@@ -47,7 +47,11 @@
       "Bash(mvn dependency:analyze:*)",
       "Bash(mvn versions:display-dependency-updates:*)",
       "Bash(awk:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(echo $USERPROFILE)",
+      "Bash(.run-jmh-benchmarks.bat:*)",
+      "Bash(cmd //c:*)",
+      "Bash(benchmarks\" error.\n\nRoot Cause: JMH expects either no pattern argument (to run all benchmarks)\nor a specific regex pattern. The default \".*\" pattern was being explicitly\npassed, causing no matches.\n\nSolution:\n- Removed default \".*\" pattern from both Windows and Linux scripts\n- When no argument is provided, pass empty/no pattern to JMH (runs all)\n- When pattern is provided, pass it directly to JMH for filtering\n- Updated user feedback messages to clarify when running ALL vs filtered\n\nTesting: Verified that java -cp ... org.openjdk.jmh.Main -l works without\npattern but fails with \".*\" pattern\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ]
   },
   "enableAllProjectMcpServers": false
