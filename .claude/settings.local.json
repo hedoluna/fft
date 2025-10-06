@@ -38,7 +38,15 @@
       "Bash(for i in {1..3})",
       "Bash(do echo \"=== Run $i ===\")",
       "Bash(done)",
-      "Bash(mvn test-compile:*)"
+      "Bash(mvn test-compile:*)",
+      "Bash(wmic:*)",
+      "Bash(tee:*)",
+      "Read(//d/**)",
+      "Bash(mvn javadoc:javadoc:*)",
+      "Bash(git mv:*)",
+      "Bash(mvn dependency:analyze:*)",
+      "Bash(mvn versions:display-dependency-updates:*)",
+      "Bash(awk:*)"
     ]
   },
   "enableAllProjectMcpServers": false

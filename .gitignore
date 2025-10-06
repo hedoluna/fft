@@ -18,6 +18,11 @@ pom.xml.versionsBackup
 pom.xml.next
 release.properties
 dependency-reduced-pom.xml
+
+# Profiling and benchmark outputs
+profiling-output.txt
+profiling-results.csv
+*.hprof
 buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
