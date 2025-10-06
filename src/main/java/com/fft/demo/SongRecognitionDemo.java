@@ -4,6 +4,9 @@ import com.fft.core.FFTResult;
 import com.fft.utils.FFTUtils;
 import com.fft.utils.PitchDetectionUtils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,7 +39,9 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 public class SongRecognitionDemo {
-    
+
+    private static final Logger logger = LoggerFactory.getLogger(SongRecognitionDemo.class);
+
     private static final double SAMPLE_RATE = 44100.0;
     private static final int FFT_SIZE = 4096;
     private static final double NOTE_DURATION = 0.4; // seconds per note
@@ -69,8 +74,8 @@ public class SongRecognitionDemo {
      * @param args command line arguments (unused)
      */
     public static void main(String[] args) {
-        System.out.println("=== FFT-Based Song Recognition Demo ===\n");
-        
+        logger.info("=== FFT-Based Song Recognition Demo ===\n");
+
         SongRecognitionDemo demo = new SongRecognitionDemo();
         demo.runAllDemos();
     }
@@ -92,93 +97,93 @@ public class SongRecognitionDemo {
      * Recognizes complete melodies from a predefined list.
      */
     private void demonstrateBasicSongRecognition() {
-        System.out.println("1. Basic Song Recognition:");
-        System.out.println("-------------------------");
-        
+        logger.info("1. Basic Song Recognition:");
+        logger.info("-------------------------");
+
         // Test with complete melody of "Twinkle, Twinkle, Little Star"
         String[] twinkleMelody = {"C4", "C4", "G4", "G4", "A4", "A4", "G4", "F4", "F4", "E4", "E4", "D4", "D4", "C4"};
         testMelodyRecognition("Twinkle, Twinkle, Little Star (complete)", twinkleMelody);
-        
+
         // Test with "Mary Had a Little Lamb"
         String[] maryMelody = {"E4", "D4", "C4", "D4", "E4", "E4", "E4", "D4", "D4", "D4", "E4", "G4", "G4"};
         testMelodyRecognition("Mary Had a Little Lamb", maryMelody);
-        
-        System.out.println();
+
+        logger.info("");
     }
     
     /**
      * Shows recognition ability using incomplete melody fragments.
      */
     private void demonstratePartialMelodyMatching() {
-        System.out.println("2. Partial Melody Matching:");
-        System.out.println("---------------------------");
-        
+        logger.info("2. Partial Melody Matching:");
+        logger.info("---------------------------");
+
         // Test with just the beginning of "Twinkle, Twinkle"
         String[] partialTwinkle = {"C4", "C4", "G4", "G4", "A4"};
         testMelodyRecognition("Twinkle, Twinkle (partial)", partialTwinkle);
-        
+
         // Test with middle section of "Happy Birthday"
         String[] partialBirthday = {"C4", "C4", "D4", "C4", "F4"};
         testMelodyRecognition("Happy Birthday (partial)", partialBirthday);
-        
-        System.out.println();
+
+        logger.info("");
     }
     
     /**
      * Tests melody recognition when the input contains noise.
      */
     private void demonstrateNoisyMelodyRecognition() {
-        System.out.println("3. Noisy Melody Recognition:");
-        System.out.println("----------------------------");
-        
+        logger.info("3. Noisy Melody Recognition:");
+        logger.info("----------------------------");
+
         String[] melody = {"C4", "C4", "G4", "G4", "A4", "A4", "G4"};
-        
+
         // Test with different noise levels
         double[] noiseLevels = {0.0, 0.1, 0.2, 0.3};
-        
+
         for (double noiseLevel : noiseLevels) {
-            System.out.printf("Testing with noise level %.1f:\n", noiseLevel);
+            logger.info("Testing with noise level {}:", String.format("%.1f", noiseLevel));
             testNoisyMelodyRecognition(melody, noiseLevel);
         }
-        
-        System.out.println();
+
+        logger.info("");
     }
     
     /**
      * Demonstrates robustness to transposition and rhythmic changes.
      */
     private void demonstrateVariationTolerance() {
-        System.out.println("4. Variation Tolerance:");
-        System.out.println("----------------------");
-        
+        logger.info("4. Variation Tolerance:");
+        logger.info("----------------------");
+
         // Test transposed version (different key)
         String[] originalMelody = {"C4", "C4", "G4", "G4", "A4", "A4", "G4"};
         String[] transposedMelody = {"D4", "D4", "A4", "A4", "B4", "B4", "A4"}; // Up one tone
-        
-        System.out.println("Original melody in C:");
+
+        logger.info("Original melody in C:");
         testMelodyRecognition("Twinkle (original)", originalMelody);
-        
-        System.out.println("Transposed melody in D:");
+
+        logger.info("Transposed melody in D:");
         testMelodyRecognition("Twinkle (transposed)", transposedMelody);
-        
+
         // Test with rhythmic variations (doubled notes)
         String[] rhythmicVariation = {"C4", "C4", "C4", "C4", "G4", "G4", "G4", "G4"};
-        System.out.println("Rhythmic variation:");
+        logger.info("Rhythmic variation:");
         testMelodyRecognition("Twinkle (rhythmic variation)", rhythmicVariation);
-        
-        System.out.println();
+
+        logger.info("");
     }
     
     /**
      * Simulates incremental recognition as more notes of a melody arrive with enhanced feedback and confidence analysis.
      */
     private void demonstrateRealTimeRecognition() {
-        System.out.println("5. Real-Time Recognition Simulation:");
-        System.out.println("------------------------------------");
+        logger.info("5. Real-Time Recognition Simulation:");
+        logger.info("------------------------------------");
 
         String[] melody = {"C4", "C4", "G4", "G4", "A4", "A4", "G4", "F4", "F4", "E4", "E4", "D4", "D4", "C4"};
 
-        System.out.println("Simulating incremental recognition with intelligent segmentation and confidence analysis:");
+        logger.info("Simulating incremental recognition with intelligent segmentation and confidence analysis:");
 
         // Generate the full signal once
         double[] fullSignal = generateMelodySignal(melody);
@@ -197,7 +202,7 @@ public class SongRecognitionDemo {
             List<DetectedNote> detectedNotes = extractDetectedNotes(partialSignal);
 
             if (detectedNotes.isEmpty()) {
-                System.out.printf("After %d notes: No pitches detected\n", length);
+                logger.info("After {} notes: No pitches detected", length);
                 confidenceHistory.add(0.0);
                 continue;
             }
@@ -210,8 +215,8 @@ public class SongRecognitionDemo {
             // Calculate average confidence of detected notes
             double avgNoteConfidence = detectedNotes.stream().mapToDouble(n -> n.confidence).average().orElse(0.0);
 
-            System.out.printf("After %d notes (%d detected, avg conf: %.2f): ",
-                length, detectedNotes.size(), avgNoteConfidence);
+            logger.info("After {} notes ({} detected, avg conf: {}): ",
+                length, detectedNotes.size(), String.format("%.2f", avgNoteConfidence));
 
             if (!results.isEmpty()) {
                 RecognitionResult best = results.get(0);
@@ -230,11 +235,11 @@ public class SongRecognitionDemo {
                                        best.confidence > 0.6 ? "MEDIUM" : "LOW";
                 String stability = stableCount >= 2 ? " [STABLE]" : "";
 
-                System.out.printf("Best match: %s (%.1f%% %s confidence)%s\n",
-                    best.songTitle, best.confidence * 100, confidenceLevel, stability);
+                logger.info("Best match: {} ({} {} confidence){}",
+                    best.songTitle, String.format("%.1f%%", best.confidence * 100), confidenceLevel, stability);
             } else {
                 confidenceHistory.add(0.0);
-                System.out.println("No strong matches yet");
+                logger.info("No strong matches yet");
             }
         }
 
@@ -242,51 +247,51 @@ public class SongRecognitionDemo {
         if (!confidenceHistory.isEmpty()) {
             double avgConfidence = confidenceHistory.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
             double maxConfidence = confidenceHistory.stream().mapToDouble(Double::doubleValue).max().orElse(0.0);
-            System.out.printf("Overall: Avg confidence %.1f%%, Peak confidence %.1f%%\n",
-                avgConfidence * 100, maxConfidence * 100);
+            logger.info("Overall: Avg confidence {}%, Peak confidence {}%",
+                String.format("%.1f", avgConfidence * 100), String.format("%.1f", maxConfidence * 100));
         }
 
-        System.out.println();
+        logger.info("");
     }
     
     /**
      * Benchmarks recognition performance and analyzes FFT overhead.
      */
     private void demonstratePerformanceAnalysis() {
-        System.out.println("6. Performance Analysis:");
-        System.out.println("-----------------------");
-        
+        logger.info("6. Performance Analysis:");
+        logger.info("-----------------------");
+
         String[] testMelody = {"C4", "C4", "G4", "G4", "A4", "A4", "G4"};
         int iterations = 100;
-        
+
         long totalTime = 0;
-        
+
         for (int i = 0; i < iterations; i++) {
             long startTime = System.nanoTime();
             recognizeMelody(testMelody, false);
             long endTime = System.nanoTime();
             totalTime += (endTime - startTime);
         }
-        
+
         double averageTime = totalTime / (double) iterations / 1_000_000.0; // Convert to milliseconds
-        
-        System.out.printf("Recognition performance (%d iterations):\n", iterations);
-        System.out.printf("Average recognition time: %.2f ms\n", averageTime);
-        System.out.printf("Database size: %d melodies\n", melodyDatabase.size());
-        System.out.printf("Recognition rate: %.1f recognitions/second\n", 1000.0 / averageTime);
-        
+
+        logger.info("Recognition performance ({} iterations):", iterations);
+        logger.info("Average recognition time: {} ms", String.format("%.2f", averageTime));
+        logger.info("Database size: {} melodies", melodyDatabase.size());
+        logger.info("Recognition rate: {} recognitions/second", String.format("%.1f", 1000.0 / averageTime));
+
         // Analyze FFT performance contribution
         double[] signal = generateMelodySignal(testMelody);
-        
+
         long fftStartTime = System.nanoTime();
         for (int i = 0; i < iterations; i++) {
             extractPitchSequence(signal);
         }
         long fftEndTime = System.nanoTime();
-        
+
         double fftTime = (fftEndTime - fftStartTime) / (double) iterations / 1_000_000.0;
-        System.out.printf("FFT analysis time: %.2f ms (%.1f%% of total)\n",
-            fftTime, (fftTime / averageTime) * 100);
+        logger.info("FFT analysis time: {} ms ({}% of total)",
+            String.format("%.2f", fftTime), String.format("%.1f", (fftTime / averageTime) * 100));
 
         // Test recognition accuracy with different noise levels
         testRecognitionRobustness();
@@ -294,15 +299,15 @@ public class SongRecognitionDemo {
         // Show learning system statistics
         learningSystem.printLearningStats();
 
-        System.out.println();
+        logger.info("");
     }
 
     /**
      * Tests recognition robustness across different noise levels and conditions.
      */
     private void testRecognitionRobustness() {
-        System.out.println("Recognition Robustness Test:");
-        System.out.println("---------------------------");
+        logger.info("Recognition Robustness Test:");
+        logger.info("---------------------------");
 
         String[] testMelody = {"C4", "C4", "G4", "G4", "A4", "A4", "G4"};
         double[] noiseLevels = {0.0, 0.1, 0.2, 0.5};
@@ -318,8 +323,8 @@ public class SongRecognitionDemo {
             List<RecognitionResult> results = findBestMatches(parsons, 1);
 
             double accuracy = results.isEmpty() ? 0.0 : results.get(0).confidence;
-            System.out.printf("Noise %.1f: %d pitches detected, accuracy: %.1f%%\n",
-                noise, pitches.length, accuracy * 100);
+            logger.info("Noise {}: {} pitches detected, accuracy: {}%",
+                String.format("%.1f", noise), pitches.length, String.format("%.1f", accuracy * 100));
         }
     }
     
@@ -330,29 +335,29 @@ public class SongRecognitionDemo {
      * @param melody array of note names
      */
     private void testMelodyRecognition(String description, String[] melody) {
-        System.out.printf("Testing: %s\n", description);
-        
+        logger.info("Testing: {}", description);
+
         List<RecognitionResult> results = recognizeMelody(melody, true);
-        
+
         if (results.isEmpty()) {
-            System.out.println("  No matches found");
+            logger.info("  No matches found");
         } else {
-            System.out.println("  Top matches:");
+            logger.info("  Top matches:");
             for (int i = 0; i < Math.min(3, results.size()); i++) {
                 RecognitionResult result = results.get(i);
-                System.out.printf("    %d. %s (%.1f%% confidence)\n", 
-                    i + 1, result.songTitle, result.confidence * 100);
+                logger.info("    {}. {} ({}% confidence)",
+                    i + 1, result.songTitle, String.format("%.1f", result.confidence * 100));
             }
         }
-        System.out.println();
+        logger.info("");
     }
 
     /**
      * Demonstrates advanced recognition capabilities using enhanced pitch detection.
      */
     private void demonstrateAdvancedRecognition() {
-        System.out.println("6. Advanced Recognition with Enhanced Pitch Detection:");
-        System.out.println("-----------------------------------------------------");
+        logger.info("6. Advanced Recognition with Enhanced Pitch Detection:");
+        logger.info("-----------------------------------------------------");
 
         // Test with "Twinkle, Twinkle, Little Star" using advanced recognition
         String[] twinkleMelody = {"C4", "C4", "G4", "G4", "A4", "A4", "G4", "F4", "F4", "E4", "E4", "D4", "D4", "C4"};
@@ -362,43 +367,43 @@ public class SongRecognitionDemo {
         String[] partialTwinkle = {"C4", "C4", "G4", "G4", "A4"};
         testAdvancedMelodyRecognition("Twinkle (Partial + Advanced)", partialTwinkle);
 
-        System.out.println();
+        logger.info("");
     }
 
     /**
      * Tests advanced melody recognition with enhanced features.
      */
     private void testAdvancedMelodyRecognition(String description, String[] melody) {
-        System.out.printf("Testing: %s\n", description);
+        logger.info("Testing: {}", description);
 
         // Generate signal and extract notes using advanced method
         double[] signal = generateMelodySignal(melody);
         List<DetectedNote> detectedNotes = extractDetectedNotes(signal);
 
-        System.out.printf("  Detected %d notes with advanced segmentation\n", detectedNotes.size());
+        logger.info("  Detected {} notes with advanced segmentation", detectedNotes.size());
 
         if (!detectedNotes.isEmpty()) {
             double avgConfidence = detectedNotes.stream().mapToDouble(n -> n.confidence).average().orElse(0.0);
-            System.out.printf("  Average note confidence: %.1f%%\n", avgConfidence * 100);
+            logger.info("  Average note confidence: {}%", String.format("%.1f", avgConfidence * 100));
 
             // Use advanced recognition
             List<RecognitionResult> results = recognizeMelodyAdvanced(detectedNotes, 5);
 
             if (results.isEmpty()) {
-                System.out.println("  No matches found with advanced recognition");
+                logger.info("  No matches found with advanced recognition");
             } else {
-                System.out.println("  Advanced recognition results:");
+                logger.info("  Advanced recognition results:");
                 for (int i = 0; i < Math.min(3, results.size()); i++) {
                     RecognitionResult result = results.get(i);
-                    System.out.printf("    %d. %s (%.1f%% confidence)\n",
-                        i + 1, result.songTitle, result.confidence * 100);
+                    logger.info("    {}. {} ({}% confidence)",
+                        i + 1, result.songTitle, String.format("%.1f", result.confidence * 100));
                 }
             }
         } else {
-            System.out.println("  No notes detected");
+            logger.info("  No notes detected");
         }
 
-        System.out.println();
+        logger.info("");
     }
 
     /**
@@ -416,7 +421,7 @@ public class SongRecognitionDemo {
         List<DetectedNote> detectedNotes = extractDetectedNotes(signal);
 
         if (detectedNotes.isEmpty()) {
-            System.out.println("  No reliable pitches detected (too noisy)");
+            logger.info("  No reliable pitches detected (too noisy)");
             return;
         }
 
@@ -427,7 +432,7 @@ public class SongRecognitionDemo {
         // Analyze rhythm pattern
         String rhythmPattern = analyzeRhythmPattern(detectedNotes);
 
-        System.out.printf("  Detected %d notes, Parsons code: %s, Rhythm: %s\n",
+        logger.info("  Detected {} notes, Parsons code: {}, Rhythm: {}",
             detectedNotes.size(), noisyParsons, rhythmPattern);
 
         // Use enhanced recognition with rhythm information
@@ -436,10 +441,10 @@ public class SongRecognitionDemo {
         if (!results.isEmpty()) {
             RecognitionResult best = results.get(0);
             double avgConfidence = detectedNotes.stream().mapToDouble(n -> n.confidence).average().orElse(0.0);
-            System.out.printf("  Best match: %s (%.1f%% confidence, avg note conf: %.2f)\n",
-                best.songTitle, best.confidence * 100, avgConfidence);
+            logger.info("  Best match: {} ({}% confidence, avg note conf: {})",
+                best.songTitle, String.format("%.1f", best.confidence * 100), String.format("%.2f", avgConfidence));
         } else {
-            System.out.println("  No matches found");
+            logger.info("  No matches found");
         }
     }
     
@@ -461,7 +466,7 @@ public class SongRecognitionDemo {
         String parsonsCode = ParsonsCodeUtils.generateParsonsCode(frequencies);
 
         if (verbose) {
-            System.out.printf("  Generated Parsons code: %s\n", parsonsCode);
+            logger.info("  Generated Parsons code: {}", parsonsCode);
         }
 
         // Find matches
@@ -1791,18 +1796,18 @@ public class SongRecognitionDemo {
         }
 
         void printLearningStats() {
-            System.out.println("Learning System Statistics:");
-            System.out.println("---------------------------");
+            logger.info("Learning System Statistics:");
+            logger.info("---------------------------");
             for (String algorithm : new String[]{"exact", "partial", "variation", "dtw"}) {
                 String key = "algorithm_" + algorithm;
                 int successes = successCounts.getOrDefault(key, 0);
                 int total = totalCounts.getOrDefault(key, 0);
                 double successRate = total > 0 ? (double) successes / total : 0.0;
                 double weight = algorithmWeights.get(algorithm);
-                System.out.printf("%s: %.1f%% success (%d/%d), weight: %.3f\n",
-                    algorithm, successRate * 100, successes, total, weight);
+                logger.info("{}: {}% success ({}/{}), weight: {}",
+                    algorithm, String.format("%.1f", successRate * 100), successes, total, String.format("%.3f", weight));
             }
-            System.out.println();
+            logger.info("");
         }
     }
     

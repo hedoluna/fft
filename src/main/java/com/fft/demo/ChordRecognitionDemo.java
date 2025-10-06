@@ -4,6 +4,9 @@ import com.fft.core.FFTResult;
 import com.fft.utils.FFTUtils;
 import com.fft.utils.PitchDetectionUtils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,6 +38,8 @@ import java.util.stream.Collectors;
  */
 public class ChordRecognitionDemo {
 
+    private static final Logger logger = LoggerFactory.getLogger(ChordRecognitionDemo.class);
+
     private static final double SAMPLE_RATE = 44100.0;
     private static final int FFT_SIZE = 4096;
     private static final double CHORD_DURATION = 1.0; // seconds per chord
@@ -51,7 +56,7 @@ public class ChordRecognitionDemo {
      * Entry point for the chord recognition demonstration.
      */
     public static void main(String[] args) {
-        System.out.println("=== FFT-Based Chord Recognition Demo ===%n");
+        logger.info("=== FFT-Based Chord Recognition Demo ===%n");
 
         ChordRecognitionDemo demo = new ChordRecognitionDemo();
         demo.runAllChordDemos();
@@ -72,8 +77,8 @@ public class ChordRecognitionDemo {
      * Demonstrates basic chord detection capabilities.
      */
     public void demonstrateBasicChordDetection() {
-        System.out.println("1. Basic Chord Detection:");
-        System.out.println("-------------------------");
+        logger.info("1. Basic Chord Detection:");
+        logger.info("-------------------------");
 
         // Test individual chords
         String[] testChords = {"C", "Dm", "Em", "F", "G", "Am", "Bdim"};
@@ -82,15 +87,15 @@ public class ChordRecognitionDemo {
             testChordDetection(chordName);
         }
 
-        System.out.println();
+        logger.info("");
     }
 
     /**
      * Demonstrates chord progression recognition.
      */
     public void demonstrateChordProgressionRecognition() {
-        System.out.println("2. Chord Progression Recognition:");
-        System.out.println("---------------------------------");
+        logger.info("2. Chord Progression Recognition:");
+        logger.info("---------------------------------");
 
         // Test common progressions
         String[][] progressions = {
@@ -111,44 +116,44 @@ public class ChordRecognitionDemo {
             testChordProgression(progressionNames[i], progressions[i]);
         }
 
-        System.out.println();
+        logger.info("");
     }
 
     /**
      * Demonstrates harmonic analysis of musical pieces.
      */
     private void demonstrateHarmonicAnalysis() {
-        System.out.println("3. Harmonic Analysis:");
-        System.out.println("---------------------");
+        logger.info("3. Harmonic Analysis:");
+        logger.info("---------------------");
 
         // Analyze harmonic content of different genres
         analyzeHarmonicContent("Twinkle, Twinkle, Little Star", new String[]{"C", "F", "C", "G"});
         analyzeHarmonicContent("Amazing Grace", new String[]{"G", "Em", "D", "C"});
 
-        System.out.println();
+        logger.info("");
     }
 
     /**
      * Demonstrates combined melody and harmony recognition.
      */
     private void demonstrateCombinedMelodyHarmony() {
-        System.out.println("4. Combined Melody & Harmony Recognition:");
-        System.out.println("-----------------------------------------");
+        logger.info("4. Combined Melody & Harmony Recognition:");
+        logger.info("-----------------------------------------");
 
         // Test songs with both melody and chord information
         testCombinedRecognition("Happy Birthday",
             new String[]{"C4", "C4", "D4", "C4", "F4", "E4"},
             new String[]{"C", "C", "C", "C", "F", "C"});
 
-        System.out.println();
+        logger.info("");
     }
 
     /**
      * Benchmarks chord recognition performance.
      */
     public void demonstratePerformanceAnalysis() {
-        System.out.println("5. Chord Recognition Performance:");
-        System.out.println("---------------------------------");
+        logger.info("5. Chord Recognition Performance:");
+        logger.info("---------------------------------");
 
         String[] testChords = {"C", "Dm", "Em", "F", "G", "Am"};
         int iterations = 50;
@@ -166,43 +171,44 @@ public class ChordRecognitionDemo {
 
         double averageTime = totalTime / (double) (iterations * testChords.length) / 1_000_000.0;
 
-        System.out.printf("Chord recognition performance (%d iterations):%n", iterations * testChords.length);
-        System.out.printf("Average recognition time: %.2f ms per chord%n", averageTime);
-        System.out.printf("Recognition rate: %.1f chords/second%n", 1000.0 / averageTime);
+        logger.info("Chord recognition performance (%d iterations):%n", iterations * testChords.length);
+        logger.info("Average recognition time: %.2f ms per chord%n", averageTime);
+        logger.info("Recognition rate: %.1f chords/second%n", 1000.0 / averageTime);
 
         // Test accuracy
         testChordRecognitionAccuracy();
 
-        System.out.println();
+        logger.info("");
     }
 
     /**
      * Tests recognition of a single chord.
      */
     private void testChordDetection(String chordName) {
-        System.out.printf("Testing: %s%n", chordName);
+        logger.info("Testing: %s%n", chordName);
 
         PitchDetectionUtils.ChordResult result = recognizeChord(chordName, true);
 
         if (result.frequencies.length > 0) {
-            System.out.printf("  Detected: %s (%s)%n", result.chordName, result.chordType);
-            System.out.printf("  Frequencies: ");
+            logger.info("  Detected: %s (%s)%n", result.chordName, result.chordType);
+            StringBuilder freqBuilder = new StringBuilder("  Frequencies: ");
             for (int i = 0; i < result.frequencies.length; i++) {
-                System.out.printf("%.1f Hz", result.frequencies[i]);
-                if (i < result.frequencies.length - 1) System.out.print(", ");
+                freqBuilder.append(String.format("%.1f Hz", result.frequencies[i]));
+                if (i < result.frequencies.length - 1) freqBuilder.append(", ");
             }
-            System.out.printf("%n  Confidence: %.1f%%%n", result.confidence * 100);
+            logger.info(freqBuilder.toString());
+            logger.info("  Confidence: {}%", String.format("%.1f", result.confidence * 100));
         } else {
-            System.out.println("  No chord detected");
+            logger.info("  No chord detected");
         }
-        System.out.println();
+        logger.info("");
     }
 
     /**
      * Tests recognition of a chord progression.
      */
     private void testChordProgression(String progressionName, String[] chords) {
-        System.out.printf("Testing: %s%n", progressionName);
+        logger.info("Testing: %s%n", progressionName);
 
         List<PitchDetectionUtils.ChordResult> results = new ArrayList<>();
         for (String chord : chords) {
@@ -219,27 +225,27 @@ public class ChordRecognitionDemo {
             .average()
             .orElse(0.0);
 
-        System.out.printf("  Detected progression: %s%n", detectedProgression);
-        System.out.printf("  Average confidence: %.1f%%%n", avgConfidence * 100);
+        logger.info("  Detected progression: %s%n", detectedProgression);
+        logger.info("  Average confidence: %.1f%%%n", avgConfidence * 100);
 
         // Find matching known progressions
         List<ProgressionMatch> matches = findProgressionMatches(results);
         if (!matches.isEmpty()) {
-            System.out.println("  Best matches:");
+            logger.info("  Best matches:");
             for (int i = 0; i < Math.min(2, matches.size()); i++) {
                 ProgressionMatch match = matches.get(i);
-                System.out.printf("    %s (%.1f%% match)%n", match.progressionName, match.similarity * 100);
+                logger.info("    %s (%.1f%% match)%n", match.progressionName, match.similarity * 100);
             }
         }
 
-        System.out.println();
+        logger.info("");
     }
 
     /**
      * Analyzes the harmonic content of a piece.
      */
     private void analyzeHarmonicContent(String pieceName, String[] chords) {
-        System.out.printf("Analyzing: %s%n", pieceName);
+        logger.info("Analyzing: %s%n", pieceName);
 
         List<PitchDetectionUtils.ChordResult> results = Arrays.stream(chords)
             .map(chord -> recognizeChord(chord, false))
@@ -259,22 +265,22 @@ public class ChordRecognitionDemo {
         // Determine key
         String likelyKey = determineKey(results);
 
-        System.out.printf("  Key: %s%n", likelyKey);
-        System.out.printf("  Unique chord types: %d%n", uniqueChords);
-        System.out.printf("  Average detection confidence: %.1f%%%n", avgConfidence * 100);
+        logger.info("  Key: %s%n", likelyKey);
+        logger.info("  Unique chord types: %d%n", uniqueChords);
+        logger.info("  Average detection confidence: %.1f%%%n", avgConfidence * 100);
 
         // Chord type distribution
         Map<String, Long> typeDistribution = results.stream()
             .collect(Collectors.groupingBy(r -> r.chordType, Collectors.counting()));
 
-        System.out.printf("  Chord distribution: %s%n", typeDistribution);
+        logger.info("  Chord distribution: %s%n", typeDistribution);
     }
 
     /**
      * Tests combined melody and harmony recognition.
      */
     private void testCombinedRecognition(String songName, String[] melody, String[] chords) {
-        System.out.printf("Testing: %s (Melody + Harmony)%n", songName);
+        logger.info("Testing: %s (Melody + Harmony)%n", songName);
 
         // Generate combined signal (simplified - alternating melody and chords)
         double[] combinedSignal = generateCombinedSignal(melody, chords);
@@ -283,14 +289,14 @@ public class ChordRecognitionDemo {
         List<PitchDetectionUtils.PitchResult> melodyNotes = extractMelodyFromCombined(combinedSignal);
         List<PitchDetectionUtils.ChordResult> chordSequence = extractChordsFromCombined(combinedSignal);
 
-        System.out.printf("  Detected %d melody notes and %d chords%n", melodyNotes.size(), chordSequence.size());
+        logger.info("  Detected %d melody notes and %d chords%n", melodyNotes.size(), chordSequence.size());
 
         if (!chordSequence.isEmpty()) {
             double avgChordConfidence = chordSequence.stream()
                 .mapToDouble(c -> c.confidence)
                 .average()
                 .orElse(0.0);
-            System.out.printf("  Average chord confidence: %.1f%%%n", avgChordConfidence * 100);
+            logger.info("  Average chord confidence: %.1f%%%n", avgChordConfidence * 100);
         }
     }
 
@@ -298,8 +304,8 @@ public class ChordRecognitionDemo {
      * Tests chord recognition accuracy across different conditions.
      */
     private void testChordRecognitionAccuracy() {
-        System.out.println("Chord Recognition Accuracy Test:");
-        System.out.println("--------------------------------");
+        logger.info("Chord Recognition Accuracy Test:");
+        logger.info("--------------------------------");
 
         String[] testChords = {"C", "Dm", "Em", "F", "G", "Am", "Bdim"};
         int correct = 0;
@@ -316,7 +322,7 @@ public class ChordRecognitionDemo {
         }
 
         double accuracy = (double) correct / total * 100;
-        System.out.printf("Accuracy: %.1f%% (%d/%d correct)%n", accuracy, correct, total);
+        logger.info("Accuracy: %.1f%% (%d/%d correct)%n", accuracy, correct, total);
     }
 
     /**
@@ -334,7 +340,7 @@ public class ChordRecognitionDemo {
         PitchDetectionUtils.ChordResult result = PitchDetectionUtils.detectChord(spectrum, SAMPLE_RATE, MAX_SIMULTANEOUS_FREQUENCIES);
 
         if (verbose) {
-            System.out.printf("  Generated signal for: %s%n", chordName);
+            logger.info("  Generated signal for: %s%n", chordName);
         }
 
         return result;

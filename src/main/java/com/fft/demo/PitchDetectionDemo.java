@@ -3,6 +3,9 @@ package com.fft.demo;
 import com.fft.core.FFTResult;
 import com.fft.utils.FFTUtils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.sound.sampled.*;
 import java.io.*;
 import java.util.*;
@@ -49,7 +52,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since 2.0.0
  */
 public class PitchDetectionDemo {
-    
+
+    private static final Logger logger = LoggerFactory.getLogger(PitchDetectionDemo.class);
+
     // Audio configuration
     private static final float SAMPLE_RATE = 44100.0f;
     private static final int SAMPLE_SIZE_IN_BITS = 16;
@@ -96,8 +101,8 @@ public class PitchDetectionDemo {
      * @param args command line arguments (unused)
      */
     public static void main(String[] args) {
-        System.out.println("=== FFT-Based Pitch Detection Demo ===\n");
-        
+        logger.info("=== FFT-Based Pitch Detection Demo ===\n");
+
         PitchDetectionDemo demo = new PitchDetectionDemo();
         demo.runDemo();
     }
@@ -107,29 +112,29 @@ public class PitchDetectionDemo {
      * user stops the demo.
      */
     public void runDemo() {
-        System.out.println("Setting up audio capture...");
-        
+        logger.info("Setting up audio capture...");
+
         AudioFormat format = new AudioFormat(
             SAMPLE_RATE, SAMPLE_SIZE_IN_BITS, CHANNELS, SIGNED, BIG_ENDIAN
         );
-        
+
         DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
-        
+
         if (!AudioSystem.isLineSupported(info)) {
-            System.err.println("Audio line not supported!");
+            logger.error("Audio line not supported!");
             return;
         }
-        
+
         try (TargetDataLine microphone = (TargetDataLine) AudioSystem.getLine(info)) {
             microphone.open(format);
             microphone.start();
-            
-            System.out.println("Audio capture started!");
-            System.out.println("Optimized FFT implementation: " + FFTUtils.getImplementationInfo(FFT_SIZE));
-            System.out.println("Sample rate: " + SAMPLE_RATE + " Hz");
-            System.out.println("FFT size: " + FFT_SIZE + " samples");
-            System.out.printf("Frequency resolution: %.2f Hz\n", SAMPLE_RATE / FFT_SIZE);
-            System.out.println("\nPress Enter to stop...\n");
+
+            logger.info("Audio capture started!");
+            logger.info("Optimized FFT implementation: {}", FFTUtils.getImplementationInfo(FFT_SIZE));
+            logger.info("Sample rate: {} Hz", SAMPLE_RATE);
+            logger.info("FFT size: {} samples", FFT_SIZE);
+            logger.info("Frequency resolution: {} Hz", String.format("%.2f", SAMPLE_RATE / FFT_SIZE));
+            logger.info("\nPress Enter to stop...\n");
             
             // Start background thread to detect Enter key
             Thread stopThread = new Thread(() -> {
@@ -147,7 +152,7 @@ public class PitchDetectionDemo {
             processAudioStream(microphone);
             
         } catch (LineUnavailableException e) {
-            System.err.println("Could not open microphone: " + e.getMessage());
+            logger.error("Could not open microphone: {}", e.getMessage());
         }
         
         printParsonsCode();
@@ -616,13 +621,13 @@ public class PitchDetectionDemo {
      */
     private void displayResults(int frameCount, PitchDetectionResult result) {
         if (frameCount % 10 == 0) { // Display every 10th frame to avoid overwhelming output
-            System.out.printf("Frame %d: ", frameCount);
-            
             if (result.frequency > 0) {
-                System.out.printf("Pitch: %s%d (%.1f Hz) | Magnitude: %.3f\n",
-                    result.noteName, result.octave, result.frequency, result.magnitude);
+                logger.info("Frame {}: Pitch: {}{} ({} Hz) | Magnitude: {}",
+                    frameCount, result.noteName, result.octave,
+                    String.format("%.1f", result.frequency),
+                    String.format("%.3f", result.magnitude));
             } else {
-                System.out.println("No pitch detected");
+                logger.info("Frame {}: No pitch detected", frameCount);
             }
         }
     }
@@ -673,15 +678,15 @@ public class PitchDetectionDemo {
      * of each pitch change.
      */
     private void printParsonsCode() {
-        System.out.println("\n=== Captured Parsons Code Sequence ===");
-        
+        logger.info("\n=== Captured Parsons Code Sequence ===");
+
         if (parsonsSequence.isEmpty()) {
-            System.out.println("No pitch changes detected.");
+            logger.info("No pitch changes detected.");
             return;
         }
-        
+
         StringBuilder parsonsCode = new StringBuilder("*"); // Start symbol
-        
+
         for (PitchChange change : parsonsSequence) {
             switch (change.direction) {
                 case UP:
@@ -695,20 +700,20 @@ public class PitchDetectionDemo {
                     break;
             }
         }
-        
-        System.out.println("Parsons Code: " + parsonsCode.toString());
-        System.out.println("\nDetailed Sequence:");
-        
+
+        logger.info("Parsons Code: {}", parsonsCode.toString());
+        logger.info("\nDetailed Sequence:");
+
         for (int i = 0; i < parsonsSequence.size(); i++) {
             PitchChange change = parsonsSequence.get(i);
             String note = frequencyToNote(change.frequency);
             int octave = frequencyToOctave(change.frequency);
-            
-            System.out.printf("%d. %s → %s%d (%.1f Hz)\n", 
-                i + 1, change.direction, note, octave, change.frequency);
+
+            logger.info("{}. {} → {}{} ({} Hz)",
+                i + 1, change.direction, note, octave, String.format("%.1f", change.frequency));
         }
-        
-        System.out.println("\nThis Parsons code can be used for melody matching and song identification!");
+
+        logger.info("\nThis Parsons code can be used for melody matching and song identification!");
     }
     
     // Data classes

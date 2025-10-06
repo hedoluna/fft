@@ -1,6 +1,7 @@
 # Fast Fourier Transform (FFT) Library
 
 [![CI Build](https://github.com/hedoluna/fft/actions/workflows/ci.yml/badge.svg)](https://github.com/hedoluna/fft/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/hedoluna/fft/branch/main/graph/badge.svg)](https://codecov.io/gh/hedoluna/fft)
 [![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](http://unlicense.org/)
 [![Java Version](https://img.shields.io/badge/Java-17%2B-orange.svg)](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
 [![Maven Central](https://img.shields.io/badge/Maven-2.0.0--SNAPSHOT-green.svg)](pom.xml)
