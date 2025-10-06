@@ -8,7 +8,7 @@ Enhanced and refactored in 2025 with modern Java patterns, comprehensive testing
 
 ## ✨ Key Features
 
-- **🚀 High Performance**: Advanced optimizations with FFT32 (3.43x speedup), FFT2048 (2.77x), FFT4096 (2.71x) and 6 more major speedups
+- **🚀 High Performance**: FASE 2 optimizations complete - FFT8 (3.36x speedup), FFT128 (1.42x), all regressions eliminated
 - **🏭 Factory Pattern**: Automatic implementation selection with 14 size-specific implementations (8-65536)
 - **🎯 Type Safety**: Modern API with immutable result objects and rich data extraction
 - **🧪 Comprehensive Testing**: 296+ unit tests across 25 test class files with 100% pass rate
@@ -31,10 +31,11 @@ com.fft.factory/      # Implementation selection and factory pattern
 └── FFTImplementationDiscovery.java # Auto-registration system
 
 com.fft.optimized/    # Size-specific optimized implementations (14 total)
-├── FFTOptimized8.java    # 8-point FFT (1.42-2.45x speedup verified)
-├── FFTOptimized16.java   # 16-point FFT (fallback implementation)
-├── FFTOptimized32.java   # 32-point FFT (1.33-1.56x speedup verified)
-├── FFTOptimized64.java   # 64-point FFT (fallback implementation)
+├── FFTOptimized8.java    # 8-point FFT (3.36x speedup - complete loop unrolling)
+├── FFTOptimized16.java   # 16-point FFT (neutral - delegation overhead removed)
+├── FFTOptimized32.java   # 32-point FFT (1.12x speedup - overhead removed)
+├── FFTOptimized64.java   # 64-point FFT (neutral - overhead removed)
+├── FFTOptimized128.java  # 128-point FFT (1.42x speedup - optimized)
 └── ... (all power-of-2 sizes 8 to 65536)
 
 com.fft.utils/        # Utility classes and helpers
@@ -173,61 +174,52 @@ System.out.println("Parsons code: " + parsonsCode); // e.g., "*UDUDRDU"
 
 ## 📊 Performance Characteristics
 
-### Benchmark Results (Current Implementation)
+### Benchmark Results (FASE 2 - Current Implementation)
 
 | Size | Implementation | Optimization Status | Actual Performance |
 |------|---------------|---------------------|--------------------|
-| 8 | FFTOptimized8 | ✅ **Advanced Optimization** | 1.77x speedup (manual unrolling, SIMD-style) |
-| 16 | FFTOptimized16 | ❌ **Performance Regression** | 0.60x speedup (needs major optimization) |
-| 32 | FFTOptimized32 | 🏆 **Outstanding Optimization** | 3.43x speedup (cutting-edge techniques) |
-| 64 | FFTOptimized64 | ✅ **Excellent Optimization** | 2.00x speedup (precomputed twiddles, Karatsuba) |
-| 128 | FFTOptimized128 | ✅ **Good Optimization** | 1.60x speedup (divide-and-conquer) |
-| 256 | FFTOptimized256 | ✅ **Strong Optimization** | 2.08x speedup (recursive decomposition) |
-| 512 | FFTOptimized512 | ✅ **Good Optimization** | 1.80x speedup (cache-friendly algorithms) |
-| 1024 | FFTOptimized1024 | ✅ **Strong Optimization** | 2.21x speedup (hierarchical blocking) |
-| 2048 | FFTOptimized2048 | ✅ **Excellent Optimization** | 2.77x speedup (advanced blocking) |
-| 4096 | FFTOptimized4096 | ✅ **Excellent Optimization** | 2.71x speedup (multi-level cache optimization) |
-| 8192+ | FFTOptimized* | ✅ **Appropriate Fallback** | ~1.00x speedup (uses base implementation) |
+| 8 | FFTOptimized8 | 🏆 **Excellent Optimization** | 3.36x speedup (complete loop unrolling, hardcoded twiddles) |
+| 16 | FFTOptimized16 | ✅ **Neutral (Overhead Removed)** | 0.99x speedup (delegation overhead eliminated) |
+| 32 | FFTOptimized32 | ✅ **Small Gain** | 1.12x speedup (overhead removed) |
+| 64 | FFTOptimized64 | ✅ **Neutral (Overhead Removed)** | 1.01x speedup (delegation overhead eliminated) |
+| 128 | FFTOptimized128 | ✅ **Good Optimization** | 1.42x speedup (direct implementation) |
+| 256 | FFTOptimized256 | ✅ **Neutral** | ~1.00x speedup (baseline equivalent) |
+| 512 | FFTOptimized512 | ✅ **Neutral** | 1.01x speedup (overhead removed) |
+| 1024+ | FFTOptimized* | ✅ **Baseline** | ~1.00x speedup (uses base implementation) |
 
-**Performance Reality:**
-- 🏆 **FFTOptimized32**: Outstanding 3.43x speedup (70.8% efficiency) using cutting-edge techniques
-- ✅ **FFTOptimized2048**: Excellent 2.77x speedup (63.9% efficiency) with advanced blocking
-- ✅ **FFTOptimized4096**: Excellent 2.71x speedup (63.1% efficiency) with multi-level cache optimization
-- ✅ **FFTOptimized1024**: Strong 2.21x speedup (54.7% efficiency) with hierarchical blocking
-- ✅ **FFTOptimized256**: Strong 2.08x speedup (51.9% efficiency) with recursive decomposition
-- ✅ **FFTOptimized64**: Good 2.00x speedup (50.0% efficiency) with precomputed twiddles and Karatsuba multiplication
-- ✅ **FFTOptimized512**: Good 1.80x speedup (44.4% efficiency) with cache-friendly algorithms
-- ✅ **FFTOptimized8**: Good 1.77x speedup (43.5% efficiency) with manual unrolling and SIMD-style operations
-- ✅ **FFTOptimized128**: Decent 1.60x speedup (37.6% efficiency) with divide-and-conquer
-- ❌ **FFTOptimized16**: Performance regression (0.60x) - requires major optimization work
-- ✅ **8192+ sizes**: Appropriately use base implementation as fallback (~1.00x)
-- ✅ **Audio Processing**: Real-time capability confirmed (4096-point in ~75ms)
-- ✅ **Pitch Detection**: <0.5% error across musical range (80Hz-2000Hz)
+**Performance Reality (FASE 2 Complete):**
+- 🏆 **FFTOptimized8**: Excellent 3.36x speedup (70.2% efficiency) - complete loop unrolling with hardcoded constants
+- ✅ **FFTOptimized128**: Good 1.42x speedup (29.6% efficiency) - direct FFTBase implementation working well
+- ✅ **FFTOptimized32**: Small gain 1.12x speedup (10.5% efficiency) - delegation overhead removed
+- ✅ **FFTOptimized16/64/512**: Neutral ~1.00x - delegation overhead eliminated, no regressions
+- ✅ **All Sizes**: 100% correctness maintained - 77/77 tests passing
+- ✅ **Zero Regressions**: All previous performance issues fixed
+- 📚 **Lessons Documented**: See OPTIMIZATION_LESSONS_LEARNED.md for what worked and what didn't
 
-### 🔬 Advanced Optimization Techniques
+### 🔬 Optimization Techniques (FASE 2 Learnings)
 
-**Algorithmic Optimizations:**
-- ✅ **Split-radix algorithms** for optimal operation count (25% fewer operations than radix-2)
-- ✅ **Karatsuba complex multiplication** (3 multiplications instead of 4)
-- ✅ **Manual loop unrolling** with SIMD-style parallel operations
-- ✅ **Hardcoded bit-reversal** permutations for zero-overhead
+**✅ What Worked Successfully:**
+- ✅ **Complete loop unrolling** (FFT8: 3.36x speedup)
+- ✅ **Hardcoded twiddle factors** as static final constants
+- ✅ **Direct FFTBase implementation** (no delegation layers)
+- ✅ **Manual unrolled array copying** for small sizes
+- ✅ **Removing ConcurrentHashMap caching** (overhead elimination)
+- ✅ **In-place butterfly operations** on copied arrays
+- ✅ **Inline bit-reversal** with hardcoded swap patterns
 
-**Memory & Cache Optimizations:**
-- ✅ **Precomputed twiddle factor tables** (eliminates all runtime trigonometry)
-- ✅ **Bit-mask operations** instead of expensive modulo operations
-- ✅ **Cache-friendly memory access patterns** with optimized data layout
-- ✅ **In-place algorithms** minimizing memory allocation overhead
+**❌ What Didn't Work:**
+- ❌ **Naive algorithm extension** (FFT8 → FFT16 pattern failed)
+- ❌ **Delegation patterns** through OptimizedFFTUtils (5-16% overhead)
+- ❌ **ConcurrentHashMap caching** for lightweight objects
+- ❌ **Framework abstractions** in performance-critical paths
+- ❌ **Method call layers** preventing JVM inlining
 
-**Compiler & JVM Optimizations:**
-- ✅ **Bit-shift operations** replacing multiplication/division by powers of 2
-- ✅ **Final constants** enabling aggressive compiler optimization
-- ✅ **Primitive specialization** avoiding autoboxing penalties
-- ✅ **Branch prediction optimization** with predictable access patterns
-
-**Mathematical Optimizations:**
-- ✅ **Trigonometric symmetries** reducing lookup table sizes by 50%
-- ✅ **Power-of-2 optimizations** using bit operations throughout
-- ✅ **Complex arithmetic identities** for maximum computational efficiency
+**🎓 Key Lessons (see OPTIMIZATION_LESSONS_LEARNED.md):**
+- Direct implementation > Delegation patterns (always)
+- Measure baseline before optimizing (don't assume)
+- Each FFT size needs mathematical verification
+- Correctness first, then optimize
+- JVM optimizes straight-line code better than loops
 
 ### Audio Processing Performance
 - **Real-time Capability**: 44.1 kHz sampling rate supported
@@ -345,15 +337,17 @@ project documentation:
 - **Production Ready**: Enterprise-grade reliability with comprehensive error handling
 
 ### 🔄 Future Optimization Opportunities
-1. **Fix correctness issues** in FFT32, FFT2048, FFT4096 implementations (currently failing verification)
-2. **Improve factory selection** to ensure optimized implementations are used instead of fallback
-3. **Address performance regressions** in smaller sizes showing slowdown
-4. **Complete remaining optimizations** for sizes with minimal speedup
 
-### 📋 Future Enhancements
-- **Complete optimization implementations** to achieve additional performance gains
-- **Template-based code generation** framework for consistent optimizations
-- **SIMD vectorization** integration for modern CPU features
+**Next Steps for True Algorithmic Gains:**
+1. **FFT16 Radix-4 DIT**: Use 2 stages instead of 4 (simpler verification, target 1.8-2.0x)
+2. **FFT32 Composite**: Leverage 4×FFT8 blocks (reuse proven code, target 2.0-2.5x)
+3. **FFT64 Radix-8**: Only 2 stages needed (simpler than 6-stage radix-2, target 2.0-2.5x)
+4. **Verification Framework**: Stage-by-stage validation against FFTBase
+
+**Long-term Enhancements:**
+- **Template-based code generation** for consistent optimization patterns
+- **SIMD vectorization** using Java Vector API (JDK 16+)
+- **Split-radix algorithms** for 25% fewer operations
 - **Streaming FFT support** for real-time applications
 
 ## 📖 Migration Guide

@@ -100,7 +100,7 @@ mvn exec:java -Dexec.mainClass="com.fft.demo.SimulatedPitchDetectionDemo"
 
 ## Performance Optimization
 
-**Current Status (see FASE2_OVERHEAD_REMOVAL.md, FASE2_FINAL_REPORT.md):**
+**Current Status (see OPTIMIZATION_LESSONS_LEARNED.md, FASE2_OVERHEAD_REMOVAL.md, FASE2_FINAL_REPORT.md):**
 - **FASE 1 COMPLETATA**: Framework overhead eliminated (3.1x speedup on small sizes)
 - **FASE 2 COMPLETED**: Delegation overhead removed, all regressions eliminated
   - ✅ FFT8: 3.36x speedup (complete loop unrolling, hardcoded twiddles)
@@ -108,13 +108,25 @@ mvn exec:java -Dexec.mainClass="com.fft.demo.SimulatedPitchDetectionDemo"
   - ✅ FFT128: 1.42x speedup (existing optimizations confirmed working)
   - ✅ All sizes: 100% correctness maintained
 
-**Optimization Techniques Available:**
+**What Worked (see OPTIMIZATION_LESSONS_LEARNED.md for full details):**
+- ✅ Complete loop unrolling for small sizes (FFT8: 3.36x)
+- ✅ Hardcoded twiddle factors as static final constants
+- ✅ Direct implementation (no delegation layers)
+- ✅ Manual unrolled array copying
+- ✅ Removing ConcurrentHashMap caching overhead
+
+**What Didn't Work:**
+- ❌ Naive algorithm extension (FFT8 → FFT16 failed)
+- ❌ Delegation patterns (5-16% overhead)
+- ❌ ConcurrentHashMap caching for lightweight objects
+- ❌ Framework abstraction in tight loops
+
+**Optimization Techniques for Future:**
+- Radix-4 DIT for FFT16 (2 stages instead of 4)
+- Composite approach for FFT32 (4×FFT8 blocks)
+- Radix-8 DIT for FFT64 (only 2 stages)
 - Split-radix algorithms (25% fewer operations)
-- Karatsuba complex multiplication (3 mults instead of 4)
-- Manual loop unrolling with SIMD-style operations
-- Precomputed twiddle factor tables (in OptimizedFFTUtils)
 - Cache-friendly memory access patterns
-- Bit-reversal optimizations
 
 **Performance Investigation:**
 ```bash
@@ -228,7 +240,10 @@ mvn test -Djava.util.logging.config.file=logging.properties
 - Parsons code generation requires stable pitch tracking
 
 **Key Files for Reference:**
-- `PERFORMANCE_OPTIMIZATION_STATUS.md`: Performance roadmap, FASE 1 completed (3.1x speedup), FASE 2 pending
+- `OPTIMIZATION_LESSONS_LEARNED.md`: **NEW** - What worked and didn't work in FASE 2 (essential reading)
+- `FASE2_OVERHEAD_REMOVAL.md`: FASE 2 delegation overhead removal results
+- `FASE2_FINAL_REPORT.md`: Complete FASE 2 analysis and findings
+- `PERFORMANCE_OPTIMIZATION_STATUS.md`: Performance roadmap (FASE 1 & 2 completed)
 - `README.md`: User-facing documentation and examples
 - `REFACTORING_ROADMAP.md`, `REFACTORING_SUMMARY.md`: Historical context
 - `src/main/java/com/fft/optimized/OptimizedFFTUtils.java`: Precomputed twiddle factor tables
