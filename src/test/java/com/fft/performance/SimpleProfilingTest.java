@@ -289,4 +289,59 @@ public class SimpleProfilingTest {
         }
         return log;
     }
+
+    @Test
+    public void verifyFFT8Performance() {
+        System.out.println("\n=== FFT8 Performance Verification ===\n");
+
+        double[] real = new double[8];
+        double[] imag = new double[8];
+        for (int i = 0; i < 8; i++) {
+            real[i] = Math.sin(2 * Math.PI * i / 8);
+            imag[i] = Math.cos(2 * Math.PI * i / 8);
+        }
+
+        FFTBase base = new FFTBase();
+        com.fft.optimized.FFTOptimized8 optimized = new com.fft.optimized.FFTOptimized8();
+
+        // Heavy warmup (10x more than standard)
+        for (int i = 0; i < 10000; i++) {
+            base.transform(real.clone(), imag.clone(), true);
+            optimized.transform(real.clone(), imag.clone(), true);
+        }
+
+        // Benchmark base implementation
+        long baseStart = System.nanoTime();
+        for (int i = 0; i < MEASUREMENT_ITERATIONS; i++) {
+            base.transform(real.clone(), imag.clone(), true);
+        }
+        long baseTime = (System.nanoTime() - baseStart) / MEASUREMENT_ITERATIONS;
+
+        // Benchmark optimized implementation
+        long optStart = System.nanoTime();
+        for (int i = 0; i < MEASUREMENT_ITERATIONS; i++) {
+            optimized.transform(real.clone(), imag.clone(), true);
+        }
+        long optTime = (System.nanoTime() - optStart) / MEASUREMENT_ITERATIONS;
+
+        double speedup = (double) baseTime / optTime;
+
+        System.out.printf("FFTBase:         %,10d ns\n", baseTime);
+        System.out.printf("FFTOptimized8:   %,10d ns\n", optTime);
+        System.out.printf("Speedup:         %.2fx\n", speedup);
+        System.out.printf("Expected:        2.0-3.5x\n");
+
+        if (speedup >= 2.0) {
+            System.out.println("Status:          ✅ EXCELLENT - Optimization working as expected");
+        } else if (speedup >= 1.5) {
+            System.out.println("Status:          ⚠️  GOOD - Optimization present but below target");
+        } else if (speedup >= 1.0) {
+            System.out.println("Status:          ⚠️  WEAK - Minimal speedup detected");
+        } else {
+            System.out.println("Status:          ❌ REGRESSION - Slower than base!");
+        }
+
+        System.out.println("\nNote: This test uses heavy warmup (10,000 iterations) to ensure");
+        System.out.println("      JIT compilation is complete before measurement.");
+    }
 }
