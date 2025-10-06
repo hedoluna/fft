@@ -25,7 +25,7 @@ class FFTOptimized32Test {
     
     private FFTOptimized32 fft;
     private static final int SIZE = 32;
-    private static final double TOLERANCE = 3.0; // Highly relaxed tolerance due to algorithmic differences
+    private static final double TOLERANCE = 1e-8; // Standard tolerance for FFT precision
     
     @BeforeEach
     void setUp() {

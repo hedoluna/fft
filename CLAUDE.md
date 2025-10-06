@@ -254,8 +254,11 @@ mvn test -Djava.util.logging.config.file=logging.properties
 
 **Key Files for Reference:**
 - `CONSENSUS_ANALYSIS.md`: **NEW** - Multi-agent analysis revealing performance variance issues
-- `P0_IMPLEMENTATION_SUMMARY.md`: **NEW** - P0 critical recommendations implementation (JMH + docs)
+- `P0_IMPLEMENTATION_SUMMARY.md`: **NEW** - P0 critical recommendations (JMH + accurate docs)
+- `P1_IMPLEMENTATION_SUMMARY.md`: **NEW** - P1 important priorities (profiling + validation + test fixes)
 - `JMH_BENCHMARKING_GUIDE.md`: **NEW** - Rigorous performance measurement methodology
+- `VALIDATION_FRAMEWORK.md`: **NEW** - Stage-by-stage FFT validation guide
+- `PROFILING_RESULTS.md`: **NEW** - FFTBase bottleneck analysis (benchmarks pending)
 - `OPTIMIZATION_LESSONS_LEARNED.md`: What worked and didn't work in FASE 2 (essential reading)
 - `FASE2_OVERHEAD_REMOVAL.md`: FASE 2 delegation overhead removal results
 - `FASE2_FINAL_REPORT.md`: Complete FASE 2 analysis and findings
