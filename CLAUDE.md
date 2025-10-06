@@ -24,8 +24,8 @@ mvn clean test jacoco:report             # Coverage report
 **Performance Benchmarking:**
 ```bash
 mvn test -Dtest=FFTPerformanceBenchmarkTest                    # Quick benchmark
-mvn clean test-compile exec:java -Dexec.mainClass="org.openjdk.jmh.Main" \
-  -Dexec.args="FFT8" -Dexec.classpathScope=test              # JMH rigorous
+./run-jmh-benchmarks.bat FFT8                                  # JMH rigorous (Windows)
+./run-jmh-benchmarks.sh FFT8                                   # JMH rigorous (Linux/Mac)
 ```
 
 **Run Demos:**
@@ -183,15 +183,19 @@ mvn exec:java -Dexec.mainClass="com.fft.demo.SimulatedPitchDetectionDemo"
 mvn test -Dtest=FFTPerformanceBenchmarkTest
 
 # Run JMH benchmarks (rigorous, statistical variance)
-mvn clean test-compile exec:java \
-  -Dexec.mainClass="org.openjdk.jmh.Main" \
-  -Dexec.classpathScope=test
+# RECOMMENDED: Use the helper scripts (Windows/Linux)
+./run-jmh-benchmarks.bat        # Windows
+./run-jmh-benchmarks.sh         # Linux/Mac
 
-# Run JMH for specific size (e.g., FFT8)
-mvn clean test-compile exec:java \
-  -Dexec.mainClass="org.openjdk.jmh.Main" \
-  -Dexec.args="FFT8" \
-  -Dexec.classpathScope=test
+# Run JMH for specific benchmark pattern
+./run-jmh-benchmarks.bat FFTBaseProfiling           # Windows
+./run-jmh-benchmarks.sh FFTBaseProfiling            # Linux/Mac
+
+# With custom JMH options (forks, warmup, iterations)
+./run-jmh-benchmarks.sh FFT8 -f 3 -wi 10 -i 20
+
+# Note: mvn exec:java does NOT work due to resource loading issues
+# The helper scripts use direct java -cp which properly finds META-INF/BenchmarkList
 
 # Verify implementation selection
 # Add to test: System.out.println(FFTUtils.getImplementationInfo(1024));
@@ -315,9 +319,10 @@ mvn test -Djava.util.logging.config.file=logging.properties
 
 **Build Configuration:**
 - **JMH Annotation Processor**: Configured in pom.xml for proper benchmark support
-  - Fixes "Unable to find META-INF/BenchmarkList" errors
+  - Generates META-INF/BenchmarkList during test compilation
   - Enables rigorous performance benchmarking with JMH
-  - Run benchmarks: `mvn clean test-compile exec:java -Dexec.mainClass="org.openjdk.jmh.Main"`
+  - Run benchmarks: `./run-jmh-benchmarks.bat` (Windows) or `./run-jmh-benchmarks.sh` (Linux/Mac)
+  - Note: Helper scripts use direct `java -cp` instead of exec-maven-plugin to avoid resource loading issues
 
 ## Development Guidelines
 

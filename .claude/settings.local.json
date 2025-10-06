@@ -46,7 +46,8 @@
       "Bash(git mv:*)",
       "Bash(mvn dependency:analyze:*)",
       "Bash(mvn versions:display-dependency-updates:*)",
-      "Bash(awk:*)"
+      "Bash(awk:*)",
+      "Bash(chmod:*)"
     ]
   },
   "enableAllProjectMcpServers": false

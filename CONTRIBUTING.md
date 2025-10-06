@@ -118,11 +118,12 @@ If you're contributing a performance optimization:
 
 **Example Benchmark:**
 ```bash
-# Run JMH benchmarks
-mvn clean test-compile exec:java \
-  -Dexec.mainClass="org.openjdk.jmh.Main" \
-  -Dexec.args="FFT8" \
-  -Dexec.classpathScope=test
+# Run JMH benchmarks using helper scripts
+./run-jmh-benchmarks.bat FFT8           # Windows
+./run-jmh-benchmarks.sh FFT8            # Linux/Mac
+
+# With custom JMH options
+./run-jmh-benchmarks.sh FFT8 -f 3 -wi 10 -i 20
 ```
 
 ### Adding New FFT Implementations
@@ -261,7 +262,8 @@ mvn clean test jacoco:report
 mvn verify
 
 # (Optional) Run JMH benchmarks if performance-related changes
-mvn clean test-compile exec:java -Dexec.mainClass="org.openjdk.jmh.Main"
+./run-jmh-benchmarks.bat        # Windows
+./run-jmh-benchmarks.sh         # Linux/Mac
 ```
 
 ## Architecture Overview
