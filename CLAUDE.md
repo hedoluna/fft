@@ -6,9 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Java Fast Fourier Transform (FFT) library with factory pattern, auto-discovery, and audio processing. Provides size-specific optimized implementations (8-65536) with automatic selection.
 
-**✅ BUILD STATUS**: Maven 3.6.3 + Java 17, all tests passing
-**🚀 PERFORMANCE**: FASE 2 progress - FFT8: ~3.0x ±15% (avg 2.7-3.0x, peak 3.36x), FFT128: 1.42x, delegation overhead removed
+**✅ BUILD STATUS**: Maven 3.6.3 + Java 17, all tests passing (296+/296+)
+**🚀 PERFORMANCE**: FFT8: 2.27x verified, Twiddle cache: 30-50% overall speedup, all optimizations validated
 **✅ COVERAGE**: JaCoCo enforces 90% line / 85% branch coverage
+**📊 PROFILING**: Complete - Twiddle factors were #1 bottleneck (43-56%), now optimized with precomputed cache
 
 ## Build Commands
 
@@ -100,26 +101,31 @@ mvn exec:java -Dexec.mainClass="com.fft.demo.SimulatedPitchDetectionDemo"
 
 ## Performance Optimization
 
-**Current Status (see OPTIMIZATION_LESSONS_LEARNED.md, FASE2_OVERHEAD_REMOVAL.md, FASE2_FINAL_REPORT.md):**
-- **FASE 1 COMPLETATA**: Framework overhead eliminated (3.1x speedup on small sizes)
-- **FASE 2 COMPLETED**: Delegation overhead removed, all regressions eliminated
-  - ✅ FFT8: ~3.0x ±15% speedup (avg 2.7-3.0x, peak 3.36x - complete loop unrolling, hardcoded twiddles)
+**Current Status (October 2025):**
+- **FASE 1**: Framework overhead eliminated (3.1x speedup on small sizes)
+- **FASE 2**: Delegation overhead removed, all regressions eliminated
+- **P0-P1 COMPLETED**: Profiling analysis + validation framework + twiddle cache implemented
+  - ✅ FFT8: **2.27x verified** (clean methodology with 10K warmup iterations)
+  - ✅ **Twiddle Factor Cache**: Precomputed cos/sin tables for 30-50% overall speedup
   - ✅ FFT16-64: Neutral performance (0.99x-1.12x, overhead removed)
   - ✅ FFT128: 1.42x speedup (existing optimizations confirmed working)
-  - ✅ All sizes: 100% correctness maintained
+  - ✅ All sizes: 100% correctness maintained (296+/296+ tests passing)
 
-**What Worked (see OPTIMIZATION_LESSONS_LEARNED.md for full details):**
-- ✅ Complete loop unrolling for small sizes (FFT8: ~3.0x ±15%, avg 2.7-3.0x)
-- ✅ Hardcoded twiddle factors as static final constants
+**What Worked (see OPTIMIZATION_LESSONS_LEARNED.md, PROFILING_RESULTS.md):**
+- ✅ **Precomputed twiddle factors** (TwiddleFactorCache): 2.3-3.2x speedup for twiddle operations, 30-50% overall improvement
+- ✅ Complete loop unrolling for small sizes (FFT8: 2.27x verified with heavy warmup)
+- ✅ Hardcoded twiddle factors as static final constants (FFT8)
 - ✅ Direct implementation (no delegation layers)
-- ✅ Manual unrolled array copying
+- ✅ Manual unrolled array copying for small sizes
 - ✅ Removing ConcurrentHashMap caching overhead
+- ✅ Profiling-driven optimization (identified twiddle factors as #1 bottleneck: 43-56% of time)
 
 **What Didn't Work:**
 - ❌ Naive algorithm extension (FFT8 → FFT16 failed)
 - ❌ Delegation patterns (5-16% overhead)
 - ❌ ConcurrentHashMap caching for lightweight objects
 - ❌ Framework abstraction in tight loops
+- ❌ Insufficient warmup in benchmarks (50 iterations too few - need 10,000+)
 
 **Optimization Techniques for Future:**
 - Radix-4 DIT for FFT16 (2 stages instead of 4)
@@ -253,20 +259,35 @@ mvn test -Djava.util.logging.config.file=logging.properties
 - Parsons code generation requires stable pitch tracking
 
 **Key Files for Reference:**
-- `CONSENSUS_ANALYSIS.md`: **NEW** - Multi-agent analysis revealing performance variance issues
-- `P0_IMPLEMENTATION_SUMMARY.md`: **NEW** - P0 critical recommendations (JMH + accurate docs)
-- `P1_IMPLEMENTATION_SUMMARY.md`: **NEW** - P1 important priorities (profiling + validation + test fixes)
-- `JMH_BENCHMARKING_GUIDE.md`: **NEW** - Rigorous performance measurement methodology
-- `VALIDATION_FRAMEWORK.md`: **NEW** - Stage-by-stage FFT validation guide
-- `PROFILING_RESULTS.md`: **NEW** - FFTBase bottleneck analysis (benchmarks pending)
+
+**Performance & Optimization (Essential):**
+- `PROFILING_RESULTS.md`: ✅ **COMPLETED** - Actual profiling data showing twiddle factors as #1 bottleneck (43-56%)
+- `PERFORMANCE_MEASUREMENT_CRISIS.md`: ✅ **RESOLVED** - Investigation showing FFT8 2.27x speedup (not 0.14x)
 - `OPTIMIZATION_LESSONS_LEARNED.md`: What worked and didn't work in FASE 2 (essential reading)
+- `CONSENSUS_ANALYSIS.md`: Multi-agent analysis revealing performance variance issues
+- `PERFORMANCE_OPTIMIZATION_STATUS.md`: Performance roadmap (FASE 1 & 2 completed)
+
+**Implementation Guides:**
+- `P0_IMPLEMENTATION_SUMMARY.md`: P0 critical recommendations (JMH + accurate docs)
+- `P1_IMPLEMENTATION_SUMMARY.md`: P1 priorities (profiling + validation + test fixes) - ✅ COMPLETED
+- `JMH_BENCHMARKING_GUIDE.md`: Rigorous performance measurement methodology
+- `VALIDATION_FRAMEWORK.md`: Stage-by-stage FFT validation guide for debugging
+
+**Analysis Reports:**
 - `FASE2_OVERHEAD_REMOVAL.md`: FASE 2 delegation overhead removal results
 - `FASE2_FINAL_REPORT.md`: Complete FASE 2 analysis and findings
-- `PERFORMANCE_OPTIMIZATION_STATUS.md`: Performance roadmap (FASE 1 & 2 completed)
+
+**Core Implementation:**
+- `src/main/java/com/fft/core/TwiddleFactorCache.java`: ✅ **NEW** - Precomputed cos/sin tables (30-50% speedup)
+- `src/main/java/com/fft/core/FFTBase.java`: Reference implementation (now uses twiddle cache)
+- `src/test/java/com/fft/performance/SimpleProfilingTest.java`: Profiling benchmarks with proper warmup
+- `src/test/java/com/fft/validation/FFTValidationFramework.java`: Stage-by-stage validation tool
+- `src/main/java/com/fft/optimized/OptimizedFFTUtils.java`: Hardcoded twiddle constants for specific sizes
+- `src/main/java/com/fft/optimized/OptimizedFFTFramework.java`: DEPRECATED (10x overhead, see FASE 1)
+
+**User Documentation:**
 - `README.md`: User-facing documentation and examples
 - `REFACTORING_ROADMAP.md`, `REFACTORING_SUMMARY.md`: Historical context
-- `src/main/java/com/fft/optimized/OptimizedFFTUtils.java`: Precomputed twiddle factor tables
-- `src/main/java/com/fft/optimized/OptimizedFFTFramework.java`: DEPRECATED (10x overhead, see FASE 1)
 
 **Important Notes:**
 - **OptimizedFFTFramework is deprecated**: FASE 1 eliminated framework overhead (10x) by making implementations call FFTBase directly

@@ -174,51 +174,71 @@ System.out.println("Parsons code: " + parsonsCode); // e.g., "*UDUDRDU"
 
 ## 📊 Performance Characteristics
 
-### Benchmark Results (FASE 2 - Current Implementation)
+### Benchmark Results (October 2025 - With Twiddle Cache)
 
-| Size | Implementation | Optimization Status | Actual Performance |
+| Size | Implementation | Optimization Status | Verified Performance |
 |------|---------------|---------------------|--------------------|
-| 8 | FFTOptimized8 | 🏆 **Excellent Optimization** | ~3.0x ±15% speedup (complete loop unrolling, hardcoded twiddles) |
-| 16 | FFTOptimized16 | ✅ **Neutral (Overhead Removed)** | 0.99x speedup (delegation overhead eliminated) |
-| 32 | FFTOptimized32 | ✅ **Small Gain** | 1.12x speedup (overhead removed) |
-| 64 | FFTOptimized64 | ✅ **Neutral (Overhead Removed)** | 1.01x speedup (delegation overhead eliminated) |
-| 128 | FFTOptimized128 | ✅ **Good Optimization** | 1.42x speedup (direct implementation) |
-| 256 | FFTOptimized256 | ✅ **Neutral** | ~1.00x speedup (baseline equivalent) |
-| 512 | FFTOptimized512 | ✅ **Neutral** | 1.01x speedup (overhead removed) |
-| 1024+ | FFTOptimized* | ✅ **Baseline** | ~1.00x speedup (uses base implementation) |
+| 8 | FFTOptimized8 | 🏆 **Excellent** | **2.27x verified** (10K warmup, loop unrolling, hardcoded twiddles) |
+| 16 | FFTOptimized16 | ✅ **Neutral** | ~1.0x (overhead removed) |
+| 32 | FFTOptimized32 | ✅ **Small Gain** | ~1.1x (overhead removed) |
+| 64 | FFTOptimized64 | ✅ **Neutral** | ~1.0x (overhead removed) |
+| 128 | FFTOptimized128 | ✅ **Good** | ~1.4x (direct implementation) |
+| 256 | FFTOptimized256 | ✅ **Neutral** | ~1.0x (baseline) |
+| 512+ | FFTOptimized* | ✅ **Baseline** | ~1.0x (uses base with twiddle cache) |
+| **ALL** | **FFTBase** | 🚀 **NEW: Twiddle Cache** | **30-50% faster** (precomputed cos/sin) |
 
-**Performance Reality (FASE 2 Complete):**
-- 🏆 **FFTOptimized8**: Excellent ~3.0x ±15% speedup (avg 2.7-3.0x, peak 3.36x) - complete loop unrolling with hardcoded constants
-- ✅ **FFTOptimized128**: Good 1.42x speedup (29.6% efficiency) - direct FFTBase implementation working well
-- ✅ **FFTOptimized32**: Small gain 1.12x speedup (10.5% efficiency) - delegation overhead removed
-- ✅ **FFTOptimized16/64/512**: Neutral ~1.00x - delegation overhead eliminated, no regressions
-- ✅ **All Sizes**: 100% correctness maintained - 77/77 tests passing
-- ✅ **Zero Regressions**: All previous performance issues fixed
-- 📚 **Lessons Documented**: See OPTIMIZATION_LESSONS_LEARNED.md for what worked and what didn't
+**Major Performance Improvements (October 2025):**
+- 🚀 **Twiddle Factor Cache**: Precomputed cos/sin tables provide 30-50% overall FFT speedup
+  - Twiddle factors were #1 bottleneck (43-56% of FFT execution time)
+  - Precomputation provides 2.3-3.2x speedup for twiddle operations
+  - Memory cost: ~128 KB for 10 common sizes (8-4096)
+  - Cache hits: 100% for sizes 8-4096 (most common use cases)
+- 🏆 **FFTOptimized8**: **2.27x verified** with clean methodology (10,000 warmup iterations)
+  - Previous claims of 3.36x were measurement artifacts (insufficient warmup)
+  - Actual 2.27x is solid and reproducible
+- ✅ **All Optimizations Validated**: 296+/296+ tests passing
+- ✅ **Zero Regressions**: Twiddle cache maintains 100% correctness
 
-### 🔬 Optimization Techniques (FASE 2 Learnings)
+**Performance Breakdown (from PROFILING_RESULTS.md):**
+```
+Size 256 (before twiddle cache):
+- Twiddle factors: 56.1% of time
+- Butterfly operations: 4.2%
+- Bit-reversal: 3.2%
+
+Size 256 (with twiddle cache):
+- Twiddle factors: ~17% of time (3.2x faster!)
+- Overall improvement: 30-50% faster execution
+```
+
+### 🔬 Optimization Techniques (Validated October 2025)
 
 **✅ What Worked Successfully:**
-- ✅ **Complete loop unrolling** (FFT8: ~3.0x ±15% speedup, avg 2.7-3.0x)
-- ✅ **Hardcoded twiddle factors** as static final constants
+- 🚀 **Precomputed twiddle factor cache** (30-50% overall speedup - BIGGEST WIN!)
+  - Profiling identified twiddle factors as #1 bottleneck (43-56% of time)
+  - TwiddleFactorCache replaces Math.cos/sin with array lookups
+  - 2.3-3.2x speedup for twiddle operations, ~128 KB memory
+- ✅ **Complete loop unrolling** (FFT8: 2.27x verified speedup)
+- ✅ **Hardcoded twiddle factors** as static final constants (FFT8)
 - ✅ **Direct FFTBase implementation** (no delegation layers)
 - ✅ **Manual unrolled array copying** for small sizes
 - ✅ **Removing ConcurrentHashMap caching** (overhead elimination)
-- ✅ **In-place butterfly operations** on copied arrays
-- ✅ **Inline bit-reversal** with hardcoded swap patterns
+- ✅ **Profiling-driven optimization** (identify bottlenecks before optimizing)
+- ✅ **Proper benchmarking methodology** (10K+ warmup iterations critical)
 
 **❌ What Didn't Work:**
 - ❌ **Naive algorithm extension** (FFT8 → FFT16 pattern failed)
 - ❌ **Delegation patterns** through OptimizedFFTUtils (5-16% overhead)
 - ❌ **ConcurrentHashMap caching** for lightweight objects
 - ❌ **Framework abstractions** in performance-critical paths
-- ❌ **Method call layers** preventing JVM inlining
+- ❌ **Insufficient warmup** (50 iterations too few - FFT8 showed as 0.14x instead of 2.27x!)
 
-**🎓 Key Lessons (see OPTIMIZATION_LESSONS_LEARNED.md):**
+**🎓 Key Lessons (see OPTIMIZATION_LESSONS_LEARNED.md, PROFILING_RESULTS.md):**
+- **Profile first, optimize second** - Twiddle cache provided biggest win by targeting actual bottleneck
 - Direct implementation > Delegation patterns (always)
-- Measure baseline before optimizing (don't assume)
+- Proper warmup is CRITICAL (10,000+ iterations for complex optimized code)
+- Measure baseline correctly (don't trust System.nanoTime() without heavy warmup)
 - Each FFT size needs mathematical verification
-- Correctness first, then optimize
 - JVM optimizes straight-line code better than loops
 
 ### Audio Processing Performance
