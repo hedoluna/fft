@@ -2,6 +2,9 @@ package com.fft.factory;
 
 import com.fft.core.FFT;
 import com.fft.core.FFTBase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
@@ -30,7 +33,9 @@ import java.util.function.Supplier;
  * @see FFTBase for fallback implementation
  */
 public class DefaultFFTFactory implements FFTFactory {
-    
+
+    private static final Logger logger = LoggerFactory.getLogger(DefaultFFTFactory.class);
+
     /**
      * Implementation entry with priority support.
      */
@@ -90,7 +95,7 @@ public class DefaultFFTFactory implements FFTFactory {
             FFTImplementationDiscovery.registerDiscoveredImplementations(this);
         } catch (Exception e) {
             // Log warning but don't fail initialization
-            System.err.println("Warning: Failed to auto-discover FFT implementations: " + e.getMessage());
+            logger.warn("Failed to auto-discover FFT implementations: {}", e.getMessage(), e);
         }
     }
     
@@ -152,12 +157,11 @@ public class DefaultFFTFactory implements FFTFactory {
             Class<?> clazz = implementation.get().getClass();
             if (!clazz.isAnnotationPresent(FFTImplementation.class)) {
                 // Only warn for missing annotations, don't fail
-                System.err.println("Warning: FFT implementation " + clazz.getName() 
-                    + " should be annotated with @FFTImplementation");
+                logger.warn("FFT implementation {} should be annotated with @FFTImplementation", clazz.getName());
             }
         } catch (Exception e) {
             // Be lenient during testing - allow registration but warn
-            System.err.println("Warning: Could not verify FFT implementation: " + e.getMessage());
+            logger.warn("Could not verify FFT implementation: {}", e.getMessage());
         }
         
         implementations.computeIfAbsent(size, k -> new ArrayList<>())

@@ -194,12 +194,14 @@ mvn test -Djava.util.logging.config.file=logging.properties
 - **Microphone access issues**: Demos requiring audio input may need system permissions
 
 **Dependencies:**
+- **SLF4J 2.0.9**: Logging API (compile scope)
+- **Logback 1.4.11**: Logging implementation (test scope only)
 - **JUnit Jupiter 5.9.2**: Primary testing framework
 - **JUnit 4.13.2 + Vintage Engine**: Backward compatibility for legacy tests
 - **AssertJ 3.24.2**: Fluent assertion library
 - **Mockito 5.1.1**: Mocking framework
 - **JMH 1.37**: Benchmarking (test scope)
-- **Zero runtime dependencies**: Core library is self-contained
+- **Minimal runtime dependencies**: Core library only depends on SLF4J API
 
 ## Development Guidelines
 
@@ -233,3 +235,4 @@ mvn test -Djava.util.logging.config.file=logging.properties
 - **Test count**: 306 total tests (301 active, 5 disabled for deprecated framework)
 - **Maven forkCount=0**: Tests run in-process for faster execution, JaCoCo coverage uses ${argLine}
 - **SpotBugs disabled**: Incompatible with Java 17 bytecode, run manually if needed with `mvn spotbugs:spotbugs`
+- **Logging**: Production code uses SLF4J API, demos use System.out (appropriate for user-facing output)
