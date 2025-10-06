@@ -41,7 +41,10 @@ public class FFTOptimized32 implements FFT {
      * The size this implementation is optimized for.
      */
     private static final int OPTIMIZED_SIZE = 32;
-    
+
+    // Direct FFTBase fallback - removes delegation overhead
+    private static final com.fft.core.FFTBase baseImpl = new com.fft.core.FFTBase();
+
     @Override
     public FFTResult transform(double[] real, double[] imaginary, boolean forward) {
         if (real == null) {
@@ -50,7 +53,7 @@ public class FFTOptimized32 implements FFT {
         if (real.length != OPTIMIZED_SIZE) {
             throw new IllegalArgumentException("Array length must be " + OPTIMIZED_SIZE + ", got: " + real.length);
         }
-        
+
         // Handle null imaginary array
         double[] imag = imaginary;
         if (imag == null) {
@@ -58,15 +61,9 @@ public class FFTOptimized32 implements FFT {
         } else if (imag.length != OPTIMIZED_SIZE) {
             throw new IllegalArgumentException("Imaginary array length must be " + OPTIMIZED_SIZE + ", got: " + imag.length);
         }
-        
-        if (!forward) {
-            // Use optimized inverse transform
-            double[] result = OptimizedFFTUtils.ifft32(real, imag);
-            return new FFTResult(result);
-        }
-        
-        double[] result = OptimizedFFTUtils.fft32(real, imag, forward);
-        return new FFTResult(result);
+
+        // Direct call to FFTBase - no delegation layers, no ConcurrentHashMap overhead
+        return baseImpl.transform(real, imag, forward);
     }
     
     @Override

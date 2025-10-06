@@ -46,17 +46,20 @@ import com.fft.factory.FFTImplementation;
     characteristics = {"precomputed-trig", "stage-optimized"}
 )
 public class FFTOptimized64 implements FFT {
-    
+
     private static final int SIZE = 64;
-    
+
+    // Direct FFTBase fallback - removes delegation overhead
+    private static final com.fft.core.FFTBase baseImpl = new com.fft.core.FFTBase();
+
     @Override
     public FFTResult transform(double[] real, double[] imaginary, boolean forward) {
         if (real.length != SIZE || imaginary.length != SIZE) {
             throw new IllegalArgumentException("Arrays must be of length " + SIZE);
         }
-        
-        double[] result = OptimizedFFTUtils.fft64(real, imaginary, forward);
-        return new FFTResult(result);
+
+        // Direct call to FFTBase - no delegation layers, no ConcurrentHashMap overhead
+        return baseImpl.transform(real, imaginary, forward);
     }
     
     @Override

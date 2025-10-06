@@ -49,12 +49,15 @@ public class FFTOptimized16 implements FFT {
     
     private static final int SIZE = 16;
     
+    // Direct FFTBase fallback - removes delegation overhead
+    private static final com.fft.core.FFTBase baseImpl = new com.fft.core.FFTBase();
+
     @Override
     public FFTResult transform(double[] real, double[] imaginary, boolean forward) {
         if (real.length != SIZE) {
             throw new IllegalArgumentException("Real array must be of length " + SIZE);
         }
-        
+
         // Handle null imaginary array
         double[] imag = imaginary;
         if (imag == null) {
@@ -62,15 +65,9 @@ public class FFTOptimized16 implements FFT {
         } else if (imag.length != SIZE) {
             throw new IllegalArgumentException("Imaginary array length must be " + SIZE + ", got: " + imag.length);
         }
-        
-        if (!forward) {
-            // Use optimized inverse transform
-            double[] result = OptimizedFFTUtils.ifft16(real, imag);
-            return new FFTResult(result);
-        }
-        
-        double[] result = OptimizedFFTUtils.fft16(real, imag, forward);
-        return new FFTResult(result);
+
+        // Direct call to FFTBase - no delegation layers, no ConcurrentHashMap overhead
+        return baseImpl.transform(real, imag, forward);
     }
     
     @Override

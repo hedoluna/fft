@@ -33,7 +33,11 @@
       "Bash(mvn spotbugs:check:*)",
       "Bash(cat:*)",
       "Bash(mvn dependency:tree:*)",
-      "Bash(mvn jacoco:report:*)"
+      "Bash(mvn jacoco:report:*)",
+      "Bash(git checkout:*)",
+      "Bash(for i in {1..3})",
+      "Bash(do echo \"=== Run $i ===\")",
+      "Bash(done)"
     ]
   },
   "enableAllProjectMcpServers": false
