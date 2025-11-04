@@ -1,9 +1,9 @@
 # FFT Library - Documentation Index
 
-**Last Updated**: October 6, 2025
-**Major Cleanup**: 12 documents archived, duplicates eliminated
+**Last Updated**: November 4, 2025
+**Major Reorganization**: Documentation restructured into logical subdirectories
 
-This index organizes all documentation in the FFT library for easy navigation. Documentation is categorized by purpose and audience. **12 obsolete/duplicate documents have been archived** to docs/archive/ for reference.
+This index organizes all documentation in the FFT library for easy navigation. Documentation is categorized by purpose and audience, with related documents grouped in subdirectories for better discoverability.
 
 ---
 
@@ -13,6 +13,7 @@ This index organizes all documentation in the FFT library for easy navigation. D
 |----------|---------|----------|
 | [README.md](README.md) | Project overview, quick start, features | All users |
 | [CLAUDE.md](CLAUDE.md) | Development guide for Claude Code | AI assistants |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Contributor guidelines and workflow | Contributors |
 | **Package JavaDocs** | API-level documentation | Developers |
 | └─ [com.fft](src/main/java/com/fft/package-info.java) | Root package overview | All developers |
 | └─ [com.fft.core](src/main/java/com/fft/core/package-info.java) | Core FFT interfaces | Core developers |
@@ -23,37 +24,36 @@ This index organizes all documentation in the FFT library for easy navigation. D
 
 ---
 
-## 📊 Performance & Optimization
+## 📊 Performance & Optimization (docs/performance/)
 
-### Current Status
 | Document | Content | Date |
 |----------|---------|------|
-| [PERFORMANCE_OPTIMIZATION_STATUS.md](PERFORMANCE_OPTIMIZATION_STATUS.md) | **Current optimization status** | Oct 6, 2025 |
-| [PROFILING_RESULTS.md](PROFILING_RESULTS.md) | Actual profiling data and bottleneck analysis | Oct 6, 2025 |
-| [FASE_2_LESSONS_LEARNED.md](FASE_2_LESSONS_LEARNED.md) | What worked/didn't work in FASE 2 | Oct 6, 2025 |
-
-### Historical Analysis
-| Document | Content | Status |
-|----------|---------|--------|
-| [PERFORMANCE_MEASUREMENT_CRISIS.md](PERFORMANCE_MEASUREMENT_CRISIS.md) | Investigation of measurement discrepancies | ✅ Resolved |
-| [CONSENSUS_ANALYSIS.md](CONSENSUS_ANALYSIS.md) | Multi-agent FFT8 variance analysis | ✅ Complete |
-
-### Implementation Reports
-| Document | Content | Status |
-|----------|---------|--------|
-| [P0_IMPLEMENTATION_SUMMARY.md](P0_IMPLEMENTATION_SUMMARY.md) | P0 work (JMH, framework removal) | ✅ Complete |
-| [P1_IMPLEMENTATION_SUMMARY.md](P1_IMPLEMENTATION_SUMMARY.md) | P1 work (profiling, validation) | ✅ Complete |
-| [FASE2_FINAL_REPORT.md](FASE2_FINAL_REPORT.md) | FASE 2 comprehensive report | ✅ Complete |
+| [PERFORMANCE_OPTIMIZATION_STATUS.md](PERFORMANCE_OPTIMIZATION_STATUS.md) | **Current optimization status** (ROOT) | Oct 6, 2025 |
+| [PROFILING_RESULTS.md](docs/performance/PROFILING_RESULTS.md) | Profiling data and bottleneck analysis | Oct 6, 2025 |
+| [FASE_2_LESSONS_LEARNED.md](docs/performance/FASE_2_LESSONS_LEARNED.md) | What worked/didn't work in FASE 2 | Oct 6, 2025 |
+| [FASE2_FINAL_REPORT.md](docs/performance/FASE2_FINAL_REPORT.md) | FASE 2 comprehensive report | Oct 6, 2025 |
+| [PERFORMANCE_MEASUREMENT_CRISIS.md](docs/performance/PERFORMANCE_MEASUREMENT_CRISIS.md) | Investigation of measurement discrepancies | Oct 6, 2025 |
+| [CONSENSUS_ANALYSIS.md](docs/performance/CONSENSUS_ANALYSIS.md) | Multi-agent FFT8 variance analysis | Oct 6, 2025 |
 
 ---
 
-## 🧪 Testing & Validation
+## 🏗️ Implementation Reports (docs/implementation/)
+
+| Document | Content | Status |
+|----------|---------|--------|
+| [P0_IMPLEMENTATION_SUMMARY.md](docs/implementation/P0_IMPLEMENTATION_SUMMARY.md) | P0 work (JMH, framework removal) | ✅ Complete |
+| [P1_IMPLEMENTATION_SUMMARY.md](docs/implementation/P1_IMPLEMENTATION_SUMMARY.md) | P1 work (profiling, validation) | ✅ Complete |
+
+---
+
+## 🧪 Testing & Validation (docs/testing/)
 
 | Document | Content | Audience |
 |----------|---------|----------|
-| [VALIDATION_FRAMEWORK.md](VALIDATION_FRAMEWORK.md) | FFT correctness validation system | QA engineers |
-| [JMH_BENCHMARKING_GUIDE.md](JMH_BENCHMARKING_GUIDE.md) | Performance benchmarking guide | Performance engineers |
-| [TESTING_COMPLIANCE.md](TESTING_COMPLIANCE.md) | Test coverage and quality gates | QA engineers |
+| [JMH_BENCHMARKING_GUIDE.md](docs/testing/JMH_BENCHMARKING_GUIDE.md) | Performance benchmarking guide (consolidated) | Performance engineers |
+| [VALIDATION_FRAMEWORK.md](docs/testing/VALIDATION_FRAMEWORK.md) | FFT correctness validation system | QA engineers |
+| [TESTING_COMPLIANCE.md](docs/testing/TESTING_COMPLIANCE.md) | Test coverage and quality gates | QA engineers |
+| [PITCH_DETECTION_ANALYSIS.md](docs/testing/PITCH_DETECTION_ANALYSIS.md) | Pitch detection accuracy analysis | Audio engineers |
 
 ---
 
@@ -65,24 +65,27 @@ This index organizes all documentation in the FFT library for easy navigation. D
 
 ---
 
-## 🎵 Audio Processing & Demos
+## 🎵 Audio Processing & Demos (docs/demos/)
 
 | Document | Location | Description |
 |----------|----------|-------------|
-| [DEMO_DOCUMENTATION.md](docs/DEMO_DOCUMENTATION.md) | Comprehensive demo guide | Audio feature documentation |
-| [DEMO_TESTING_SUMMARY.md](docs/DEMO_TESTING_SUMMARY.md) | Demo test coverage | QA reference |
-| [FFT_Library.md](docs/FFT_Library.md) | Legacy library documentation | Historical |
+| [DEMO_DOCUMENTATION.md](docs/demos/DEMO_DOCUMENTATION.md) | Comprehensive demo guide | Audio feature documentation |
+| [DEMO_TESTING_SUMMARY.md](docs/demos/DEMO_TESTING_SUMMARY.md) | Demo test coverage | QA reference |
+| [FFT_Library.md](docs/demos/FFT_Library.md) | Legacy library documentation | Historical |
 
 ---
 
-## 📋 Archived Documentation
+## 📋 Archived Documentation (docs/archive/)
 
-**12 documents archived** on October 6, 2025 to eliminate duplication and preserve history.
+**13 documents archived** to eliminate duplication and preserve history.
 
 ### Archive Location
 See [docs/archive/README.md](docs/archive/README.md) for complete archive index.
 
 ### Archived Categories
+
+#### Completed Planning Documents (1 file) → docs/archive/completed/
+- DOCUMENTATION_DEDUPLICATION_PLAN.md (work completed October 6, 2025)
 
 #### Historical Documents (10 files) → docs/archive/historical/
 - CLEANUP_PLAN.md, CLEANUP_SUMMARY.md, FIXES_APPLIED.md
@@ -96,11 +99,6 @@ See [docs/archive/README.md](docs/archive/README.md) for complete archive index.
 - OPTIMIZATION_LESSONS_LEARNED.md (consolidated into FASE_2_LESSONS_LEARNED.md)
 - FASE2_OVERHEAD_REMOVAL.md (subset of FASE2_FINAL_REPORT.md)
 
-### Deduplication Results
-- **Eliminated**: 2,344 lines of duplicate/obsolete documentation
-- **Preserved**: Full git history + organized archive
-- **Single Source of Truth**: Each topic now has ONE authoritative document
-
 ---
 
 ## 🎯 Quick Reference by Role
@@ -109,25 +107,27 @@ See [docs/archive/README.md](docs/archive/README.md) for complete archive index.
 1. Start with [README.md](README.md) for overview
 2. See [package-info.java](src/main/java/com/fft/package-info.java) for API structure
 3. Review [demo package docs](src/main/java/com/fft/demo/package-info.java) for examples
-4. Check [DEMO_DOCUMENTATION.md](docs/DEMO_DOCUMENTATION.md) for audio processing
+4. Check [DEMO_DOCUMENTATION.md](docs/demos/DEMO_DOCUMENTATION.md) for audio processing
 
 ### For Developers
 1. [CLAUDE.md](CLAUDE.md) - Development commands and workflows
-2. [package-info.java files](src/main/java/com/fft/) - Package-level API docs
-3. [VALIDATION_FRAMEWORK.md](VALIDATION_FRAMEWORK.md) - Testing approach
-4. [REFACTORING_SUMMARY.md](REFACTORING_SUMMARY.md) - Architecture overview
+2. [CONTRIBUTING.md](CONTRIBUTING.md) - Contributor guidelines
+3. [package-info.java files](src/main/java/com/fft/) - Package-level API docs
+4. [VALIDATION_FRAMEWORK.md](docs/testing/VALIDATION_FRAMEWORK.md) - Testing approach
+5. [REFACTORING_SUMMARY.md](REFACTORING_SUMMARY.md) - Architecture overview
 
 ### For Performance Engineers
 1. [PERFORMANCE_OPTIMIZATION_STATUS.md](PERFORMANCE_OPTIMIZATION_STATUS.md) - **Current state**
-2. [PROFILING_RESULTS.md](PROFILING_RESULTS.md) - Profiling data
-3. [FASE_2_LESSONS_LEARNED.md](FASE_2_LESSONS_LEARNED.md) - What worked
+2. [PROFILING_RESULTS.md](docs/performance/PROFILING_RESULTS.md) - Profiling data
+3. [FASE_2_LESSONS_LEARNED.md](docs/performance/FASE_2_LESSONS_LEARNED.md) - What worked
 4. [optimized package docs](src/main/java/com/fft/optimized/package-info.java) - Optimization techniques
-5. [JMH_BENCHMARKING_GUIDE.md](JMH_BENCHMARKING_GUIDE.md) - Benchmarking howto
+5. [JMH_BENCHMARKING_GUIDE.md](docs/testing/JMH_BENCHMARKING_GUIDE.md) - Benchmarking howto
 
 ### For Quality Assurance
-1. [TESTING_COMPLIANCE.md](TESTING_COMPLIANCE.md) - Test requirements
-2. [VALIDATION_FRAMEWORK.md](VALIDATION_FRAMEWORK.md) - Validation approach
-3. [DEMO_TESTING_SUMMARY.md](docs/DEMO_TESTING_SUMMARY.md) - Demo test coverage
+1. [TESTING_COMPLIANCE.md](docs/testing/TESTING_COMPLIANCE.md) - Test requirements
+2. [VALIDATION_FRAMEWORK.md](docs/testing/VALIDATION_FRAMEWORK.md) - Validation approach
+3. [DEMO_TESTING_SUMMARY.md](docs/demos/DEMO_TESTING_SUMMARY.md) - Demo test coverage
+4. [JMH_BENCHMARKING_GUIDE.md](docs/testing/JMH_BENCHMARKING_GUIDE.md) - Performance testing
 
 ### For AI Assistants (Claude Code)
 1. [CLAUDE.md](CLAUDE.md) - **Primary reference**
@@ -139,62 +139,129 @@ See [docs/archive/README.md](docs/archive/README.md) for complete archive index.
 
 ## 📦 Documentation Statistics
 
-**Before Cleanup** (Oct 6, 2025 morning):
-- Total Markdown Files: 28
-- Duplicates/Obsolete: 12
-- Total Lines: 6,524
+**Before Reorganization** (Nov 4, 2025 morning):
+- Root Directory: 19 .md files (cluttered)
+- Subdirectories: Flat structure, limited organization
+- JMH Docs: Split across 2 files
 
-**After Cleanup** (Oct 6, 2025):
-- **Active Markdown Files**: 16 (root + docs/)
-- **Archived Docs**: 12 (docs/archive/)
-- **Package JavaDocs**: 6
-- **Active Lines**: ~4,180 (2,344 lines archived)
-- **Deduplication Plan**: DOCUMENTATION_DEDUPLICATION_PLAN.md
+**After Reorganization** (Nov 4, 2025):
+- **Root Directory**: 7 .md files (6 essential + 1 plan)
+- **docs/performance/**: 5 files
+- **docs/implementation/**: 2 files
+- **docs/testing/**: 4 files (JMH consolidated)
+- **docs/demos/**: 3 files
+- **docs/archive/**: 13 files (including new completed/ subdirectory)
 
-**Breakdown by Category**:
-- **Primary Docs**: 3 (README, CLAUDE, DOCUMENTATION_INDEX)
-- **Performance**: 5 (STATUS, PROFILING, LESSONS, FINAL_REPORT, CRISIS, CONSENSUS)
-- **Testing/QA**: 3 (VALIDATION, JMH_GUIDE, COMPLIANCE)
-- **Architecture**: 1 (REFACTORING_SUMMARY)
-- **Implementation**: 2 (P0_SUMMARY, P1_SUMMARY)
-- **Demo Docs**: 3 (docs/DEMO_*.md)
+**Breakdown by Location**:
+- **Root (Essential)**: 7 (README, CLAUDE, CONTRIBUTING, INDEX, PERF_STATUS, REFACTORING, PLAN)
+- **docs/performance/**: 5 (PROFILING, FASE2_LESSONS, FASE2_REPORT, CRISIS, CONSENSUS)
+- **docs/implementation/**: 2 (P0_SUMMARY, P1_SUMMARY)
+- **docs/testing/**: 4 (JMH_GUIDE, VALIDATION, COMPLIANCE, PITCH_ANALYSIS)
+- **docs/demos/**: 3 (DEMO_DOCS, DEMO_TESTS, FFT_LIBRARY)
+- **docs/archive/**: 13 (1 completed + 10 historical + 2 fase2)
 
 ---
 
-## 🔄 Maintenance Notes
+## 🔄 Recent Changes
 
-**Last Major Update**: October 6, 2025
+### November 4, 2025 - Major Reorganization
+**Goals**: Improve discoverability, reduce clutter, consolidate duplicates
 
-### Morning (Documentation Foundation)
-- Added 6 package-info.java files (CRITICAL GAP FILLED!)
-- Created DOCUMENTATION_INDEX.md master index
-- Updated performance documentation with FASE 2 results
+**Changes Made**:
+1. ✅ **Consolidated JMH Documentation**
+   - Merged JMH_RUNNER_README.md into JMH_BENCHMARKING_GUIDE.md
+   - Single comprehensive guide for JMH usage
+   - Location: docs/testing/JMH_BENCHMARKING_GUIDE.md
 
-### Afternoon (Deduplication & Cleanup)
-- ✅ Archived 12 obsolete/duplicate documents to docs/archive/
-- ✅ Eliminated 2,344 lines of duplicate content
-- ✅ Established single source of truth for each topic
-- ✅ Created organized archive structure with README
-- ✅ Updated DOCUMENTATION_INDEX.md with new structure
+2. ✅ **Created Logical Subdirectories**
+   - docs/performance/ - Performance analysis and profiling
+   - docs/implementation/ - Implementation reports (P0, P1)
+   - docs/testing/ - Testing, validation, benchmarking
+   - docs/demos/ - Demo documentation
+   - docs/archive/completed/ - Completed planning documents
 
-**Next Steps**:
-1. Maintain package-info.java files as primary API documentation
-2. Keep CLAUDE.md and README.md as single sources of truth
-3. Archive policy: Move completed work to docs/archive/ quarterly
-4. Update PERFORMANCE_OPTIMIZATION_STATUS.md as work progresses
+3. ✅ **Moved 16 Documents to New Locations**
+   - 5 performance docs → docs/performance/
+   - 2 implementation reports → docs/implementation/
+   - 4 testing docs → docs/testing/
+   - 3 demo docs → docs/demos/
+   - 1 completed plan → docs/archive/completed/
+   - Removed 2 old JMH files (consolidated)
+
+4. ✅ **Cleaner Root Directory**
+   - Reduced from 19 to 7 markdown files
+   - Only essential user-facing docs in root
+   - Better professional appearance
+
+**Benefits**:
+- Easier navigation for specific roles
+- Reduced cognitive load for new contributors
+- Single source of truth for JMH documentation
+- Logical grouping of related documents
+- All changes tracked in git history
+
+### October 6, 2025 - First Cleanup
+- Archived 12 obsolete/duplicate documents
+- Eliminated 2,344 lines of duplicate content
+- Established single source of truth for each topic
 
 ---
 
 ## 📖 Documentation Standards
 
+### File Placement Guidelines
+
+**Root Directory**:
+- User guides (README, CONTRIBUTING)
+- Development guides (CLAUDE)
+- Master index (DOCUMENTATION_INDEX)
+- Current status docs (PERFORMANCE_OPTIMIZATION_STATUS)
+- Architecture overviews (REFACTORING_SUMMARY)
+
+**docs/performance/**:
+- Profiling reports
+- Benchmark results
+- Performance analysis
+- Optimization lessons
+
+**docs/implementation/**:
+- Implementation summaries (P0, P1, etc.)
+- Feature implementation reports
+- Migration guides
+
+**docs/testing/**:
+- Testing frameworks
+- Validation approaches
+- Benchmarking guides
+- Accuracy analysis
+
+**docs/demos/**:
+- Demo documentation
+- Demo testing summaries
+- Usage examples
+
+**docs/archive/**:
+- Completed work
+- Historical documents
+- Superseded documentation
+
+### Naming Conventions
+
+- Use UPPERCASE for important docs (README, CONTRIBUTING, CLAUDE)
+- Use descriptive names (VALIDATION_FRAMEWORK not VALIDATION)
+- Include version/phase in reports (P0_IMPLEMENTATION_SUMMARY)
+- Use consistent prefixes (FASE2_, JMH_, etc.)
+
 ### For New Documentation
+
 - Place in appropriate category above
 - Update this index
 - Follow existing format conventions
 - Include date and author
-- Mark as "Current", "Historical", or "Archive"
+- Mark status clearly (✅ Complete, ⚠️ WIP, ❌ Outdated)
 
 ### For JavaDoc
+
 - All public classes must have class-level JavaDoc
 - All public methods must document parameters and returns
 - Include @since tags for version tracking
@@ -202,11 +269,23 @@ See [docs/archive/README.md](docs/archive/README.md) for complete archive index.
 - Link to related classes with @see tags
 
 ### For Markdown
+
 - Use clear heading hierarchy
 - Include table of contents for docs >100 lines
 - Add code examples in language-specific blocks
 - Date all documents
-- Mark status clearly (✅ Complete, ⚠️ WIP, ❌ Outdated)
+- Update cross-references when moving files
+
+---
+
+## 🔗 Cross-Reference Update Policy
+
+When moving or renaming documentation:
+1. Update all internal links in moved documents
+2. Update references in CLAUDE.md
+3. Update this index
+4. Update package-info.java if applicable
+5. Test all links before committing
 
 ---
 
