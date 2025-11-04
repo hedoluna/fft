@@ -12,6 +12,7 @@ This index organizes all documentation in the FFT library for easy navigation. D
 | Document | Purpose | Audience |
 |----------|---------|----------|
 | [README.md](README.md) | Project overview, quick start, features | All users |
+| **[USER_GUIDE.md](USER_GUIDE.md)** | **Complete practical guide to using FFTs** | **End users & developers** |
 | [CLAUDE.md](CLAUDE.md) | Development guide for Claude Code | AI assistants |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Contributor guidelines and workflow | Contributors |
 | **Package JavaDocs** | API-level documentation | Developers |
@@ -104,17 +105,19 @@ See [docs/archive/README.md](docs/archive/README.md) for complete archive index.
 ## 🎯 Quick Reference by Role
 
 ### For New Users
-1. Start with [README.md](README.md) for overview
-2. See [package-info.java](src/main/java/com/fft/package-info.java) for API structure
-3. Review [demo package docs](src/main/java/com/fft/demo/package-info.java) for examples
-4. Check [DEMO_DOCUMENTATION.md](docs/demos/DEMO_DOCUMENTATION.md) for audio processing
+1. **Start with [USER_GUIDE.md](USER_GUIDE.md) for step-by-step instructions** ⭐
+2. Read [README.md](README.md) for project overview
+3. See [package-info.java](src/main/java/com/fft/package-info.java) for API structure
+4. Review [demo package docs](src/main/java/com/fft/demo/package-info.java) for examples
+5. Check [DEMO_DOCUMENTATION.md](docs/demos/DEMO_DOCUMENTATION.md) for audio processing
 
 ### For Developers
-1. [CLAUDE.md](CLAUDE.md) - Development commands and workflows
-2. [CONTRIBUTING.md](CONTRIBUTING.md) - Contributor guidelines
-3. [package-info.java files](src/main/java/com/fft/) - Package-level API docs
-4. [VALIDATION_FRAMEWORK.md](docs/testing/VALIDATION_FRAMEWORK.md) - Testing approach
-5. [REFACTORING_SUMMARY.md](REFACTORING_SUMMARY.md) - Architecture overview
+1. **[USER_GUIDE.md](USER_GUIDE.md) - How to use the library in your code** ⭐
+2. [CLAUDE.md](CLAUDE.md) - Development commands and workflows
+3. [CONTRIBUTING.md](CONTRIBUTING.md) - Contributor guidelines
+4. [package-info.java files](src/main/java/com/fft/) - Package-level API docs
+5. [VALIDATION_FRAMEWORK.md](docs/testing/VALIDATION_FRAMEWORK.md) - Testing approach
+6. [REFACTORING_SUMMARY.md](REFACTORING_SUMMARY.md) - Architecture overview
 
 ### For Performance Engineers
 1. [PERFORMANCE_OPTIMIZATION_STATUS.md](PERFORMANCE_OPTIMIZATION_STATUS.md) - **Current state**
@@ -145,15 +148,18 @@ See [docs/archive/README.md](docs/archive/README.md) for complete archive index.
 - JMH Docs: Split across 2 files
 
 **After Reorganization** (Nov 4, 2025):
-- **Root Directory**: 7 .md files (6 essential + 1 plan)
+- **Root Directory**: 8 .md files (7 essential + 1 plan)
 - **docs/performance/**: 5 files
 - **docs/implementation/**: 2 files
 - **docs/testing/**: 4 files (JMH consolidated)
 - **docs/demos/**: 3 files
 - **docs/archive/**: 13 files (including new completed/ subdirectory)
 
+**After User Guide Addition** (Nov 4, 2025):
+- **Root Directory**: 8 .md files (adds comprehensive USER_GUIDE.md)
+
 **Breakdown by Location**:
-- **Root (Essential)**: 7 (README, CLAUDE, CONTRIBUTING, INDEX, PERF_STATUS, REFACTORING, PLAN)
+- **Root (Essential)**: 8 (README, USER_GUIDE, CLAUDE, CONTRIBUTING, INDEX, PERF_STATUS, REFACTORING, PLAN)
 - **docs/performance/**: 5 (PROFILING, FASE2_LESSONS, FASE2_REPORT, CRISIS, CONSENSUS)
 - **docs/implementation/**: 2 (P0_SUMMARY, P1_SUMMARY)
 - **docs/testing/**: 4 (JMH_GUIDE, VALIDATION, COMPLIANCE, PITCH_ANALYSIS)
@@ -163,6 +169,14 @@ See [docs/archive/README.md](docs/archive/README.md) for complete archive index.
 ---
 
 ## 🔄 Recent Changes
+
+### November 4, 2025 - User Guide Added
+**Added**: Comprehensive USER_GUIDE.md (1000+ lines)
+- Complete step-by-step instructions for using the FFT library
+- 13 sections covering installation through troubleshooting
+- 4 complete working examples (frequency analyzer, spectrum analyzer, audio file analyzer, guitar tuner)
+- Practical, clear, and unambiguous guide for end users
+- Covers basic usage, audio processing, performance optimization, error handling
 
 ### November 4, 2025 - Major Reorganization
 **Goals**: Improve discoverability, reduce clutter, consolidate duplicates

@@ -446,6 +446,7 @@ mvn test -Djava.util.logging.config.file=logging.properties
 
 **⭐ Start Here:**
 - `DOCUMENTATION_INDEX.md`: **Master index** - organized navigation to all docs by role/category
+- `USER_GUIDE.md`: **Complete user manual** - step-by-step guide to using FFTs (1000+ lines, 4 complete examples)
 
 **Performance & Optimization (Essential):**
 - `PERFORMANCE_OPTIMIZATION_STATUS.md`: Current status - FASE 1 & 2 complete, twiddle cache + FFT8 verified
@@ -478,7 +479,8 @@ mvn test -Djava.util.logging.config.file=logging.properties
 - `src/main/java/com/fft/optimized/OptimizedFFTFramework.java`: DEPRECATED (10x overhead eliminated in FASE 1)
 
 **User Documentation:**
-- `README.md`: User-facing documentation with quick start and examples
+- `USER_GUIDE.md`: **Comprehensive user manual** - installation, usage, examples, troubleshooting, FAQ
+- `README.md`: Project overview with quick start and features
 
 **📦 Archived Documentation** (see `docs/archive/README.md`):
 - 13 obsolete/duplicate/completed documents archived
