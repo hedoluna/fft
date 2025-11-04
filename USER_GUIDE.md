@@ -65,7 +65,7 @@ Add this to your `pom.xml`:
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/hedoluna/fft.git
 cd fast-fourier-transform
 
 # Build and install to local Maven repository
