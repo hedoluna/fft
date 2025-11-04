@@ -2,17 +2,33 @@
 
 **Purpose**: Preserve historical and superseded documentation for reference
 
-**Archived**: October 6, 2025
+**Archived**:
+- October 6, 2025: Initial cleanup (12 documents)
+- November 4, 2025: Completed planning document (1 document)
 
 ---
 
 ## Archive Structure
+
+### completed/
+Completed planning documents from documentation reorganization efforts.
 
 ### historical/
 Completed work, resolved issues, and historical planning documents.
 
 ### fase2/
 FASE 2 optimization documents superseded by consolidated versions.
+
+---
+
+## Completed Planning Documents (1 file)
+
+### Documentation Reorganization (November 4, 2025)
+- **DOCUMENTATION_DEDUPLICATION_PLAN.md** - Deduplication plan (completed October 6, 2025)
+  - Identified 15 documents with overlapping content
+  - Archived 12 obsolete/duplicate documents
+  - Established single source of truth for each topic
+  - Work completed, plan archived for reference
 
 ---
 
@@ -87,22 +103,22 @@ FASE 2 optimization documents superseded by consolidated versions.
 ## Archive Statistics
 
 ### Lines of Documentation Archived
-| Category | Files | Lines | Status |
-|----------|-------|-------|--------|
-| Cleanup & Fixes | 6 | 875 | Completed work |
-| Status & Planning | 3 | 1027 | Superseded |
-| Coordination | 1 | 31 | Not needed |
-| FASE 2 Duplicates | 2 | 411 | Consolidated |
-| **Total** | **12** | **2,344** | **Archived** |
+| Category | Files | Lines | Status | Date |
+|----------|-------|-------|--------|------|
+| Cleanup & Fixes | 6 | 875 | Completed work | Oct 6, 2025 |
+| Status & Planning | 3 | 1027 | Superseded | Oct 6, 2025 |
+| Coordination | 1 | 31 | Not needed | Oct 6, 2025 |
+| FASE 2 Duplicates | 2 | 411 | Consolidated | Oct 6, 2025 |
+| Completed Planning | 1 | 268 | Work completed | Nov 4, 2025 |
+| **Total** | **13** | **2,612** | **Archived** | |
 
-### Active Documentation Remaining
-- **Primary Docs**: 3 (README, CLAUDE, DOCUMENTATION_INDEX)
-- **Performance**: 5 (STATUS, PROFILING, LESSONS, FINAL_REPORT, CRISIS)
-- **Testing**: 3 (VALIDATION, JMH_GUIDE, COMPLIANCE)
-- **Architecture**: 1 (REFACTORING_SUMMARY)
-- **Implementation**: 2 (P0_SUMMARY, P1_SUMMARY)
-- **Analysis**: 1 (CONSENSUS_ANALYSIS)
-- **Total Active**: 15 markdown files
+### Active Documentation Structure (After November 4, 2025 Reorganization)
+- **Root (Essential)**: 7 files (README, CLAUDE, CONTRIBUTING, INDEX, PERF_STATUS, REFACTORING, PLAN)
+- **docs/performance/**: 5 files (PROFILING, FASE2_LESSONS, FASE2_REPORT, CRISIS, CONSENSUS)
+- **docs/implementation/**: 2 files (P0_SUMMARY, P1_SUMMARY)
+- **docs/testing/**: 4 files (JMH_GUIDE, VALIDATION, COMPLIANCE, PITCH_ANALYSIS)
+- **docs/demos/**: 3 files (DEMO_DOCS, DEMO_TESTS, FFT_LIBRARY)
+- **Total Active**: 21 markdown files (better organized)
 
 ---
 
@@ -132,13 +148,31 @@ Documented massive cleanup: removed 11 legacy FFToptim*.java files, consolidated
 
 ### Single Source of Truth Established
 Each topic now has ONE authoritative document:
-- Performance status → PERFORMANCE_OPTIMIZATION_STATUS.md
-- FASE 2 lessons → FASE_2_LESSONS_LEARNED.md
-- FASE 2 comprehensive → FASE2_FINAL_REPORT.md
-- Refactoring summary → REFACTORING_SUMMARY.md
-- Testing approach → VALIDATION_FRAMEWORK.md
+- Performance status → PERFORMANCE_OPTIMIZATION_STATUS.md (root)
+- FASE 2 lessons → docs/performance/FASE_2_LESSONS_LEARNED.md
+- FASE 2 comprehensive → docs/performance/FASE2_FINAL_REPORT.md
+- Refactoring summary → REFACTORING_SUMMARY.md (root)
+- Testing approach → docs/testing/VALIDATION_FRAMEWORK.md
+- JMH benchmarking → docs/testing/JMH_BENCHMARKING_GUIDE.md (consolidated)
 
 ---
 
-**Last Updated**: October 6, 2025
-**Deduplication**: See DOCUMENTATION_DEDUPLICATION_PLAN.md for full analysis
+## Recent Changes
+
+### November 4, 2025 - Major Reorganization
+- **Consolidated JMH Documentation**: Merged JMH_RUNNER_README.md into JMH_BENCHMARKING_GUIDE.md
+- **Created Logical Subdirectories**: docs/performance/, docs/implementation/, docs/testing/, docs/demos/
+- **Moved 16 Documents**: Organized by topic for better discoverability
+- **Archived Completed Plan**: DOCUMENTATION_DEDUPLICATION_PLAN.md moved to docs/archive/completed/
+- **Cleaner Root**: Reduced from 19 to 7 markdown files in root directory
+
+### October 6, 2025 - Initial Cleanup
+- Archived 12 obsolete/duplicate documents
+- Eliminated 2,344 lines of duplicate content
+- Established single source of truth for each topic
+
+---
+
+**Last Updated**: November 4, 2025
+**Deduplication Plan**: See completed/DOCUMENTATION_DEDUPLICATION_PLAN.md
+**Reorganization Plan**: See root/REORGANIZATION_PLAN.md

@@ -10,7 +10,7 @@ Java Fast Fourier Transform (FFT) library with factory pattern, auto-discovery, 
 **🚀 PERFORMANCE**: FFT8: 2.27x verified, Twiddle cache: 30-50% overall speedup, all optimizations validated
 **✅ COVERAGE**: JaCoCo enforces 90% line / 85% branch coverage
 **📊 PROFILING**: Complete - Twiddle factors were #1 bottleneck (43-56%), now optimized with precomputed cache
-**🎯 PITCH ACCURACY**: Spectral method 44x more accurate than YIN (0.92% vs 40.6% error) - See PITCH_DETECTION_ANALYSIS.md
+**🎯 PITCH ACCURACY**: Spectral method 44x more accurate than YIN (0.92% vs 40.6% error) - See docs/testing/PITCH_DETECTION_ANALYSIS.md
 
 ## ⚡ Quick Reference
 
@@ -44,10 +44,10 @@ mvn exec:java -Dexec.mainClass="com.fft.demo.SongRecognitionDemo"     # Song rec
 **Key Documentation:**
 - **Master Index**: `DOCUMENTATION_INDEX.md` - organized navigation by role
 - **Status**: `PERFORMANCE_OPTIMIZATION_STATUS.md` - FASE 1-2 complete
-- **Lessons**: `FASE_2_LESSONS_LEARNED.md` - what worked (twiddle cache, FFT8) vs didn't (manual unrolling FFT16+)
-- **Profiling**: `PROFILING_RESULTS.md` - twiddle factors #1 bottleneck (43-56%)
-- **Benchmarking**: `JMH_BENCHMARKING_GUIDE.md` - proper methodology (10K+ warmup)
-- **Archive**: `docs/archive/README.md` - 12 historical/duplicate docs
+- **Lessons**: `docs/performance/FASE_2_LESSONS_LEARNED.md` - what worked (twiddle cache, FFT8) vs didn't (manual unrolling FFT16+)
+- **Profiling**: `docs/performance/PROFILING_RESULTS.md` - twiddle factors #1 bottleneck (43-56%)
+- **Benchmarking**: `docs/testing/JMH_BENCHMARKING_GUIDE.md` - proper methodology (10K+ warmup)
+- **Archive**: `docs/archive/README.md` - 13 historical/duplicate/completed docs
 
 **Critical Insights:**
 - ✅ **Profile first, optimize second** - twiddle cache was biggest win
@@ -158,7 +158,7 @@ mvn exec:java -Dexec.mainClass="com.fft.demo.RefactoringDemo"
   - ✅ FFT128: 1.42x speedup (existing optimizations confirmed working)
   - ✅ All sizes: 100% correctness maintained (296+/296+ tests passing)
 
-**What Worked (see FASE_2_LESSONS_LEARNED.md, PROFILING_RESULTS.md):**
+**What Worked (see docs/performance/FASE_2_LESSONS_LEARNED.md, docs/performance/PROFILING_RESULTS.md):**
 - ✅ **Precomputed twiddle factors** (TwiddleFactorCache): 2.3-3.2x speedup for twiddle operations, 30-50% overall improvement
 - ✅ Complete loop unrolling for small sizes (FFT8: 2.27x verified with heavy warmup)
 - ✅ Hardcoded twiddle factors as static final constants (FFT8)
@@ -205,7 +205,7 @@ mvn test -Dtest=FFTPerformanceBenchmarkTest
 # Add to test: System.out.println(FFTUtils.getImplementationInfo(1024));
 ```
 
-**See JMH_BENCHMARKING_GUIDE.md for detailed benchmarking instructions**
+**See docs/testing/JMH_BENCHMARKING_GUIDE.md for detailed benchmarking instructions**
 
 ## Testing & Quality
 
@@ -231,7 +231,7 @@ mvn test -Dtest=FFTPerformanceBenchmarkTest
 
 ## Audio Processing Features
 
-**⭐ CRITICAL UPDATE (October 2025):** Spectral method now primary after discovering YIN has 40.6% mean error on pure tones due to subharmonic detection. See **PITCH_DETECTION_ANALYSIS.md** for complete analysis.
+**⭐ CRITICAL UPDATE (October 2025):** Spectral method now primary after discovering YIN has 40.6% mean error on pure tones due to subharmonic detection. See **docs/testing/PITCH_DETECTION_ANALYSIS.md** for complete analysis.
 
 **Advanced Pitch Detection:**
 - **Spectral Method (Primary)**: FFT-based peak detection, **0.92% error** across 80Hz-2000Hz
@@ -440,33 +440,34 @@ mvn test -Djava.util.logging.config.file=logging.properties
 - YIN algorithm used for subharmonic detection validation only
 - Voicing detection prevents false positives from background noise
 - Parsons code generation requires stable pitch tracking
-- See PITCH_DETECTION_ANALYSIS.md for complete accuracy analysis
+- See docs/testing/PITCH_DETECTION_ANALYSIS.md for complete accuracy analysis
 
 **Key Files for Reference:**
 
 **⭐ Start Here:**
 - `DOCUMENTATION_INDEX.md`: **Master index** - organized navigation to all docs by role/category
+- `USER_GUIDE.md`: **Complete user manual** - step-by-step guide to using FFTs (1000+ lines, 4 complete examples)
 
 **Performance & Optimization (Essential):**
 - `PERFORMANCE_OPTIMIZATION_STATUS.md`: Current status - FASE 1 & 2 complete, twiddle cache + FFT8 verified
-- `FASE_2_LESSONS_LEARNED.md`: What worked (twiddle cache 30-50%, FFT8 2.27x) vs didn't (manual unrolling FFT16+)
-- `FASE2_FINAL_REPORT.md`: Comprehensive FASE 2 analysis - FFT8 success, FFT16-512 delegation removal
-- `PROFILING_RESULTS.md`: Profiling data showing twiddle factors #1 bottleneck (43-56% of time)
-- `PERFORMANCE_MEASUREMENT_CRISIS.md`: Investigation resolving FFT8 measurement issues (warmup critical)
-- `CONSENSUS_ANALYSIS.md`: Multi-agent FFT8 variance analysis (2.36x-3.47x depending on conditions)
+- `docs/performance/FASE_2_LESSONS_LEARNED.md`: What worked (twiddle cache 30-50%, FFT8 2.27x) vs didn't (manual unrolling FFT16+)
+- `docs/performance/FASE2_FINAL_REPORT.md`: Comprehensive FASE 2 analysis - FFT8 success, FFT16-512 delegation removal
+- `docs/performance/PROFILING_RESULTS.md`: Profiling data showing twiddle factors #1 bottleneck (43-56% of time)
+- `docs/performance/PERFORMANCE_MEASUREMENT_CRISIS.md`: Investigation resolving FFT8 measurement issues (warmup critical)
+- `docs/performance/CONSENSUS_ANALYSIS.md`: Multi-agent FFT8 variance analysis (2.36x-3.47x depending on conditions)
 
 **Testing & Benchmarking:**
-- `JMH_BENCHMARKING_GUIDE.md`: Rigorous performance measurement methodology (10K+ warmup essential)
-- `VALIDATION_FRAMEWORK.md`: Stage-by-stage FFT validation for debugging optimizations
-- `TESTING_COMPLIANCE.md`: Test coverage requirements and quality gates
+- `docs/testing/JMH_BENCHMARKING_GUIDE.md`: Rigorous performance measurement methodology (10K+ warmup essential)
+- `docs/testing/VALIDATION_FRAMEWORK.md`: Stage-by-stage FFT validation for debugging optimizations
+- `docs/testing/TESTING_COMPLIANCE.md`: Test coverage requirements and quality gates
 
 **Audio Processing & Accuracy:**
-- `PITCH_DETECTION_ANALYSIS.md`: **Complete pitch detection accuracy analysis** (spectral 0.92% vs YIN 40.6% error)
+- `docs/testing/PITCH_DETECTION_ANALYSIS.md`: **Complete pitch detection accuracy analysis** (spectral 0.92% vs YIN 40.6% error)
 - `src/test/java/com/fft/analysis/PitchDetectionAccuracyTest.java`: Comprehensive accuracy test suite (4 scenarios, 10 frequencies)
 
 **Implementation Reports:**
-- `P0_IMPLEMENTATION_SUMMARY.md`: JMH + accurate documentation recommendations
-- `P1_IMPLEMENTATION_SUMMARY.md`: Profiling + validation + test fixes (✅ COMPLETED)
+- `docs/implementation/P0_IMPLEMENTATION_SUMMARY.md`: JMH + accurate documentation recommendations
+- `docs/implementation/P1_IMPLEMENTATION_SUMMARY.md`: Profiling + validation + test fixes (✅ COMPLETED)
 
 **Architecture:**
 - `REFACTORING_SUMMARY.md`: Phase 1-2 refactoring summary (package structure, factory pattern)
@@ -478,10 +479,13 @@ mvn test -Djava.util.logging.config.file=logging.properties
 - `src/main/java/com/fft/optimized/OptimizedFFTFramework.java`: DEPRECATED (10x overhead eliminated in FASE 1)
 
 **User Documentation:**
-- `README.md`: User-facing documentation with quick start and examples
+- `USER_GUIDE.md`: **Comprehensive user manual** - installation, usage, examples, troubleshooting, FAQ
+- `README.md`: Project overview with quick start and features
 
 **📦 Archived Documentation** (see `docs/archive/README.md`):
-- 12 obsolete/duplicate documents archived October 6, 2025
+- 13 obsolete/duplicate/completed documents archived
+  - October 6, 2025: 12 historical/duplicate docs
+  - November 4, 2025: 1 completed planning doc (DOCUMENTATION_DEDUPLICATION_PLAN)
 - Historical planning, completed work, duplicate FASE 2 docs
 - Full git history preserved for reference
 
@@ -493,7 +497,7 @@ mvn test -Djava.util.logging.config.file=logging.properties
 - **Pitch detection strategy changed**: Spectral method now primary, YIN validation only - **Updated Oct 2025**
   - YIN has 40.6% error on pure tones due to subharmonic detection
   - Spectral FFT-based method achieves 0.92% error (44x better)
-  - See PITCH_DETECTION_ANALYSIS.md for complete analysis
+  - See docs/testing/PITCH_DETECTION_ANALYSIS.md for complete analysis
 - **Maven forkCount=0**: Tests run in-process for faster execution, JaCoCo coverage uses ${argLine}
 - **SpotBugs disabled**: Incompatible with Java 17 bytecode, run manually if needed with `mvn spotbugs:spotbugs`
 - **Logging**: All code uses SLF4J API (production + demos) - **Updated Oct 2025**
