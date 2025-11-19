@@ -1,7 +1,7 @@
 package com.fft.performance;
 
 import com.fft.core.FFTBase;
-import com.fft.core.FFTResult;
+
 import org.junit.jupiter.api.Test;
 
 /**
@@ -19,7 +19,7 @@ public class SimpleProfilingTest {
     public void profileFFTOperations() {
         System.out.println("\n=== FFT Performance Profiling ===\n");
 
-        for (int size : new int[]{32, 64, 128, 256}) {
+        for (int size : new int[] { 32, 64, 128, 256 }) {
             System.out.println("--- Size: " + size + " ---");
             profileSize(size);
             System.out.println();
@@ -69,8 +69,8 @@ public class SimpleProfilingTest {
         System.out.printf("System.arraycopy:    %,10d ns\n", systemCopyTime);
         System.out.printf("Array.clone:         %,10d ns\n", cloneTime);
 
-        String copyWinner = manualCopyTime < systemCopyTime ? "Manual" :
-                           systemCopyTime < cloneTime ? "System.arraycopy" : "clone";
+        String copyWinner = manualCopyTime < systemCopyTime ? "Manual"
+                : systemCopyTime < cloneTime ? "System.arraycopy" : "clone";
         System.out.printf("Copy Winner:         %s\n", copyWinner);
     }
 
@@ -114,7 +114,7 @@ public class SimpleProfilingTest {
         double sum = 0.0;
         for (int l = 1; l <= nu; l++) {
             for (int k = 0; k < n; k += (1 << l)) {
-                for (int i = 0; i < (1 << (l-1)); i++) {
+                for (int i = 0; i < (1 << (l - 1)); i++) {
                     double p = bitreverseReference(k >> (nu - l), l);
                     double arg = -2 * Math.PI * p / n;
                     sum += Math.cos(arg) + Math.sin(arg);
@@ -354,7 +354,7 @@ public class SimpleProfilingTest {
         System.out.println("  - Precomputation speedup: 2.3-3.2x for twiddle operations");
         System.out.println("  - Expected overall improvement: 30-50%\n");
 
-        for (int size : new int[]{32, 64, 128, 256}) {
+        for (int size : new int[] { 32, 64, 128, 256 }) {
             double[] real = new double[size];
             double[] imag = new double[size];
             for (int i = 0; i < size; i++) {

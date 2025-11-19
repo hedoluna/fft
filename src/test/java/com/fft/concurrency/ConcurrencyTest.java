@@ -21,8 +21,10 @@ import static org.assertj.core.api.Assertions.*;
 /**
  * Thread safety and concurrency tests for FFT library components.
  *
- * <p>Tests concurrent access to factory, cache, and FFT operations to ensure
- * thread-safe operation in multi-threaded environments.</p>
+ * <p>
+ * Tests concurrent access to factory, cache, and FFT operations to ensure
+ * thread-safe operation in multi-threaded environments.
+ * </p>
  *
  * @author Engine AI Assistant
  * @since 2.0.0
@@ -47,7 +49,8 @@ class ConcurrencyTest {
 
             // Submit multiple tasks to create FFT instances concurrently
             for (int i = 0; i < NUM_THREADS; i++) {
-                final int size = (i % 5 + 3) * 8; // Sizes: 32, 64, 128, 256, 512
+                // Use bit-shifting to ensure power-of-2 sizes: 32, 64, 128, 256, 512
+                final int size = 32 << (i % 5); // 32, 64, 128, 256, 512
                 futures.add(executor.submit(() -> factory.createFFT(size)));
             }
 
@@ -57,8 +60,10 @@ class ConcurrencyTest {
                 assertThat(fft).isNotNull();
             }
 
+            // Properly shutdown executor
             executor.shutdown();
-            assertThat(executor.awaitTermination(5, TimeUnit.SECONDS)).isTrue();
+            boolean terminated = executor.awaitTermination(5, TimeUnit.SECONDS);
+            assertThat(terminated).as("Executor should terminate within timeout").isTrue();
         }
 
         @Test
@@ -81,9 +86,10 @@ class ConcurrencyTest {
                 });
             }
 
-            latch.await(5, TimeUnit.SECONDS);
+            boolean completed = latch.await(5, TimeUnit.SECONDS);
             executor.shutdown();
 
+            assertThat(completed).as("All threads should complete within timeout").isTrue();
             assertThat(successCount.get()).isEqualTo(NUM_THREADS);
         }
 
@@ -106,9 +112,10 @@ class ConcurrencyTest {
                 });
             }
 
-            latch.await(5, TimeUnit.SECONDS);
+            boolean completed = latch.await(5, TimeUnit.SECONDS);
             executor.shutdown();
 
+            assertThat(completed).as("All threads should complete within timeout").isTrue();
             assertThat(results).hasSize(NUM_THREADS);
             // All results should be identical for the same size
             assertThat(results).allMatch(info -> info.equals(results.get(0)));
@@ -142,7 +149,7 @@ class ConcurrencyTest {
                             double expectedSin = Math.sin(-2.0 * Math.PI * k / size);
 
                             if (Math.abs(cos - expectedCos) < TOLERANCE &&
-                                Math.abs(sin - expectedSin) < TOLERANCE) {
+                                    Math.abs(sin - expectedSin) < TOLERANCE) {
                                 successCount.incrementAndGet();
                             }
                         }
@@ -391,8 +398,8 @@ class ConcurrencyTest {
             for (int i = 0; i < NUM_THREADS; i++) {
                 executor.submit(() -> {
                     try {
-                        PitchDetectionUtils.PitchResult result =
-                            PitchDetectionUtils.detectPitchHybrid(signal.clone(), 44100.0);
+                        PitchDetectionUtils.PitchResult result = PitchDetectionUtils.detectPitchHybrid(signal.clone(),
+                                44100.0);
                         results.add(result);
                     } finally {
                         latch.countDown();
@@ -446,7 +453,7 @@ class ConcurrencyTest {
         @Test
         @DisplayName("Should handle concurrent FFT operations on different sizes")
         void shouldHandleConcurrentDifferentSizes() throws InterruptedException, ExecutionException {
-            int[] sizes = {64, 128, 256, 512, 1024};
+            int[] sizes = { 64, 128, 256, 512, 1024 };
             ExecutorService executor = Executors.newFixedThreadPool(NUM_THREADS);
             List<Future<Boolean>> futures = new ArrayList<>();
 

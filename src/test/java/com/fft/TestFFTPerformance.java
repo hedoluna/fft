@@ -7,9 +7,7 @@ import com.fft.factory.DefaultFFTFactory;
 import com.fft.optimized.OptimizedFFTUtils; // For direct test of fftRecursive
 
 import org.junit.Test;
-import org.junit.Ignore; // To potentially ignore noisy tests or long running ones by default
 
-import java.util.ArrayList;
 import java.util.Arrays; // Required for Arrays.asList
 import java.util.List;
 import java.util.Random;
@@ -31,13 +29,15 @@ public class TestFFTPerformance {
 
     private void benchmarkFFT(String name, FFT fft, int size, boolean isRecursiveWithError) {
         if (!fft.supportsSize(size) && !(name.contains("Recursive") || name.contains("Base"))) {
-             System.out.println(String.format("Skipping benchmark for %s with size %d (not supported by this specific impl)", name, size));
-             return;
+            System.out.println(String.format(
+                    "Skipping benchmark for %s with size %d (not supported by this specific impl)", name, size));
+            return;
         }
-        if (size == 0) return;
+        if (size == 0)
+            return;
 
-        double[] real = generateRandomSignal(size, (long)size * 30 + 1);
-        double[] imag = generateRandomSignal(size, (long)size * 30 + 2);
+        double[] real = generateRandomSignal(size, (long) size * 30 + 1);
+        double[] imag = generateRandomSignal(size, (long) size * 30 + 2);
 
         // Warmup
         for (int i = 0; i < WARMUP_ITERATIONS; i++) {
@@ -65,16 +65,26 @@ public class TestFFTPerformance {
                 double[] result = OptimizedFFTUtils.fftRecursive(real.length, real, imaginary, forward);
                 return new FFTResult(result);
             }
+
             @Override
             public FFTResult transform(double[] real, boolean forward) {
                 return transform(real, new double[real.length], forward);
             }
+
             @Override
-            public int getSupportedSize() { return -1; }
+            public int getSupportedSize() {
+                return -1;
+            }
+
             @Override
-            public boolean supportsSize(int s) { return (s > 0 && (s & (s-1))==0 && s >=8); }
+            public boolean supportsSize(int s) {
+                return (s > 0 && (s & (s - 1)) == 0 && s >= 8);
+            }
+
             @Override
-            public String getDescription() { return "OptimizedFFTUtils.fftRecursive wrapper"; }
+            public String getDescription() {
+                return "OptimizedFFTUtils.fftRecursive wrapper";
+            }
         };
     }
 
@@ -87,35 +97,40 @@ public class TestFFTPerformance {
         FFT fftRecursiveWrapper = createRecursiveWrapper();
 
         for (int size : sizesToTest) {
-            try { // Wrap FFTBase in try-catch as it throws for non-power-of-2, though sizesToTest are powers of 2
+            try { // Wrap FFTBase in try-catch as it throws for non-power-of-2, though sizesToTest
+                  // are powers of 2
                 benchmarkFFT("FFTBase", fftBase, size, false);
             } catch (IllegalArgumentException e) {
                 System.out.println(String.format("Skipping FFTBase for size %d due to: %s", size, e.getMessage()));
             }
 
             // Test optimized versions obtained from factory
-            // FFTOptimized classes will be chosen by the factory for relevant sizes (8, 16, 32, 64)
-            // For larger sizes, factory might return FFTBase or a future different optimized version
-            FFT factoryFFT = factory.createFFT(size); // This can throw if size not supported by any specific impl and no fallback
+            // FFTOptimized classes will be chosen by the factory for relevant sizes (8, 16,
+            // 32, 64)
+            // For larger sizes, factory might return FFTBase or a future different
+            // optimized version
+            FFT factoryFFT = factory.createFFT(size); // This can throw if size not supported by any specific impl and
+                                                      // no fallback
             if (factoryFFT != null) {
                 String factoryFFTName = factory.getImplementationInfo(size);
                 if (factoryFFTName == null || factoryFFTName.isEmpty()) {
                     factoryFFTName = factoryFFT.getClass().getSimpleName(); // Fallback name
                 } else {
-                     factoryFFTName = factoryFFTName.split(" ")[0]; // Get class name like "FFTOptimized32" or "FFTBase"
+                    factoryFFTName = factoryFFTName.split(" ")[0]; // Get class name like "FFTOptimized32" or "FFTBase"
                 }
 
-                if (factoryFFT != fftBase || !factoryFFTName.equals("FFTBase")) { // Avoid double testing if factory falls back to base
+                if (factoryFFT != fftBase || !factoryFFTName.equals("FFTBase")) { // Avoid double testing if factory
+                                                                                  // falls back to base
                     benchmarkFFT(factoryFFTName, factoryFFT, size, false);
                 }
             } else {
-                 System.out.println(String.format("No FFT implementation found by factory for size %d", size));
+                System.out.println(String.format("No FFT implementation found by factory for size %d", size));
             }
 
             // Explicitly benchmark the fftRecursive wrapper
             // It is known to be incorrect for N >= 128 due to normalization issues.
             if (size >= 8) { // fftRecursive supports N>=8
-                 benchmarkFFT("OptimizedFFTUtils.fftRecursive", fftRecursiveWrapper, size, size >= 128);
+                benchmarkFFT("OptimizedFFTUtils.fftRecursive", fftRecursiveWrapper, size, size >= 128);
             }
         }
         System.out.println("FFT Benchmarks Complete.");

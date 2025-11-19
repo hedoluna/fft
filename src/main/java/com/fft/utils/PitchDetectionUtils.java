@@ -5,23 +5,31 @@ import com.fft.core.FFTResult;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Utility class providing advanced pitch detection algorithms.
  *
- * <p>This class implements state-of-the-art pitch detection methods including
+ * <p>
+ * This class implements state-of-the-art pitch detection methods including
  * the YIN algorithm for accurate fundamental frequency estimation. It provides
- * both autocorrelation-based and spectral-based pitch detection methods.</p>
+ * both autocorrelation-based and spectral-based pitch detection methods.
+ * </p>
  *
  * <h3>Algorithms:</h3>
  * <ul>
- * <li><b>YIN Algorithm:</b> Autocorrelation-based pitch detection with high accuracy</li>
- * <li><b>Spectral Peak Detection:</b> FFT-based fundamental frequency estimation</li>
- * <li><b>Voicing Detection:</b> Distinguishes between voiced and unvoiced sounds</li>
- * <li><b>Harmonic Analysis:</b> Improves accuracy by considering harmonic structure</li>
+ * <li><b>YIN Algorithm:</b> Autocorrelation-based pitch detection with high
+ * accuracy</li>
+ * <li><b>Spectral Peak Detection:</b> FFT-based fundamental frequency
+ * estimation</li>
+ * <li><b>Voicing Detection:</b> Distinguishes between voiced and unvoiced
+ * sounds</li>
+ * <li><b>Harmonic Analysis:</b> Improves accuracy by considering harmonic
+ * structure</li>
  * </ul>
  *
  * <h3>Usage:</h3>
+ * 
  * <pre>
  * // YIN algorithm for high accuracy
  * double pitch = PitchDetectionUtils.detectPitchYin(audioSamples, sampleRate);
@@ -42,7 +50,7 @@ public class PitchDetectionUtils {
     private static final double VOICING_THRESHOLD = 0.001;
 
     // Frequency range parameters - optimized for musical instruments
-    private static final double MIN_FREQUENCY = 75.0;  // Slightly lower for bass instruments
+    private static final double MIN_FREQUENCY = 75.0; // Slightly lower for bass instruments
     private static final double MAX_FREQUENCY = 2500.0; // Higher for harmonics
 
     // Performance optimization parameters
@@ -53,7 +61,7 @@ public class PitchDetectionUtils {
     private static final int CACHE_SIZE = 16; // Number of cached results
     private static final int CACHE_FINGERPRINT_SIZE = 32; // Samples used for cache key
     private static final CacheEntry[] pitchCache = new CacheEntry[CACHE_SIZE];
-    private static int cacheIndex = 0;
+    private static final AtomicInteger cacheIndex = new AtomicInteger(0);
 
     /**
      * Simple cache entry for pitch detection results.
@@ -97,23 +105,25 @@ public class PitchDetectionUtils {
     /**
      * Detects the fundamental frequency using an optimized YIN algorithm.
      *
-     * <p>This optimized version includes performance improvements:
+     * <p>
+     * This optimized version includes performance improvements:
      * - Adaptive buffer sizing for better performance
      * - Early stopping when good candidates are found
      * - Improved difference function calculation
-     * - Better threshold handling</p>
+     * - Better threshold handling
+     * </p>
      *
      * @param audioSamples the audio samples to analyze
-     * @param sampleRate the sampling rate in Hz
+     * @param sampleRate   the sampling rate in Hz
      * @return pitch detection result
      */
     public static PitchResult detectPitchYin(double[] audioSamples, double sampleRate) {
         // Pre-processing: limit buffer size for performance
         double[] processedSamples = preprocessAudioSamples(audioSamples);
 
-        int minPeriod = (int)(sampleRate / MAX_FREQUENCY);
-        int maxPeriod = Math.min((int)(sampleRate / MIN_FREQUENCY),
-                                processedSamples.length / 2); // Limit for performance
+        int minPeriod = (int) (sampleRate / MAX_FREQUENCY);
+        int maxPeriod = Math.min((int) (sampleRate / MIN_FREQUENCY),
+                processedSamples.length / 2); // Limit for performance
 
         // Early voicing check - skip expensive computation if not voiced
         if (!checkVoicing(processedSamples)) {
@@ -167,7 +177,8 @@ public class PitchDetectionUtils {
             return samples;
         }
 
-        // If too large, take the most recent portion (more likely to contain current pitch)
+        // If too large, take the most recent portion (more likely to contain current
+        // pitch)
         int start = samples.length - YIN_MAX_BUFFER_SIZE;
         double[] result = new double[YIN_MAX_BUFFER_SIZE];
         System.arraycopy(samples, start, result, 0, YIN_MAX_BUFFER_SIZE);
@@ -178,7 +189,7 @@ public class PitchDetectionUtils {
      * Optimized difference function calculation with early optimizations.
      */
     private static void calculateOptimizedDifferenceFunction(double[] samples, double[] yinBuffer,
-                                                           int minPeriod, int maxPeriod) {
+            int minPeriod, int maxPeriod) {
         int sampleLength = samples.length;
 
         // Pre-calculate squares for efficiency
@@ -271,10 +282,12 @@ public class PitchDetectionUtils {
     /**
      * Detects pitch using spectral peak analysis.
      *
-     * <p>This method finds the strongest frequency component in the FFT spectrum,
-     * suitable for simple waveforms and fast processing requirements.</p>
+     * <p>
+     * This method finds the strongest frequency component in the FFT spectrum,
+     * suitable for simple waveforms and fast processing requirements.
+     * </p>
      *
-     * @param spectrum the FFT result to analyze
+     * @param spectrum   the FFT result to analyze
      * @param sampleRate the sampling rate in Hz
      * @return pitch detection result
      */
@@ -327,14 +340,17 @@ public class PitchDetectionUtils {
     /**
      * Hybrid pitch detection combining spectral and YIN analysis with caching.
      *
-     * <p>This method provides the best accuracy and robustness:
-     * - Uses spectral method as primary (0.92% error, 44x more accurate than YIN alone)
+     * <p>
+     * This method provides the best accuracy and robustness:
+     * - Uses spectral method as primary (0.92% error, 44x more accurate than YIN
+     * alone)
      * - Validates with YIN to detect potential subharmonic issues
      * - Combines results when both methods agree
-     * - Includes intelligent caching for repeated signals</p>
+     * - Includes intelligent caching for repeated signals
+     * </p>
      *
      * @param audioSamples the audio samples to analyze
-     * @param sampleRate the sampling rate in Hz
+     * @param sampleRate   the sampling rate in Hz
      * @return pitch detection result
      */
     public static PitchResult detectPitchHybrid(double[] audioSamples, double sampleRate) {
@@ -397,10 +413,12 @@ public class PitchDetectionUtils {
      *
      * @param f1 first frequency
      * @param f2 second frequency
-     * @return true if one frequency is a subharmonic (1/2, 1/3, 1/4, etc.) of the other
+     * @return true if one frequency is a subharmonic (1/2, 1/3, 1/4, etc.) of the
+     *         other
      */
     private static boolean isSubharmonic(double f1, double f2) {
-        if (f1 <= 0 || f2 <= 0) return false;
+        if (f1 <= 0 || f2 <= 0)
+            return false;
 
         double ratio = Math.max(f1, f2) / Math.min(f1, f2);
 
@@ -414,13 +432,14 @@ public class PitchDetectionUtils {
     /**
      * Checks if two frequencies agree within a tolerance.
      *
-     * @param f1 first frequency
-     * @param f2 second frequency
+     * @param f1        first frequency
+     * @param f2        second frequency
      * @param tolerance relative tolerance (0.05 = 5%)
      * @return true if frequencies are within tolerance
      */
     private static boolean resultsAgree(double f1, double f2, double tolerance) {
-        if (f1 <= 0 || f2 <= 0) return false;
+        if (f1 <= 0 || f2 <= 0)
+            return false;
 
         double diff = Math.abs(f1 - f2);
         double avg = (f1 + f2) / 2.0;
@@ -471,7 +490,8 @@ public class PitchDetectionUtils {
     /**
      * Finds the fundamental frequency by analyzing harmonic structure.
      */
-    private static double findFundamentalFrequency(double[] magnitudes, double estimatedFreq, double sampleRate, int fftSize) {
+    private static double findFundamentalFrequency(double[] magnitudes, double estimatedFreq, double sampleRate,
+            int fftSize) {
         int estimatedBin = frequencyToBin(estimatedFreq, sampleRate, fftSize);
 
         // Check if there are strong harmonics
@@ -538,8 +558,8 @@ public class PitchDetectionUtils {
      * Adds a result to the cache.
      */
     private static void addToCache(long fingerprint, PitchResult result) {
-        pitchCache[cacheIndex] = new CacheEntry(fingerprint, result.frequency, result.confidence, result.isVoiced);
-        cacheIndex = (cacheIndex + 1) % CACHE_SIZE;
+        int index = cacheIndex.getAndUpdate(i -> (i + 1) % CACHE_SIZE);
+        pitchCache[index] = new CacheEntry(fingerprint, result.frequency, result.confidence, result.isVoiced);
     }
 
     /**
@@ -576,11 +596,13 @@ public class PitchDetectionUtils {
     /**
      * Detects multiple fundamental frequencies (chords) from FFT spectrum.
      *
-     * <p>This method finds the strongest frequency components and identifies
-     * musical chords based on harmonic relationships.</p>
+     * <p>
+     * This method finds the strongest frequency components and identifies
+     * musical chords based on harmonic relationships.
+     * </p>
      *
-     * @param spectrum the FFT result to analyze
-     * @param sampleRate the sampling rate in Hz
+     * @param spectrum       the FFT result to analyze
+     * @param sampleRate     the sampling rate in Hz
      * @param maxFrequencies maximum number of frequencies to detect
      * @return chord detection result
      */
@@ -598,7 +620,8 @@ public class PitchDetectionUtils {
         }
 
         // Extract frequencies from peaks
-        double[] frequencies = peaks.stream().mapToDouble(p -> binToFrequency(p.bin, sampleRate, magnitudes.length)).toArray();
+        double[] frequencies = peaks.stream().mapToDouble(p -> binToFrequency(p.bin, sampleRate, magnitudes.length))
+                .toArray();
 
         // Identify chord type
         ChordIdentification chordId = identifyChord(frequencies);
@@ -618,7 +641,7 @@ public class PitchDetectionUtils {
 
         for (int i = minBin + 1; i < maxBin - 1; i++) {
             if (magnitudes[i] > magnitudes[i - 1] && magnitudes[i] > magnitudes[i + 1] &&
-                magnitudes[i] > MAGNITUDE_THRESHOLD) {
+                    magnitudes[i] > MAGNITUDE_THRESHOLD) {
 
                 // Check minimum distance from existing peaks
                 final int currentBin = i;
@@ -644,8 +667,8 @@ public class PitchDetectionUtils {
 
         // Convert frequencies to MIDI note numbers
         int[] midiNotes = Arrays.stream(frequencies)
-            .mapToInt(f -> (int) Math.round(12 * Math.log(f / 440.0) / Math.log(2) + 69))
-            .toArray();
+                .mapToInt(f -> (int) Math.round(12 * Math.log(f / 440.0) / Math.log(2) + 69))
+                .toArray();
 
         // Normalize to root note
         Arrays.sort(midiNotes);
@@ -653,16 +676,16 @@ public class PitchDetectionUtils {
 
         // Check for common chord patterns (relative to root)
         List<int[]> chordPatterns = Arrays.asList(
-            new int[]{0, 4, 7},     // Major
-            new int[]{0, 3, 7},     // Minor
-            new int[]{0, 4, 7, 10}, // Major 7th
-            new int[]{0, 3, 7, 10}, // Minor 7th
-            new int[]{0, 4, 8},     // Augmented
-            new int[]{0, 3, 6}      // Diminished
+                new int[] { 0, 4, 7 }, // Major
+                new int[] { 0, 3, 7 }, // Minor
+                new int[] { 0, 4, 7, 10 }, // Major 7th
+                new int[] { 0, 3, 7, 10 }, // Minor 7th
+                new int[] { 0, 4, 8 }, // Augmented
+                new int[] { 0, 3, 6 } // Diminished
         );
 
-        String[] chordTypes = {"major", "minor", "major7", "minor7", "augmented", "diminished"};
-        String[] rootNames = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+        String[] chordTypes = { "major", "minor", "major7", "minor7", "augmented", "diminished" };
+        String[] rootNames = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
 
         // Check each pattern
         for (int i = 0; i < chordPatterns.size(); i++) {
@@ -680,9 +703,9 @@ public class PitchDetectionUtils {
     private static boolean matchesChordPattern(int[] midiNotes, int root, int[] pattern) {
         // Convert midi notes to intervals from root
         int[] intervals = Arrays.stream(midiNotes)
-            .map(note -> (note - root) % 12)
-            .sorted()
-            .toArray();
+                .map(note -> (note - root) % 12)
+                .sorted()
+                .toArray();
 
         // Check if all pattern intervals are present (allowing for octave duplicates)
         for (int interval : pattern) {
@@ -705,7 +728,8 @@ public class PitchDetectionUtils {
      * Calculates confidence score for chord detection.
      */
     private static double calculateChordConfidence(List<Peak> peaks, double[] magnitudes) {
-        if (peaks.isEmpty()) return 0.0;
+        if (peaks.isEmpty())
+            return 0.0;
 
         // Base confidence on peak strength relative to overall spectrum
         double maxMagnitude = Arrays.stream(magnitudes).max().orElse(1.0);
