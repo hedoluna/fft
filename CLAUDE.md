@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Java Fast Fourier Transform (FFT) library with factory pattern, auto-discovery, and audio processing. Provides size-specific optimized implementations (8-65536) with automatic selection.
 
-**✅ BUILD STATUS**: Maven 3.6.3 + Java 17, all tests passing (305+/305+)
+**✅ BUILD STATUS**: Maven 3.6.3 + Java 17, 397 total tests (392 passing, 5 disabled)
 **🚀 PERFORMANCE**: FFT8: 2.27x verified, Twiddle cache: 30-50% overall speedup, all optimizations validated
 **✅ COVERAGE**: JaCoCo enforces 90% line / 85% branch coverage
 **📊 PROFILING**: Complete - Twiddle factors were #1 bottleneck (43-56%), now optimized with precomputed cache
@@ -24,10 +24,11 @@ mvn clean test jacoco:report             # Coverage report
 
 **Performance Benchmarking:**
 ```bash
-mvn test -Dtest=FFTPerformanceBenchmarkTest                    # Quick benchmark
-./run-jmh-benchmarks.bat FFT8                                  # JMH rigorous (Windows)
-./run-jmh-benchmarks.sh FFT8                                   # JMH rigorous (Linux/Mac)
+mvn test -Dtest=FFTPerformanceBenchmarkTest    # Quick benchmark
+.\run-jmh-benchmarks.bat FFT8                  # JMH rigorous (Windows - current)
+./run-jmh-benchmarks.sh FFT8                   # JMH rigorous (Linux/Mac)
 ```
+*See "Platform-Specific Notes" section below for environment details*
 
 **Run Demos:**
 ```bash
@@ -54,6 +55,18 @@ mvn exec:java -Dexec.mainClass="com.fft.demo.SongRecognitionDemo"     # Song rec
 - ✅ **Proper warmup essential** - 10,000+ iterations for complex optimized code
 - ✅ **Direct implementation > delegation** - eliminated 5-16% overhead
 - ❌ **Manual unrolling beyond FFT8 not worth it** - twiddle cache already provides 30-50%
+
+## Platform-Specific Notes
+
+**Windows Environment** (current setup):
+- Use `.\run-jmh-benchmarks.bat` for JMH benchmarks (not .sh)
+- Git Bash, CMD, or PowerShell all work for Maven commands
+- Maven handles both `/` and `\` path separators automatically
+- Use Git Bash for Unix-style commands (grep, etc.)
+
+**Linux/Mac Environment**:
+- Use `./run-jmh-benchmarks.sh` for JMH benchmarks
+- All bash commands work natively
 
 ## Build Commands
 
@@ -110,6 +123,40 @@ mvn exec:java -Dexec.mainClass="com.fft.demo.SimulatedPitchDetectionDemo"
 # Architecture showcase (factory pattern, optimized implementations)
 mvn exec:java -Dexec.mainClass="com.fft.demo.RefactoringDemo"
 ```
+
+## Git Workflow
+
+**Before Starting Work:**
+```bash
+git fetch && git pull              # Update from remote
+git status                         # Check current state
+git log -5 --oneline              # View recent commits
+```
+
+**During Development:**
+```bash
+git status                         # Review changes
+git diff                           # Review code changes
+git diff --staged                  # Review staged changes
+```
+
+**Committing Changes:**
+```bash
+git add <files>                    # Stage specific files
+git add .                          # Stage all changes
+git commit -m "descriptive message"  # Commit with message
+```
+
+**After Completing Features:**
+```bash
+git push                           # Push to remote (main branch)
+git push origin <branch>           # Push to feature branch
+```
+
+**Important Git Safety:**
+- ⚠️ **NEVER kill Node processes** - may terminate Claude Code itself!
+- When killing node for testing, ensure you don't kill Claude Code instance
+- Always verify process details before terminating
 
 ## Core Architecture
 
@@ -210,7 +257,7 @@ mvn test -Dtest=FFTPerformanceBenchmarkTest
 ## Testing & Quality
 
 **Test Organization:**
-- Unit tests: `src/test/java/**/*Test.java` (305+ active tests, 5 disabled for deprecated code, across 25 files)
+- Unit tests: `src/test/java/**/*Test.java` (397 total tests: 392 active, 5 disabled for deprecated code)
 - Accuracy tests: `src/test/java/com/fft/analysis/PitchDetectionAccuracyTest.java` (4 test scenarios)
 - Integration tests: `src/test/java/**/*IntegrationTest.java`
 - Performance tests: Nested classes within test files (e.g., `PerformanceTests`)
@@ -369,6 +416,14 @@ mvn test -Djava.util.logging.config.file=logging.properties
 - **Coverage report issues**: Run `mvn clean test jacoco:report` (not just `jacoco:report`)
 - **Microphone access issues**: Demos requiring audio input may need system permissions
 
+**Windows-Specific Troubleshooting:**
+- **JMH benchmarks fail**: Use `.\run-jmh-benchmarks.bat` instead of .sh script
+- **Script not found**: Ensure you're in project root directory (D:\repos\fft)
+- **Path issues**: Windows paths with spaces may need quotes in some contexts
+- **Line endings**: Git should handle CRLF/LF automatically (check .gitattributes)
+- **Process killing**: Use Task Manager or `taskkill /F /PID <pid>` (but never kill Claude Code!)
+- **Grep commands**: Install Git Bash for Unix-style commands, or use PowerShell equivalents
+
 **Dependencies:**
 - **SLF4J 2.0.9**: Logging API (compile scope)
 - **Logback 1.5.19**: Logging implementation (test scope only) - **Updated Oct 2025**
@@ -491,7 +546,7 @@ mvn test -Djava.util.logging.config.file=logging.properties
 
 **Important Notes:**
 - **OptimizedFFTFramework is deprecated**: FASE 1 eliminated framework overhead (10x) by making implementations call FFTBase directly
-- **Test count**: 310+ total tests (305+ active, 5 disabled for deprecated framework) - **Updated Oct 2025**
+- **Test count**: 397 total tests (392 active, 5 disabled for deprecated framework) - **Updated Nov 2025**
   - Added PitchDetectionAccuracyTest.java (4 comprehensive test scenarios)
   - Validates spectral method accuracy (0.92% error) vs YIN (40.6% error)
 - **Pitch detection strategy changed**: Spectral method now primary, YIN validation only - **Updated Oct 2025**
