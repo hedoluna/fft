@@ -1,0 +1,52 @@
+name: CI Build and Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        java: [ '17', '21' ]
+
+    name: Java ${{ matrix.java }} Build
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK ${{ matrix.java }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ matrix.java }}
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Build with Maven
+      run: mvn -B clean compile
+
+    - name: Run tests
+      run: mvn -B test
+
+    - name: Generate code coverage report
+      if: matrix.java == '17'
+      run: mvn -B jacoco:report
+
+    - name: Upload coverage to Codecov
+      if: matrix.java == '17'
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./target/site/jacoco/jacoco.xml
+        fail_ci_if_error: false
+
+    - name: Run integration tests
+      run: mvn -B verify
+
+    - name: Check for dependency issues
+      if: matrix.java == '17'
+      run: mvn -B dependency:analyze
+      continue-on-error: true
