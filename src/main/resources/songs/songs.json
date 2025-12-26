@@ -1,0 +1,307 @@
+{
+  "version": "1.0",
+  "description": "Song recognition database with Parsons codes",
+  "lastUpdated": "2025-12-26",
+  "songs": [
+    {
+      "title": "Bohemian Rhapsody",
+      "artist": "Queen",
+      "year": 1975,
+      "genre": "Rock",
+      "country": "UK",
+      "parsonsCode": "*RDRUUUDDRD",
+      "variations": ["*RDRU", "*DRUUU", "*RUUUDD", "*DRUUUDD", "*RUUUDDR"],
+      "tags": ["rock", "classic", "70s"]
+    },
+    {
+      "title": "Imagine",
+      "artist": "John Lennon",
+      "year": 1971,
+      "genre": "Pop",
+      "country": "UK",
+      "parsonsCode": "*RURDURDURD",
+      "variations": ["*RURD", "*URDUR", "*RDURDU", "*URDURD", "*RDURDUR"],
+      "tags": ["peace", "classic", "70s"]
+    },
+    {
+      "title": "Sweet Child O' Mine",
+      "artist": "Guns N' Roses",
+      "year": 1987,
+      "genre": "Rock",
+      "country": "US",
+      "parsonsCode": "*UDUDUDUDUD",
+      "variations": ["*UDUD", "*DUDUD", "*UDUDU", "*DUDUDU", "*UDUDUD"],
+      "tags": ["rock", "80s", "guitar"]
+    },
+    {
+      "title": "Stairway to Heaven",
+      "artist": "Led Zeppelin",
+      "year": 1971,
+      "genre": "Rock",
+      "country": "UK",
+      "parsonsCode": "*RUUURDRDRU",
+      "variations": ["*RUUU", "*UUURD", "*RUUURD", "*UUURDRD", "*UURDRDR"],
+      "tags": ["rock", "classic", "70s"]
+    },
+    {
+      "title": "Hotel California",
+      "artist": "Eagles",
+      "year": 1976,
+      "genre": "Rock",
+      "country": "US",
+      "parsonsCode": "*DURDURUDUR",
+      "variations": ["*DURD", "*URDUR", "*RDURDU", "*DURURU", "*RDURUR"],
+      "tags": ["rock", "70s", "guitar"]
+    },
+    {
+      "title": "Smells Like Teen Spirit",
+      "artist": "Nirvana",
+      "year": 1991,
+      "genre": "Grunge",
+      "country": "US",
+      "parsonsCode": "*RRRDUDUDUD",
+      "variations": ["*RRRD", "*RRDUD", "*RRDUDUDU", "*RDUDUDU", "*DUDUDUD"],
+      "tags": ["grunge", "90s", "alternative"]
+    },
+    {
+      "title": "Billie Jean",
+      "artist": "Michael Jackson",
+      "year": 1982,
+      "genre": "Pop",
+      "country": "US",
+      "parsonsCode": "*RRRDUUUDDD",
+      "variations": ["*RRRD", "*RRDUU", "*RRDUUU", "*RDUUUD", "*DUUUDDD"],
+      "tags": ["pop", "80s", "dance"]
+    },
+    {
+      "title": "Thriller",
+      "artist": "Michael Jackson",
+      "year": 1982,
+      "genre": "Pop",
+      "country": "US",
+      "parsonsCode": "*RUDUDUDRUR",
+      "variations": ["*RUDU", "*UDUDU", "*RUDUD", "*DUDUDR", "*DUDURU"],
+      "tags": ["pop", "80s", "halloween"]
+    },
+    {
+      "title": "Like a Prayer",
+      "artist": "Madonna",
+      "year": 1989,
+      "genre": "Pop",
+      "country": "US",
+      "parsonsCode": "*UUUURDDDRR",
+      "variations": ["*UUUU", "*UUUUR", "*UUUURD", "*UUURDD", "*UURDDD"],
+      "tags": ["pop", "80s", "dance"]
+    },
+    {
+      "title": "Wonderwall",
+      "artist": "Oasis",
+      "year": 1995,
+      "genre": "Rock",
+      "country": "UK",
+      "parsonsCode": "*RDURDURDUR",
+      "variations": ["*RDUR", "*DURDU", "*RDURD", "*URDURD", "*DURDUR"],
+      "tags": ["britpop", "90s", "guitar"]
+    },
+    {
+      "title": "Enter Sandman",
+      "artist": "Metallica",
+      "year": 1991,
+      "genre": "Metal",
+      "country": "US",
+      "parsonsCode": "*RRDUDUDDUD",
+      "variations": ["*RRDU", "*RDUDU", "*RDUDUD", "*DUDUDD", "*DUDDUD"],
+      "tags": ["metal", "90s", "heavy"]
+    },
+    {
+      "title": "Every Breath You Take",
+      "artist": "The Police",
+      "year": 1983,
+      "genre": "Rock",
+      "country": "UK",
+      "parsonsCode": "*UURDDUURRD",
+      "variations": ["*UURD", "*URDDU", "*UURDD", "*RDDUURD", "*DDUUR"],
+      "tags": ["rock", "80s", "classic"]
+    },
+    {
+      "title": "Another Brick in the Wall",
+      "artist": "Pink Floyd",
+      "year": 1979,
+      "genre": "Rock",
+      "country": "UK",
+      "parsonsCode": "*RRDURDURDU",
+      "variations": ["*RRDU", "*RDURD", "*RRDUR", "*DURDUR", "*URDURD"],
+      "tags": ["progressive", "70s", "rock"]
+    },
+    {
+      "title": "Livin' on a Prayer",
+      "artist": "Bon Jovi",
+      "year": 1986,
+      "genre": "Rock",
+      "country": "US",
+      "parsonsCode": "*UUUUDDRDRR",
+      "variations": ["*UUUU", "*UUUUD", "*UUUDDR", "*UUDDRD", "*UDDRD"],
+      "tags": ["rock", "80s", "anthem"]
+    },
+    {
+      "title": "Don't Stop Believin'",
+      "artist": "Journey",
+      "year": 1981,
+      "genre": "Rock",
+      "country": "US",
+      "parsonsCode": "*UUURDDUUURD",
+      "variations": ["*UUUR", "*UURDD", "*UURDDU", "*URDDUUU", "*RDDUUUR"],
+      "tags": ["rock", "80s", "anthem"]
+    },
+    {
+      "title": "With or Without You",
+      "artist": "U2",
+      "year": 1987,
+      "genre": "Rock",
+      "country": "IE",
+      "parsonsCode": "*RDURURURDU",
+      "variations": ["*RDUR", "*DURUR", "*RDURU", "*URURUR", "*RURURU"],
+      "tags": ["rock", "80s", "u2"]
+    },
+    {
+      "title": "Purple Rain",
+      "artist": "Prince",
+      "year": 1984,
+      "genre": "Rock",
+      "country": "US",
+      "parsonsCode": "*UURDRUURDR",
+      "variations": ["*UURD", "*URDRU", "*UURDR", "*RDRUURD", "*DRUURD"],
+      "tags": ["rock", "80s", "prince"]
+    },
+    {
+      "title": "I Will Always Love You",
+      "artist": "Whitney Houston",
+      "year": 1992,
+      "genre": "Pop",
+      "country": "US",
+      "parsonsCode": "*UUUUUUDDDD",
+      "variations": ["*UUUU", "*UUUUUU", "*UUUUUUD", "*UUUUUDDD", "*UUUDDDD"],
+      "tags": ["ballad", "90s", "love"]
+    },
+    {
+      "title": "My Heart Will Go On",
+      "artist": "Celine Dion",
+      "year": 1997,
+      "genre": "Pop",
+      "country": "CA",
+      "parsonsCode": "*UUURDDRUUR",
+      "variations": ["*UUUR", "*UURDD", "*UURDDR", "*URDDRU", "*RDDRU"],
+      "tags": ["titanic", "90s", "ballad"]
+    },
+    {
+      "title": "Stayin' Alive",
+      "artist": "Bee Gees",
+      "year": 1977,
+      "genre": "Disco",
+      "country": "UK",
+      "parsonsCode": "*RRRUUUDDDR",
+      "variations": ["*RRRU", "*RRUUU", "*RRUUUD", "*RUUUDD", "*UUUDDD"],
+      "tags": ["disco", "70s", "dance"]
+    },
+    {
+      "title": "September",
+      "artist": "Earth, Wind & Fire",
+      "year": 1978,
+      "genre": "Funk",
+      "country": "US",
+      "parsonsCode": "*UUUDRDRURU",
+      "variations": ["*UUUD", "*UUDRD", "*UUDRDR", "*UDRDRU", "*DRDRUR"],
+      "tags": ["funk", "70s", "dance"]
+    },
+    {
+      "title": "Dancing Queen",
+      "artist": "ABBA",
+      "year": 1976,
+      "genre": "Pop",
+      "country": "SE",
+      "parsonsCode": "*UUURDDURDR",
+      "variations": ["*UUUR", "*UURDD", "*UURDDU", "*URDDUDR", "*RDDUR"],
+      "tags": ["disco", "70s", "abba"]
+    },
+    {
+      "title": "Wannabe",
+      "artist": "Spice Girls",
+      "year": 1996,
+      "genre": "Pop",
+      "country": "UK",
+      "parsonsCode": "*RDUDUDUDRD",
+      "variations": ["*RDUD", "*DUDUD", "*RDUDU", "*DUDUDU", "*DUDURD"],
+      "tags": ["pop", "90s", "girlgroup"]
+    },
+    {
+      "title": "Shape of You",
+      "artist": "Ed Sheeran",
+      "year": 2017,
+      "genre": "Pop",
+      "country": "UK",
+      "parsonsCode": "*RRDRDRDURU",
+      "variations": ["*RRDR", "*RDRDRD", "*RDRDR", "*RDRDRU", "*DRDURU"],
+      "tags": ["pop", "2010s", "dance"]
+    },
+    {
+      "title": "Despacito",
+      "artist": "Luis Fonsi",
+      "year": 2017,
+      "genre": "Reggaeton",
+      "country": "PR",
+      "parsonsCode": "*RDRDUDUDRD",
+      "variations": ["*RDRD", "*DRDUD", "*RDRDUD", "*DRDUDU", "*RDUDURD"],
+      "tags": ["reggaeton", "2010s", "latin"]
+    },
+    {
+      "title": "Uptown Funk",
+      "artist": "Mark Ronson ft. Bruno Mars",
+      "year": 2014,
+      "genre": "Funk",
+      "country": "US",
+      "parsonsCode": "*RRRDUDUDRD",
+      "variations": ["*RRRD", "*RRDUD", "*RRDUDUDU", "*RDUDUDR", "*DUDUDR"],
+      "tags": ["funk", "2010s", "dance"]
+    },
+    {
+      "title": "Radioactive",
+      "artist": "Imagine Dragons",
+      "year": 2012,
+      "genre": "Alternative",
+      "country": "US",
+      "parsonsCode": "*RDUDUDRDUD",
+      "variations": ["*RDUD", "*DUDUD", "*RDUDU", "*DUDUDR", "*DUDURD"],
+      "tags": ["alternative", "2010s", "rock"]
+    },
+    {
+      "title": "Rolling in the Deep",
+      "artist": "Adele",
+      "year": 2010,
+      "genre": "Pop",
+      "country": "UK",
+      "parsonsCode": "*DRDRUDUDRD",
+      "variations": ["*DRDR", "*RDRUD", "*DRDRU", "*UDUDRD", "*RUDUDR"],
+      "tags": ["pop", "2010s", "soul"]
+    },
+    {
+      "title": "Blinding Lights",
+      "artist": "The Weeknd",
+      "year": 2019,
+      "genre": "Synth-pop",
+      "country": "CA",
+      "parsonsCode": "*UUUDDRDURU",
+      "variations": ["*UUUD", "*UUDDR", "*UUDDRD", "*UDDRDRU", "*DDRDR"],
+      "tags": ["synthpop", "2010s", "80s-revival"]
+    },
+    {
+      "title": "Someone Like You",
+      "artist": "Adele",
+      "year": 2011,
+      "genre": "Pop",
+      "country": "UK",
+      "parsonsCode": "*UUURDDUURD",
+      "variations": ["*UUUR", "*UURDD", "*UURDDU", "*URDDUU", "*RDDUURD"],
+      "tags": ["ballad", "2010s", "piano"]
+    }
+  ]
+}
