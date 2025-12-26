@@ -1,0 +1,73 @@
+.aider*
+# Compiled class files
+*.class
+*.jar
+*.war
+*.ear
+
+# Build directories
+target/
+build/
+out/
+bin/
+
+# Maven specific
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+
+# Profiling and benchmark outputs
+profiling-output.txt
+profiling-results.csv
+*.hprof
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE specific files
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.vscode/
+*.sublime-*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs and temp files
+*.log
+*.tmp
+*.bak
+*.backup
+*.swp
+*.swo
+
+# Test coverage and reports
+coverage/
+*.lcov
+jacoco.exec
+.nyc_output/
+
+# Test reports and build artifacts
+surefire-reports/
+failsafe-reports/
+test-output/
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# System Files
+*.swp
+*.swo
