@@ -102,7 +102,9 @@ class ResourceManagementTest {
             String[] parts = stats.split(" ");
             for (int i = 0; i < parts.length - 1; i++) {
                 if (parts[i + 1].equals("KB")) {
-                    double kb = Double.parseDouble(parts[i].replace("~", ""));
+                    // Handle both comma and dot decimal separators (locale-independent)
+                    String numStr = parts[i].replace("~", "").replace(",", ".");
+                    double kb = Double.parseDouble(numStr);
                     // Cache should be reasonable size (< 1MB)
                     assertThat(kb).isLessThan(1024.0);
                     break;
