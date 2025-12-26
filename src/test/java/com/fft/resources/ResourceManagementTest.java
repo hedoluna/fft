@@ -164,13 +164,16 @@ class ResourceManagementTest {
         @Test
         @DisplayName("Should reject excessively large arrays gracefully")
         void shouldRejectExcessivelyLargeArrays() {
-            // Try to create unreasonably large array (will likely fail with OutOfMemoryError)
+            // Try to create unreasonably large array (will fail with OutOfMemoryError or NegativeArraySizeException)
             // This test verifies the system handles it appropriately
+            // Using Integer.MAX_VALUE which exceeds maximum array size in Java
 
             assertThatThrownBy(() -> {
-                int hugeSize = Integer.MAX_VALUE / 4;
+                // Integer.MAX_VALUE exceeds max array size (Integer.MAX_VALUE - 5)
+                // Will throw either OutOfMemoryError or NegativeArraySizeException
+                int hugeSize = Integer.MAX_VALUE;
                 double[] huge = new double[hugeSize];
-            }).isInstanceOf(OutOfMemoryError.class);
+            }).isInstanceOfAny(OutOfMemoryError.class, NegativeArraySizeException.class);
         }
 
         @Test

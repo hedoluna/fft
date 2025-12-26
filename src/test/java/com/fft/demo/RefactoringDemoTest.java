@@ -146,22 +146,25 @@ class RefactoringDemoTest {
         @DisplayName("Should create different implementations for different sizes")
         void shouldCreateDifferentImplementationsForDifferentSizes() {
             DefaultFFTFactory factory = new DefaultFFTFactory();
-            
+
             FFT fft8 = factory.createFFT(8);
-            FFT fft32 = factory.createFFT(32);
-            
-            // Different sizes should potentially use different implementations
+            FFT fft16 = factory.createFFT(16);
+
+            // Different sizes may use different implementations
             String desc8 = fft8.getDescription();
-            String desc32 = fft32.getDescription();
-            
+            String desc16 = fft16.getDescription();
+
             assertThat(desc8).isNotEmpty();
-            assertThat(desc32).isNotEmpty();
-            
-            // At minimum, they should support their respective sizes
+            assertThat(desc16).isNotEmpty();
+
+            // FFT8 uses FFTOptimized8 (size-specific)
             assertThat(fft8.supportsSize(8)).isTrue();
-            assertThat(fft8.supportsSize(32)).isFalse();
-            assertThat(fft32.supportsSize(32)).isTrue();
-            assertThat(fft32.supportsSize(8)).isFalse();
+            assertThat(fft8.supportsSize(16)).isFalse();
+
+            // FFT16 uses FFTBase (supports all power-of-2 sizes)
+            assertThat(fft16.supportsSize(16)).isTrue();
+            // Note: FFTBase is generic and supports any power-of-2 size
+            assertThat(fft16.supportsSize(8)).isTrue();
         }
     }
     

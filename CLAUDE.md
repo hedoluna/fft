@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Java Fast Fourier Transform (FFT) library with factory pattern, auto-discovery, and audio processing. Provides size-specific optimized implementations (8-65536) with automatic selection.
+Java Fast Fourier Transform (FFT) library with factory pattern, auto-discovery, and audio processing. Currently provides FFTOptimized8 (2.27x speedup) and FFTBase fallback for other sizes, with automatic selection via factory pattern.
 
 **✅ BUILD STATUS**: Maven 3.6.3 + Java 17, 392 total tests (384 passing, 7 disabled, 8 non-critical failures)
 **🚀 PERFORMANCE**: FFT8: 2.27x verified, Twiddle cache: 30-50% overall speedup, all optimizations validated
@@ -186,7 +186,7 @@ git push origin <branch>           # Push to feature branch
 **Package Structure:**
 - `com.fft.core`: Core interfaces (FFT, FFTBase, FFTResult)
 - `com.fft.factory`: Factory pattern and auto-discovery (DefaultFFTFactory, FFTImplementationDiscovery)
-- `com.fft.optimized`: 14 size-specific implementations (FFTOptimized8 through FFTOptimized65536)
+- `com.fft.optimized`: Size-specific optimized implementations (currently: FFTOptimized8; sizes 16+ use FFTBase fallback)
 - `com.fft.utils`: FFTUtils (legacy API wrapper), PitchDetectionUtils
 - `com.fft.demo`: Audio processing demos (pitch detection, song recognition, chord recognition)
 
