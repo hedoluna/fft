@@ -1,6 +1,6 @@
 # JMH Benchmarking Guide
 
-**Purpose**: Provide statistically rigorous performance measurements with variance analysis to address the performance instability identified in archived P0 analysis (see `../performance/archive/fase2/CONSENSUS_ANALYSIS.md`).
+**Purpose**: Provide statistically rigorous performance measurements with variance analysis to address the performance instability identified in P0 analysis (see `../performance/CONSENSUS_ANALYSIS.md`).
 
 ---
 
@@ -331,7 +331,7 @@ Even when using `-Dexec.classpathScope=test`, the plugin fails to find the `Benc
 
 ## Addressing P0 Recommendations
 
-From archived P0 analysis (see `../performance/archive/fase2/CONSENSUS_ANALYSIS.md`):
+From P0 analysis (see `../performance/CONSENSUS_ANALYSIS.md`):
 
 ### ✅ Stabilize FFT8 Performance Measurement
 - JMH provides proper warmup (5 iterations)
@@ -416,8 +416,8 @@ If variance remains high:
 
 - [JMH Documentation](https://github.com/openjdk/jmh)
 - [JMH Samples](http://hg.openjdk.java.net/code-tools/jmh/file/tip/jmh-samples/src/main/java/org/openjdk/jmh/samples/)
-- `../performance/archive/fase2/CONSENSUS_ANALYSIS.md`: Multi-agent analysis (archived P0 analysis)
-- `../performance/archive/fase2/FASE_2_LESSONS_LEARNED.md`: What worked and what didn't (archived)
+- `../performance/CONSENSUS_ANALYSIS.md`: Multi-agent analysis of P0/P1 recommendations
+- `../performance/FASE_2_LESSONS_LEARNED.md`: Strategic lessons and future optimization directions
 
 ---
 
@@ -425,7 +425,7 @@ If variance remains high:
 
 - `../../CLAUDE.md` - **Current optimization status** (v2.1 verified: 1.06-1.09x speedup)
 - `VALIDATION_FRAMEWORK.md` - FFT correctness validation
-- `TESTING_COMPLIANCE.md` - Test coverage requirements
+- `PITCH_DETECTION_ANALYSIS.md` - Audio processing accuracy analysis
 - `../performance/BASELINE_MEASUREMENT_JAN2026.md` - v2.1 baseline measurements
 
 ---
