@@ -604,9 +604,9 @@ JSON file size:
 - [FFT-Based Pitch Detection](../testing/PITCH_DETECTION_ANALYSIS.md)
 
 ### Related Documentation
-- `PERFORMANCE_OPTIMIZATION_STATUS.md` - FFT performance journey
-- `FASE_2_LESSONS_LEARNED.md` - Optimization lessons
-- `JMH_BENCHMARKING_GUIDE.md` - Performance testing methodology
+- `../../CLAUDE.md` - **Current FFT performance status** (v2.1 verified metrics)
+- `../performance/FASE_2_LESSONS_LEARNED.md` - Optimization lessons (historical)
+- `../testing/JMH_BENCHMARKING_GUIDE.md` - Performance testing methodology
 
 ---
 

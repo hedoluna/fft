@@ -207,8 +207,8 @@ Adding 4 local variables:
 
 **Documentation**:
 - This report
-- Previous: `BASELINE_MEASUREMENT_JAN2026.md`
-- Previous: `OPTIMIZATION_ROADMAP_PHASE_2.md`
+- Previous: `BASELINE_MEASUREMENT_JAN2026.md` (phase 2 baseline)
+- Previous: `docs/archive/completed/OPTIMIZATION_ROADMAP_PHASE_2.md` (archived planning doc)
 
 ---
 

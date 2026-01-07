@@ -423,10 +423,10 @@ If variance remains high:
 
 ## See Also
 
-- `../../PERFORMANCE_OPTIMIZATION_STATUS.md` - Current optimization status
-- `../../CLAUDE.md` - Full development guide
+- `../../CLAUDE.md` - **Current optimization status** (v2.1 verified: 1.06-1.09x speedup)
 - `VALIDATION_FRAMEWORK.md` - FFT correctness validation
 - `TESTING_COMPLIANCE.md` - Test coverage requirements
+- `../performance/BASELINE_MEASUREMENT_JAN2026.md` - v2.1 baseline measurements
 
 ---
 

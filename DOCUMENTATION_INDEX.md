@@ -1,6 +1,7 @@
 # FFT Library - Documentation Index
 
-**Last Updated**: November 4, 2025
+**Last Updated**: January 7, 2026 (v2.1 completion)
+**Current Status**: See CLAUDE.md Performance Optimization section for v2.1 verified metrics
 **Major Reorganization**: Documentation restructured into logical subdirectories
 
 This index organizes all documentation in the FFT library for easy navigation. Documentation is categorized by purpose and audience, with related documents grouped in subdirectories for better discoverability.
@@ -25,16 +26,28 @@ This index organizes all documentation in the FFT library for easy navigation. D
 
 ---
 
-## 📊 Performance & Optimization (docs/performance/)
+## 📊 Performance & Optimization
+
+### Current Status (v2.1 - January 2026)
+**See [CLAUDE.md](CLAUDE.md)** - **Performance Optimization** section for v2.1 verified metrics:
+- Overall: 1.06-1.09x speedup (6-9% improvement)
+- FFT8: 1.83-1.91x (complete loop unrolling)
+- Universal caches: TwiddleFactorCache (30-50%), BitReversalCache (O(n))
+- All tests passing: 414 tests, 406 passing, 8 skipped
+
+### Historical Performance Documentation (docs/performance/)
 
 | Document | Content | Date |
 |----------|---------|------|
-| [PERFORMANCE_OPTIMIZATION_STATUS.md](PERFORMANCE_OPTIMIZATION_STATUS.md) | **Current optimization status** (ROOT) | Oct 6, 2025 |
-| [PROFILING_RESULTS.md](docs/performance/PROFILING_RESULTS.md) | Profiling data and bottleneck analysis | Oct 6, 2025 |
+| [BASELINE_MEASUREMENT_JAN2026.md](docs/performance/BASELINE_MEASUREMENT_JAN2026.md) | **v2.1 baseline with all optimizations** | Jan 7, 2026 |
+| [PHASE_3_BUTTERFLY_OPTIMIZATION_REPORT.md](docs/performance/PHASE_3_BUTTERFLY_OPTIMIZATION_REPORT.md) | **Butterfly optimization analysis & lessons** | Jan 7, 2026 |
+| [PROFILING_RESULTS.md](docs/performance/PROFILING_RESULTS.md) | Profiling data and bottleneck analysis (historical) | Oct 6, 2025 |
 | [FASE_2_LESSONS_LEARNED.md](docs/performance/FASE_2_LESSONS_LEARNED.md) | What worked/didn't work in FASE 2 | Oct 6, 2025 |
 | [FASE2_FINAL_REPORT.md](docs/performance/FASE2_FINAL_REPORT.md) | FASE 2 comprehensive report | Oct 6, 2025 |
 | [PERFORMANCE_MEASUREMENT_CRISIS.md](docs/performance/PERFORMANCE_MEASUREMENT_CRISIS.md) | Investigation of measurement discrepancies | Oct 6, 2025 |
 | [CONSENSUS_ANALYSIS.md](docs/performance/CONSENSUS_ANALYSIS.md) | Multi-agent FFT8 variance analysis | Oct 6, 2025 |
+
+**Archived**: [PERFORMANCE_OPTIMIZATION_STATUS.md](docs/archive/fase2/PERFORMANCE_OPTIMIZATION_STATUS_OCT2025.md) (October 2025 status, superseded by v2.1)
 
 ---
 

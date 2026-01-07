@@ -74,11 +74,12 @@ FFT8: ~3.0x ±15% speedup (avg 2.7-3.0x, peak 3.36x)
 ```
 **Credibility**: Medium - Claims variance but no methodology documented
 
-### Source 2: PERFORMANCE_OPTIMIZATION_STATUS.md
+### Source 2: PERFORMANCE_OPTIMIZATION_STATUS.md (Archived Oct 2025)
 ```
 FFT8: 2713 ns (framework) → 883 ns (direct) = 3.1x speedup
 ```
 **Credibility**: Medium - Specific numbers but single measurement
+**Note**: This document is archived; see v2.1 results in CLAUDE.md for current measurements
 
 ### Source 3: CONSENSUS_ANALYSIS.md
 ```

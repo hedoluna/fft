@@ -4,13 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Java Fast Fourier Transform (FFT) library with factory pattern, auto-discovery, and audio processing. Currently provides FFTOptimized8 (2.27x speedup) and FFTBase fallback for other sizes, with automatic selection via factory pattern.
+Java Fast Fourier Transform (FFT) library with factory pattern, auto-discovery, and audio processing. v2.1 release with proven performance optimizations (6-9% improvement), comprehensive testing, and advanced audio features.
 
-**✅ BUILD STATUS**: Maven 3.6.3 + Java 17, 392 total tests (384 passing, 7 disabled, 8 non-critical failures)
-**🚀 PERFORMANCE**: FFT8: 2.27x verified, Twiddle cache: 30-50% overall speedup, all optimizations validated
-**✅ COVERAGE**: JaCoCo enforces 90% line / 85% branch coverage
-**📊 PROFILING**: Complete - Twiddle factors were #1 bottleneck (43-56%), now optimized with precomputed cache
-**🎯 PITCH ACCURACY**: Spectral method 44x more accurate than YIN (0.92% vs 40.6% error) - See docs/testing/PITCH_DETECTION_ANALYSIS.md
+**✅ BUILD STATUS**: Maven 3.6.3 + Java 17, 414 total tests (406 passing, 8 skipped) - ALL PASSING
+**🚀 PERFORMANCE**: v2.1 - 1.06-1.09x overall (6-9%), FFT8: 1.83-1.91x (83-91%), zero regressions
+**⚡ OPTIMIZATIONS**: System.arraycopy (2-3%), TwiddleFactorCache (30-50%), BitReversalCache (O(n) vs O(n log n))
+**✅ COVERAGE**: JaCoCo enforces 90% line / 85% branch coverage - verified passing
+**🎯 PITCH ACCURACY**: Spectral method 44x more accurate than YIN (0.92% vs 40.6% error)
+**📅 LAST UPDATED**: January 7, 2026 (Milestone 1.1 complete, Phase 2-3 optimization analysis)
 
 ## ⚙️ Prerequisites
 
@@ -47,17 +48,20 @@ mvn exec:java -Dexec.mainClass="com.fft.demo.SongRecognitionDemo"
 - `docs/performance/FASE_2_LESSONS_LEARNED.md` - What worked/didn't work
 - `docs/testing/JMH_BENCHMARKING_GUIDE.md` - Rigorous benchmarking howto
 
-**Current Performance Status (October 2025):**
-- **FFT8**: 2.27x verified (complete loop unrolling)
-- **Twiddle Cache**: 30-50% speedup across ALL sizes (universal optimization)
-- **FFT128**: 1.42x speedup (existing optimizations)
-- **All Others**: Neutral/baseline with twiddle cache benefit
+**Current Performance Status (January 2026 - v2.1):**
+- **Overall**: 1.06-1.09x speedup (6-9% improvement) - proven via real measurement
+- **FFT8**: 1.83-1.91x (83-91% faster) - complete loop unrolling with hardcoded twiddles
+- **FFT16+**: Fallback to FFTBase with universal optimizations:
+  - TwiddleFactorCache: 30-50% speedup on twiddle operations
+  - BitReversalCache: O(n) instead of O(n log n)
+  - System.arraycopy: 33% faster array initialization
+- **Result**: All sizes benefit from universal caches, zero regressions
 
-**Critical Insights:**
-- ✅ **Profile first, optimize second** - twiddle cache was biggest win
-- ✅ **Proper warmup essential** - 10,000+ iterations for complex optimized code
-- ✅ **Direct implementation > delegation** - eliminated 5-16% overhead
-- ❌ **Manual unrolling beyond FFT8 not worth it** - twiddle cache already provides 30-50%
+**Verified Through Testing:**
+- ✅ **Real measurement > Theory** - Phase 3 caught bad optimization via production testing
+- ✅ **Precomputation wins** - TwiddleFactorCache and BitReversalCache proven effective
+- ✅ **Context matters** - Butterfly optimization: +67% isolated, -5% production → REJECTED
+- ✅ **Proper testing catches problems** - 414/414 tests passing, process validated
 
 ## Platform-Specific Notes
 
@@ -184,10 +188,11 @@ git push origin <branch>           # Push to feature branch
 ## Core Architecture
 
 **Package Structure:**
-- `com.fft.core`: Core interfaces (FFT, FFTBase, FFTResult)
+- `com.fft.core`: Core FFT implementation (FFTBase with universal optimizations)
+- `com.fft.cache`: Performance optimization caches (TwiddleFactorCache, BitReversalCache)
+- `com.fft.optimized`: Size-specific implementations (FFTOptimized8 with 1.83-1.91x speedup)
 - `com.fft.factory`: Factory pattern and auto-discovery (DefaultFFTFactory, FFTImplementationDiscovery)
-- `com.fft.optimized`: Size-specific optimized implementations (currently: FFTOptimized8; sizes 16+ use FFTBase fallback)
-- `com.fft.utils`: FFTUtils (legacy API wrapper), PitchDetectionUtils
+- `com.fft.utils`: FFTUtils (legacy API), PitchDetectionUtils (spectral + YIN methods)
 - `com.fft.demo`: Audio processing demos (pitch detection, song recognition, chord recognition)
 
 **Factory Pattern & Auto-Discovery:**
@@ -218,38 +223,37 @@ git push origin <branch>           # Push to feature branch
 
 ## Performance Optimization
 
-**Current Status (October 2025):**
-- **FASE 1**: Framework overhead eliminated (3.1x speedup on small sizes)
-- **FASE 2**: Delegation overhead removed, all regressions eliminated
-- **P0-P1 COMPLETED**: Profiling analysis + validation framework + twiddle cache implemented
-  - ✅ FFT8: **2.27x verified** (clean methodology with 10K warmup iterations)
-  - ✅ **Twiddle Factor Cache**: Precomputed cos/sin tables for 30-50% overall speedup
-  - ✅ FFT16-64: Neutral performance (0.99x-1.12x, overhead removed)
-  - ✅ FFT128: 1.42x speedup (existing optimizations confirmed working)
-  - ✅ All sizes: 100% correctness maintained (296+/296+ tests passing)
+**Current Status (January 2026 - v2.1 COMPLETE):**
+- **Phase 1 (Completed)**: Framework overhead eliminated, delegation patterns removed
+- **Phase 2 (Completed)**: Profiling analysis + TwiddleFactorCache + BitReversalCache implemented
+- **Phase 3 (Completed)**: Butterfly optimization tested (micro-benchmark: +67%, production: -5%) → correctly REJECTED
+- **v2.1 Results**:
+  - ✅ FFT8: **1.83-1.91x speedup** (complete loop unrolling with hardcoded twiddles, 10K+ warmup)
+  - ✅ **TwiddleFactorCache**: 30-50% speedup on twiddle operations (universal, all sizes)
+  - ✅ **BitReversalCache**: O(n) vs O(n log n) complexity (universal, all sizes)
+  - ✅ **System.arraycopy**: 33% faster array initialization (confirmed)
+  - ✅ **Overall**: 1.06-1.09x speedup (6-9% improvement) - proven via real measurement
+  - ✅ All sizes: 100% correctness maintained (414 tests: 406 passing, 8 skipped)
 
-**What Worked (see docs/performance/FASE_2_LESSONS_LEARNED.md, docs/performance/PROFILING_RESULTS.md):**
-- ✅ **Precomputed twiddle factors** (TwiddleFactorCache): 2.3-3.2x speedup for twiddle operations, 30-50% overall improvement
-- ✅ Complete loop unrolling for small sizes (FFT8: 2.27x verified with heavy warmup)
-- ✅ Hardcoded twiddle factors as static final constants (FFT8)
-- ✅ Direct implementation (no delegation layers)
-- ✅ Manual unrolled array copying for small sizes
-- ✅ Removing ConcurrentHashMap caching overhead
-- ✅ Profiling-driven optimization (identified twiddle factors as #1 bottleneck: 43-56% of time)
+**What Worked (Verified in v2.1):**
+- ✅ **Precomputed caches** (TwiddleFactorCache, BitReversalCache): Measurable production gains
+- ✅ **System.arraycopy**: 33% faster than manual loop, confirmed working
+- ✅ Complete loop unrolling for FFT8 with hardcoded twiddles: 1.83-1.91x
+- ✅ Production context testing: Caught butterfly optimization regression before merge
+- ✅ Proper warmup methodology: 10,000+ iterations essential for accurate measurements
 
-**What Didn't Work:**
-- ❌ Naive algorithm extension (FFT8 → FFT16 failed)
-- ❌ Delegation patterns (5-16% overhead)
-- ❌ ConcurrentHashMap caching for lightweight objects
-- ❌ Framework abstraction in tight loops
-- ❌ Insufficient warmup in benchmarks (50 iterations too few - need 10,000+)
+**What Didn't Work (v2.1 Learnings):**
+- ❌ Butterfly optimization: +67% isolated benchmark, -5% regression in production (register pressure)
+- ❌ Assuming isolated benchmarks predict production performance
+- ❌ Adding local variables in tight loops (increases register pressure)
+- ❌ Manual unrolling beyond FFT8 (diminishing returns vs cache optimizations)
 
-**Optimization Techniques for Future:**
-- Radix-4 DIT for FFT16 (2 stages instead of 4)
-- Composite approach for FFT32 (4×FFT8 blocks)
-- Radix-8 DIT for FFT64 (only 2 stages)
-- Split-radix algorithms (25% fewer operations)
-- Cache-friendly memory access patterns
+**Future Optimization Ideas (Low Priority):**
+- Radix-4 or Radix-8 variants for specific sizes (architectural changes, high risk)
+- SIMD/vectorization (if JVM supports)
+- Composite approaches for larger sizes using FFT8 blocks
+- Cache-friendly memory layouts
+- **Note**: Current 1.06-1.09x represents solid achievement with zero regressions
 
 **Performance Investigation:**
 ```bash
@@ -280,9 +284,9 @@ mvn test -Dtest=FFTPerformanceBenchmarkTest
 ## Testing & Quality
 
 **Test Organization:**
-- Unit tests: `src/test/java/**/*Test.java` (392 total tests: 384 passing, 7 disabled, 8 non-critical failures)
-- **Disabled Tests**: 7 tests disabled due to known YIN algorithm issues (40.6% error rate - see PITCH_DETECTION_ANALYSIS.md)
-- **Non-Critical Failures**: 8 tests failing in factory selection and performance regression (pre-existing, non-blocking)
+- Unit tests: `src/test/java/**/*Test.java` (414 total tests: 406 passing, 8 skipped)
+- **Skipped Tests**: 8 tests skipped/disabled due to known YIN algorithm limitations (40.6% error rate on pure tones - see PITCH_DETECTION_ANALYSIS.md)
+- **All Core Tests Passing**: Zero failures, zero regressions from v2.1 optimizations
 - Accuracy tests: `src/test/java/com/fft/analysis/PitchDetectionAccuracyTest.java` (4 test scenarios)
 - Integration tests: `src/test/java/**/*IntegrationTest.java`
 - Performance tests: Nested classes within test files (e.g., `PerformanceTests`)
@@ -512,15 +516,17 @@ mvn test -Djava.util.logging.config.file=logging.properties
 
 **Architecture Principles:**
 - Factory pattern provides automatic implementation selection based on size and priority
-- All power-of-2 sizes from 8 to 65536 have dedicated classes (some use FFTBase fallback internally)
+- **FFTOptimized8**: Only size with dedicated optimized implementation (1.83-1.91x)
+- **All other sizes**: Use FFTBase with universal cache optimizations (TwiddleFactorCache, BitReversalCache)
 - FFTBase is the reference implementation and correctness baseline
-- Never modify optimized implementations without verifying against FFTBase output
+- Never modify implementations without verifying correctness against test suite
 
 **Performance Work:**
 - Always verify correctness before measuring performance
 - Use property-based tests (Parseval's theorem, energy conservation)
-- Performance target: 1.5x-3.5x speedup over FFTBase for optimized sizes
-- See PERFORMANCE_OPTIMIZATION_STATUS.md for roadmap
+- v2.1 achieved: 1.06-1.09x overall (6-9%) with zero regressions
+- Future optimizations should be measured in production context, not isolated benchmarks
+- Document all optimizations with TDD methodology (RED phase, GREEN phase, REFACTOR phase)
 
 **Audio Processing:**
 - ⚠️ **CRITICAL**: Spectral method is primary (0.92% error), YIN is validation only (40.6% error)
@@ -538,13 +544,16 @@ mvn test -Djava.util.logging.config.file=logging.properties
 - `DOCUMENTATION_INDEX.md`: **Master index** - organized navigation to all docs by role/category
 - `USER_GUIDE.md`: **Complete user manual** - step-by-step guide to using FFTs (1000+ lines, 4 complete examples)
 
-**Performance & Optimization (Essential):**
-- `PERFORMANCE_OPTIMIZATION_STATUS.md`: Current status - FASE 1 & 2 complete, twiddle cache + FFT8 verified
-- `docs/performance/FASE_2_LESSONS_LEARNED.md`: What worked (twiddle cache 30-50%, FFT8 2.27x) vs didn't (manual unrolling FFT16+)
-- `docs/performance/FASE2_FINAL_REPORT.md`: Comprehensive FASE 2 analysis - FFT8 success, FFT16-512 delegation removal
-- `docs/performance/PROFILING_RESULTS.md`: Profiling data showing twiddle factors #1 bottleneck (43-56% of time)
-- `docs/performance/PERFORMANCE_MEASUREMENT_CRISIS.md`: Investigation resolving FFT8 measurement issues (warmup critical)
-- `docs/performance/CONSENSUS_ANALYSIS.md`: Multi-agent FFT8 variance analysis (2.36x-3.47x depending on conditions)
+**Performance & Optimization (v2.1 Complete):**
+- ✅ **v2.1 Verification**: All optimizations tested and verified (1.06-1.09x overall, zero regressions)
+- `docs/performance/BASELINE_MEASUREMENT_JAN2026.md`: v2.1 baseline with all optimizations active
+- `docs/performance/PHASE_3_BUTTERFLY_OPTIMIZATION_REPORT.md`: Butterfly optimization analysis (+67% isolated, -5% production, correctly REJECTED)
+- **Archived Historical Docs** (see `docs/archive/README.md`):
+  - `FASE_2_LESSONS_LEARNED.md`: October 2025 FASE 2 analysis
+  - `FASE2_FINAL_REPORT.md`: October 2025 FASE 2 completion
+  - `PROFILING_RESULTS.md`: Initial profiling data
+  - `PERFORMANCE_MEASUREMENT_CRISIS.md`: Measurement methodology investigation
+  - `CONSENSUS_ANALYSIS.md`: Multi-agent variance analysis
 
 **Testing & Benchmarking:**
 - `docs/testing/JMH_BENCHMARKING_GUIDE.md`: Rigorous performance measurement methodology (10K+ warmup essential)
@@ -563,10 +572,11 @@ mvn test -Djava.util.logging.config.file=logging.properties
 - `REFACTORING_SUMMARY.md`: Phase 1-2 refactoring summary (package structure, factory pattern)
 
 **Core Implementation:**
-- `src/main/java/com/fft/core/TwiddleFactorCache.java`: Precomputed cos/sin tables (30-50% speedup)
-- `src/main/java/com/fft/core/FFTBase.java`: Reference implementation using twiddle cache
-- `src/main/java/com/fft/optimized/FFTOptimized8.java`: Complete loop unrolling (2.27x verified)
-- `src/main/java/com/fft/optimized/OptimizedFFTFramework.java`: DEPRECATED (10x overhead eliminated in FASE 1)
+- `src/main/java/com/fft/core/TwiddleFactorCache.java`: Precomputed cos/sin tables (30-50% on twiddles, universal)
+- `src/main/java/com/fft/cache/BitReversalCache.java`: O(n) vs O(n log n) precomputed tables (universal)
+- `src/main/java/com/fft/core/FFTBase.java`: Reference implementation with universal cache optimizations
+- `src/main/java/com/fft/optimized/FFTOptimized8.java`: Complete loop unrolling (1.83-1.91x verified with 10K+ warmup)
+- `src/main/java/com/fft/optimized/OptimizedFFTFramework.java`: DEPRECATED (framework overhead eliminated)
 
 **User Documentation:**
 - `USER_GUIDE.md`: **Comprehensive user manual** - installation, usage, examples, troubleshooting, FAQ
@@ -579,19 +589,24 @@ mvn test -Djava.util.logging.config.file=logging.properties
 - Historical planning, completed work, duplicate FASE 2 docs
 - Full git history preserved for reference
 
-**Important Notes:**
-- **OptimizedFFTFramework is deprecated**: FASE 1 eliminated framework overhead (10x) by making implementations call FFTBase directly
-- **Test count**: 392 total tests (384 passing, 7 disabled, 8 non-critical failures) - **Updated Dec 2025**
-  - **7 disabled tests**: YIN algorithm tests disabled due to known 40.6% error rate (subharmonic detection)
-  - **8 non-critical failures**: Factory selection (4) and performance regression (3) tests failing - pre-existing, non-blocking
-  - Added PitchDetectionAccuracyTest.java (4 comprehensive test scenarios)
+**Important Notes (v2.1 - January 2026):**
+- **Test suite**: 414 total tests (406 passing, 8 skipped) - ✅ ALL PASSING
+  - **8 skipped tests**: YIN algorithm tests disabled due to known 40.6% error on pure tones (subharmonic detection)
+  - **All core tests passing**: Zero failures, zero regressions from v2.1 optimizations
+  - Includes PitchDetectionAccuracyTest.java with 4 comprehensive test scenarios
   - Validates spectral method accuracy (0.92% error) vs YIN (40.6% error)
-- **Pitch detection strategy changed**: Spectral method now primary, YIN validation only - **Updated Oct 2025**
-  - YIN has 40.6% error on pure tones due to subharmonic detection
-  - Spectral FFT-based method achieves 0.92% error (44x better)
-  - See docs/testing/PITCH_DETECTION_ANALYSIS.md for complete analysis
-- **Maven forkCount=0**: Tests run in-process for faster execution, JaCoCo coverage uses ${argLine}
-- **SpotBugs disabled**: Incompatible with Java 17 bytecode, run manually if needed with `mvn spotbugs:spotbugs`
-- **Logging**: All code uses SLF4J API (production + demos) - **Updated Oct 2025**
-  - Demo classes migrated from System.out to logger.info() for professional logging
-  - Configurable logging levels via Logback configuration (test scope)
+- **Pitch detection strategy**: Spectral method is primary (0.92% error), YIN is validation only
+  - Spectral FFT-based method achieves 0.92% error (44x more accurate than YIN)
+  - YIN (40.6% error) retained for subharmonic detection validation
+  - See docs/testing/PITCH_DETECTION_ANALYSIS.md for complete accuracy analysis
+- **v2.1 Optimizations Verified**:
+  - FFT8: 1.83-1.91x speedup (complete loop unrolling)
+  - TwiddleFactorCache: 30-50% on twiddle operations
+  - BitReversalCache: O(n) vs O(n log n)
+  - System.arraycopy: 33% faster initialization
+  - Overall: 1.06-1.09x with zero regressions
+- **Build configuration**:
+  - Maven forkCount=0: Tests run in-process for faster execution
+  - JaCoCo coverage enforces 90% line / 85% branch
+  - SpotBugs disabled (Java 17 compatibility issue)
+- **Logging**: All code uses SLF4J API with Logback configuration (test scope only)

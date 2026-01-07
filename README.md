@@ -14,13 +14,14 @@ Enhanced and refactored in 2025 with modern Java patterns, comprehensive testing
 
 ## ✨ Key Features
 
-- **🚀 High Performance**: FASE 2 optimizations complete - FFT8 (~3.0x ±15% speedup), FFT128 (1.42x), all regressions eliminated
-- **🏭 Factory Pattern**: Automatic implementation selection with 14 size-specific implementations (8-65536)
+- **🚀 High Performance**: v2.1 optimizations complete - **1.06-1.09x overall speedup (6-9% improvement)**, FFT8 achieves 1.83-1.91x (83-91% faster), zero regressions
+- **🏭 Factory Pattern**: Automatic implementation selection with optimized FFT8 and FFTBase fallback for all sizes
+- **⚡ Advanced Optimizations**: System.arraycopy for array initialization, precomputed Twiddle Factor Cache (30-50% speedup), cached Bit-Reversal lookup tables
 - **🎯 Type Safety**: Modern API with immutable result objects and rich data extraction
-- **🧪 Comprehensive Testing**: 305+ unit tests across 25 test class files with 100% pass rate
-- **🎵 Audio Processing**: Real-time pitch detection and song recognition using Parsons code methodology
+- **🧪 Comprehensive Testing**: 414 tests across multiple test suites with 100% pass rate (0 failures, 8 skipped)
+- **🎵 Audio Processing**: Real-time pitch detection (0.92% error), song recognition using Parsons code, chord detection
 - **📦 Zero Dependencies**: Pure Java 17 implementation (uses javax.sound for audio demos only)
-- **🔧 Maven Build**: Modern build system with quality gates and code coverage
+- **🔧 Maven Build**: Modern build system with quality gates (JaCoCo: 90% line, 85% branch coverage)
 - **🆓 Public Domain**: Completely free for any use, commercial or academic
 
 ## 📦 Package Structure
@@ -36,13 +37,14 @@ com.fft.factory/      # Implementation selection and factory pattern
 ├── DefaultFFTFactory.java # Default implementation with auto-discovery
 └── FFTImplementationDiscovery.java # Auto-registration system
 
-com.fft.optimized/    # Size-specific optimized implementations (14 total)
-├── FFTOptimized8.java    # 8-point FFT (~3.0x ±15% speedup - complete loop unrolling)
-├── FFTOptimized16.java   # 16-point FFT (neutral - delegation overhead removed)
-├── FFTOptimized32.java   # 32-point FFT (1.12x speedup - overhead removed)
-├── FFTOptimized64.java   # 64-point FFT (neutral - overhead removed)
-├── FFTOptimized128.java  # 128-point FFT (1.42x speedup - optimized)
-└── ... (all power-of-2 sizes 8 to 65536)
+com.fft.optimized/    # Size-specific optimized implementations
+├── FFTOptimized8.java    # 8-point FFT (1.83-1.91x speedup - complete loop unrolling)
+└── FFTBase.java          # Generic fallback for all other sizes (sizes 16-65536)
+                          # Benefits from TwiddleFactorCache and BitReversalCache
+
+com.fft.cache/        # Performance optimization caches
+├── TwiddleFactorCache.java   # Precomputed cos/sin tables (30-50% twiddle speedup)
+└── BitReversalCache.java     # Cached bit-reversal O(n) instead of O(n log n)
 
 com.fft.utils/        # Utility classes and helpers
 ├── FFTUtils.java     # Convenience methods and legacy API
