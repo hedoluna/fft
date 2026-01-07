@@ -233,12 +233,13 @@ class SimulatedPitchDetectionDemoTest {
             Method frequencyToNote = SimulatedPitchDetectionDemo.class.getDeclaredMethod(
                 "frequencyToNote", double.class);
             frequencyToNote.setAccessible(true);
-            
+
             // Test common note frequencies
             assertThat(frequencyToNote.invoke(demo, 440.0)).isEqualTo("A4");
             assertThat(frequencyToNote.invoke(demo, 261.63)).isEqualTo("C4");
             assertThat(frequencyToNote.invoke(demo, 523.25)).isEqualTo("C5");
-            assertThat(frequencyToNote.invoke(demo, 0.0)).isEqualTo("N/A");
+            // Invalid frequencies now return "UNKNOWN" (not "N/A")
+            assertThat(frequencyToNote.invoke(demo, 0.0)).isEqualTo("UNKNOWN");
         }
         
         @Test
@@ -247,10 +248,11 @@ class SimulatedPitchDetectionDemoTest {
             Method frequencyToNote = SimulatedPitchDetectionDemo.class.getDeclaredMethod(
                 "frequencyToNote", double.class);
             frequencyToNote.setAccessible(true);
-            
+
             // Test edge cases
-            assertThat(frequencyToNote.invoke(demo, -100.0)).isEqualTo("N/A");
-            assertThat(frequencyToNote.invoke(demo, 0.0)).isEqualTo("N/A");
+            // Invalid frequencies now return "UNKNOWN" (not "N/A")
+            assertThat(frequencyToNote.invoke(demo, -100.0)).isEqualTo("UNKNOWN");
+            assertThat(frequencyToNote.invoke(demo, 0.0)).isEqualTo("UNKNOWN");
             
             // Very high frequency should still return a note name (not N/A)
             String highNote = (String) frequencyToNote.invoke(demo, 10000.0);

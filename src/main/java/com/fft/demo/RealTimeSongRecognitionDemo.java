@@ -3,6 +3,10 @@ package com.fft.demo;
 import com.fft.core.FFTResult;
 import com.fft.utils.FFTUtils;
 import com.fft.utils.PitchDetectionUtils;
+import com.fft.utils.AudioConstants;
+import com.fft.utils.AudioAlgorithmConstants;
+import com.fft.utils.FrequencyUtils;
+import com.fft.utils.AudioProcessingUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
@@ -59,35 +63,20 @@ public class RealTimeSongRecognitionDemo {
 
     private static final Logger logger = LoggerFactory.getLogger(RealTimeSongRecognitionDemo.class);
 
-    // Audio configuration
-    private static final float SAMPLE_RATE = 44100.0f;
+    // Audio configuration (audio format parameters)
     private static final int SAMPLE_SIZE_IN_BITS = 16;
     private static final int CHANNELS = 1;
     private static final boolean SIGNED = true;
     private static final boolean BIG_ENDIAN = false;
 
-    // FFT configuration
-    private static final int FFT_SIZE = 4096;
-    private static final int OVERLAP_SIZE = FFT_SIZE / 2;
-    private static final double MIN_FREQUENCY = 80.0;
-    private static final double MAX_FREQUENCY = 2000.0;
-
     // Pitch detection parameters
     private static final double MAGNITUDE_THRESHOLD = 0.01;
     private static final int SMOOTHING_WINDOW = 5;
-    private static final double VOICING_THRESHOLD = 0.001;
 
     // Song recognition parameters
     private static final int MIN_NOTES_FOR_RECOGNITION = 3;
     private static final int UPDATE_EVERY_N_NOTES = 2;
     private static final double MIN_CONFIDENCE_TO_DISPLAY = 0.30;
-
-    // Musical note data
-    private static final String[] NOTE_NAMES = {
-        "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
-    };
-    private static final double A4_FREQUENCY = 440.0;
-    private static final int A4_NOTE_NUMBER = 69;
 
     private final AtomicBoolean running = new AtomicBoolean(false);
     private final Queue<Double> recentPitches = new ArrayDeque<>();
@@ -115,7 +104,7 @@ public class RealTimeSongRecognitionDemo {
      */
     public void startRecognition() {
         AudioFormat format = new AudioFormat(
-            SAMPLE_RATE,
+            (float) AudioConstants.SAMPLE_RATE,
             SAMPLE_SIZE_IN_BITS,
             CHANNELS,
             SIGNED,
@@ -168,7 +157,7 @@ public class RealTimeSongRecognitionDemo {
      * Processes audio stream from microphone.
      */
     private void processAudioStream(TargetDataLine microphone) {
-        byte[] buffer = new byte[FFT_SIZE * 2]; // 16-bit samples
+        byte[] buffer = new byte[AudioConstants.FFT_SIZE * 2]; // 16-bit samples
         int noteCount = 0;
         String lastParsonsCode = "";
 
@@ -184,7 +173,7 @@ public class RealTimeSongRecognitionDemo {
                 }
 
                 // Apply Hamming window
-                applyHammingWindow(samples);
+                AudioProcessingUtils.applyHammingWindow(samples);
 
                 // Check voicing (is there sound?)
                 boolean isVoiced = PitchDetectionUtils.checkVoicing(samples);
@@ -192,10 +181,10 @@ public class RealTimeSongRecognitionDemo {
                 if (isVoiced) {
                     // Detect pitch using hybrid method (spectral + YIN validation)
                     PitchDetectionUtils.PitchResult result =
-                        PitchDetectionUtils.detectPitchHybrid(samples, SAMPLE_RATE);
+                        PitchDetectionUtils.detectPitchHybrid(samples, AudioConstants.SAMPLE_RATE);
 
-                    if (result.isVoiced && result.frequency >= MIN_FREQUENCY &&
-                        result.frequency <= MAX_FREQUENCY) {
+                    if (result.isVoiced && result.frequency >= AudioAlgorithmConstants.MIN_FREQUENCY &&
+                        result.frequency <= AudioAlgorithmConstants.MAX_FREQUENCY) {
 
                         // Add to smoothing queue
                         recentPitches.add(result.frequency);
@@ -208,7 +197,7 @@ public class RealTimeSongRecognitionDemo {
 
                         // Detect note change
                         if (isSignificantPitchChange(medianPitch, lastStablePitch)) {
-                            String noteName = frequencyToNote(medianPitch);
+                            String noteName = FrequencyUtils.frequencyToNoteName(medianPitch);
                             detectedNotes.add(new DetectedNote(medianPitch, noteName,
                                 System.currentTimeMillis()));
                             lastStablePitch = medianPitch;
@@ -428,16 +417,6 @@ public class RealTimeSongRecognitionDemo {
     }
 
     /**
-     * Converts frequency to musical note name.
-     */
-    private String frequencyToNote(double frequency) {
-        int midiNote = (int) Math.round(12 * Math.log(frequency / A4_FREQUENCY) / Math.log(2)) + A4_NOTE_NUMBER;
-        int octave = (midiNote / 12) - 1;
-        int noteIndex = midiNote % 12;
-        return NOTE_NAMES[noteIndex] + octave;
-    }
-
-    /**
      * Calculates median of a list of doubles.
      */
     private double calculateMedian(List<Double> values) {
@@ -451,16 +430,6 @@ public class RealTimeSongRecognitionDemo {
             return (sorted.get(size / 2 - 1) + sorted.get(size / 2)) / 2.0;
         } else {
             return sorted.get(size / 2);
-        }
-    }
-
-    /**
-     * Applies Hamming window to reduce spectral leakage.
-     */
-    private void applyHammingWindow(double[] samples) {
-        int n = samples.length;
-        for (int i = 0; i < n; i++) {
-            samples[i] *= 0.54 - 0.46 * Math.cos(2.0 * Math.PI * i / (n - 1));
         }
     }
 

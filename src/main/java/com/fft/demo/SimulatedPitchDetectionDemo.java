@@ -2,6 +2,10 @@ package com.fft.demo;
 
 import com.fft.core.FFTResult;
 import com.fft.utils.FFTUtils;
+import com.fft.utils.AudioConstants;
+import com.fft.utils.AudioAlgorithmConstants;
+import com.fft.utils.FrequencyUtils;
+import com.fft.utils.AudioProcessingUtils;
 
 import java.util.*;
 
@@ -27,27 +31,24 @@ import java.util.*;
 public class SimulatedPitchDetectionDemo {
     
     // Audio simulation parameters
-    private static final double SAMPLE_RATE = 44100.0;
-    private static final int FFT_SIZE = 4096;
+    // Note: SAMPLE_RATE kept for backward compatibility with tests accessing via reflection
+    static final double SAMPLE_RATE = AudioConstants.SAMPLE_RATE;
     private static final double NOTE_DURATION = 0.5; // seconds per note
-    private static final int SAMPLES_PER_NOTE = (int) (SAMPLE_RATE * NOTE_DURATION);
+    private static final int SAMPLES_PER_NOTE = (int) (AudioConstants.SAMPLE_RATE * NOTE_DURATION);
 
     // Random number generator for noise
     private static final Random RANDOM = new Random(42);
-    
+
     // Musical note frequencies (in Hz) - Equal temperament, A4 = 440 Hz
     private static final Map<String, Double> NOTE_FREQUENCIES = new HashMap<>();
     static {
         // Initialize note frequencies
-        String[] noteNames = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
-        double A4 = 440.0;
-        
         for (int octave = 0; octave <= 8; octave++) {
-            for (int note = 0; note < 12; note++) {
-                String noteName = noteNames[note] + octave;
+            for (int note = 0; note < AudioConstants.SEMITONES_PER_OCTAVE; note++) {
+                String noteName = AudioConstants.NOTE_NAMES[note] + octave;
                 // Calculate frequency using equal temperament formula
-                int semitonesFromA4 = (octave - 4) * 12 + (note - 9); // A is the 9th note (0-indexed)
-                double frequency = A4 * Math.pow(2.0, semitonesFromA4 / 12.0);
+                int midiNote = (octave + 1) * AudioConstants.SEMITONES_PER_OCTAVE + note;
+                double frequency = FrequencyUtils.midiNoteToFrequency(midiNote);
                 NOTE_FREQUENCIES.put(noteName, frequency);
             }
         }
@@ -93,8 +94,8 @@ public class SimulatedPitchDetectionDemo {
             addNoise(signal, 0.05);
             
             double detectedFreq = detectPitch(signal);
-            String detectedNote = frequencyToNote(detectedFreq);
-            
+            String detectedNote = FrequencyUtils.frequencyToNoteName(detectedFreq);
+
             double error = Math.abs(detectedFreq - expectedFreq);
             double errorPercent = (error / expectedFreq) * 100;
             
@@ -131,7 +132,7 @@ public class SimulatedPitchDetectionDemo {
         
         System.out.println("Detected frequencies:");
         for (double freq : detectedFreqs) {
-            System.out.printf("  %.1f Hz (%s)\n", freq, frequencyToNote(freq));
+            System.out.printf("  %.1f Hz (%s)\n", freq, FrequencyUtils.frequencyToNoteName(freq));
         }
         System.out.println();
     }
@@ -164,7 +165,7 @@ public class SimulatedPitchDetectionDemo {
             addNoise(noteSignal, 0.03);
             
             double detectedFreq = detectPitch(noteSignal);
-            String detectedNote = frequencyToNote(detectedFreq);
+            String detectedNote = FrequencyUtils.frequencyToNoteName(detectedFreq);
             detectedNotes.add(detectedNote);
             
             // Generate Parsons code
@@ -219,8 +220,8 @@ public class SimulatedPitchDetectionDemo {
             addNoise(signal, noiseLevel);
             
             double detectedFreq = detectPitch(signal);
-            String detectedNote = frequencyToNote(detectedFreq);
-            
+            String detectedNote = FrequencyUtils.frequencyToNoteName(detectedFreq);
+
             double error = Math.abs(detectedFreq - testFreq);
             double snr = calculateSNR(signal, noiseLevel);
             
@@ -245,7 +246,7 @@ public class SimulatedPitchDetectionDemo {
         
         for (int size : testSizes) {
             // Generate test signal
-            double[] signal = generateTone(440.0, (double) size / SAMPLE_RATE, 1.0);
+            double[] signal = generateTone(440.0, (double) size / AudioConstants.SAMPLE_RATE, 1.0);
             addNoise(signal, 0.1);
             
             // Ensure signal is correct size
@@ -281,14 +282,14 @@ public class SimulatedPitchDetectionDemo {
      * @return generated signal samples
      */
     private double[] generateTone(double frequency, double duration, double amplitude) {
-        int samples = (int) (SAMPLE_RATE * duration);
+        int samples = (int) (AudioConstants.SAMPLE_RATE * duration);
         double[] signal = new double[samples];
-        
+
         for (int i = 0; i < samples; i++) {
-            double t = i / SAMPLE_RATE;
+            double t = i / AudioConstants.SAMPLE_RATE;
             signal[i] = amplitude * Math.sin(2.0 * Math.PI * frequency * t);
         }
-        
+
         return signal;
     }
     
@@ -304,11 +305,11 @@ public class SimulatedPitchDetectionDemo {
      */
     private double[] generateToneWithVibrato(double frequency, double duration, double amplitude,
                                            double vibratoRate, double vibratoDepth) {
-        int samples = (int) (SAMPLE_RATE * duration);
+        int samples = (int) (AudioConstants.SAMPLE_RATE * duration);
         double[] signal = new double[samples];
-        
+
         for (int i = 0; i < samples; i++) {
-            double t = i / SAMPLE_RATE;
+            double t = i / AudioConstants.SAMPLE_RATE;
             double vibrato = vibratoDepth * Math.sin(2.0 * Math.PI * vibratoRate * t);
             double instantFreq = frequency * (1.0 + vibrato);
             signal[i] = amplitude * Math.sin(2.0 * Math.PI * instantFreq * t);
@@ -326,13 +327,13 @@ public class SimulatedPitchDetectionDemo {
      * @return generated chord samples
      */
     private double[] generateChord(double[] frequencies, double[] amplitudes, double duration) {
-        int samples = (int) (SAMPLE_RATE * duration);
+        int samples = (int) (AudioConstants.SAMPLE_RATE * duration);
         double[] signal = new double[samples];
-        
+
         for (int i = 0; i < samples; i++) {
-            double t = i / SAMPLE_RATE;
+            double t = i / AudioConstants.SAMPLE_RATE;
             double sample = 0.0;
-            
+
             for (int j = 0; j < frequencies.length; j++) {
                 sample += amplitudes[j] * Math.sin(2.0 * Math.PI * frequencies[j] * t);
             }
@@ -374,9 +375,9 @@ public class SimulatedPitchDetectionDemo {
         int peakBin = 0;
         double maxMagnitude = 0.0;
         
-        // Only look in musical frequency range (80 Hz - 2000 Hz)
-        int minBin = frequencyToBin(80.0, paddedSignal.length);
-        int maxBin = Math.min(frequencyToBin(2000.0, paddedSignal.length), magnitudes.length / 2);
+        // Only look in musical frequency range
+        int minBin = frequencyToBin(AudioAlgorithmConstants.MIN_FREQUENCY, paddedSignal.length);
+        int maxBin = Math.min(frequencyToBin(AudioAlgorithmConstants.MAX_FREQUENCY, paddedSignal.length), magnitudes.length / 2);
         
         for (int i = minBin; i < maxBin; i++) {
             if (magnitudes[i] > maxMagnitude) {
@@ -402,8 +403,8 @@ public class SimulatedPitchDetectionDemo {
         
         List<Double> frequencies = new ArrayList<>();
         
-        int minBin = frequencyToBin(80.0, paddedSignal.length);
-        int maxBin = Math.min(frequencyToBin(2000.0, paddedSignal.length), magnitudes.length / 2);
+        int minBin = frequencyToBin(AudioAlgorithmConstants.MIN_FREQUENCY, paddedSignal.length);
+        int maxBin = Math.min(frequencyToBin(AudioAlgorithmConstants.MAX_FREQUENCY, paddedSignal.length), magnitudes.length / 2);
         
         // Find multiple peaks
         for (int peak = 0; peak < numPeaks; peak++) {
@@ -439,7 +440,7 @@ public class SimulatedPitchDetectionDemo {
      * @return bin index
      */
     private int frequencyToBin(double frequency, int signalLength) {
-        return (int) Math.round(frequency * signalLength / SAMPLE_RATE);
+        return (int) Math.round(frequency * signalLength / AudioConstants.SAMPLE_RATE);
     }
     
     /**
@@ -450,30 +451,37 @@ public class SimulatedPitchDetectionDemo {
      * @return frequency in Hz
      */
     private double binToFrequency(int bin, int signalLength) {
-        return (double) bin * SAMPLE_RATE / signalLength;
+        return (double) bin * AudioConstants.SAMPLE_RATE / signalLength;
     }
     
     /**
-     * Converts a frequency to a note name with octave.
+     * Extracts octave number from a note name string (e.g., "A4" -> 4).
+     *
+     * @param noteName note name like "A4", "C#5"
+     * @return octave number or 0 if invalid
+     */
+    private int extractOctaveFromNoteName(String noteName) {
+        if (noteName == null || noteName.length() < 2) {
+            return 0;
+        }
+        try {
+            // Extract the numeric part after the note letter(s)
+            String numPart = noteName.replaceAll("[^0-9]", "");
+            return numPart.isEmpty() ? 0 : Integer.parseInt(numPart);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    /**
+     * Maps a frequency to the nearest musical note name.
+     * Wrapper around FrequencyUtils for backward compatibility with tests.
      *
      * @param frequency frequency in Hz
-     * @return note name string or {@code "N/A"}
+     * @return note name or {@code "N/A"} if invalid
      */
     private String frequencyToNote(double frequency) {
-        if (frequency <= 0) return "N/A";
-        
-        double A4 = 440.0;
-        int A4_MIDI = 69;
-        
-        int midiNote = (int) Math.round(A4_MIDI + 12 * Math.log(frequency / A4) / Math.log(2));
-        
-        if (midiNote < 0 || midiNote > 127) return "N/A";
-        
-        String[] noteNames = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
-        String noteName = noteNames[midiNote % 12];
-        int octave = (midiNote / 12) - 1;
-        
-        return noteName + octave;
+        return FrequencyUtils.frequencyToNoteName(frequency);
     }
     
     /**

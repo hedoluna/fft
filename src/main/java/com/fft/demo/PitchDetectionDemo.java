@@ -2,6 +2,10 @@ package com.fft.demo;
 
 import com.fft.core.FFTResult;
 import com.fft.utils.FFTUtils;
+import com.fft.utils.AudioConstants;
+import com.fft.utils.AudioAlgorithmConstants;
+import com.fft.utils.FrequencyUtils;
+import com.fft.utils.AudioProcessingUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,38 +60,21 @@ public class PitchDetectionDemo {
 
     private static final Logger logger = LoggerFactory.getLogger(PitchDetectionDemo.class);
 
-    // Audio configuration
-    private static final float SAMPLE_RATE = 44100.0f;
+    // Audio configuration (audio format parameters, not duplicated from utilities)
+    // Note: SAMPLE_RATE and FFT_SIZE kept for backward compatibility with tests accessing via reflection
+    static final double SAMPLE_RATE = AudioConstants.SAMPLE_RATE;
+    static final int FFT_SIZE = AudioConstants.FFT_SIZE;
     private static final int SAMPLE_SIZE_IN_BITS = 16;
     private static final int CHANNELS = 1;
     private static final boolean SIGNED = true;
     private static final boolean BIG_ENDIAN = false;
-    
-    // FFT configuration
-    private static final int FFT_SIZE = 4096;  // Good balance of frequency resolution and real-time performance
-    private static final int OVERLAP_SIZE = FFT_SIZE / 2;  // 50% overlap for better temporal resolution
-    private static final double MIN_FREQUENCY = 80.0;   // Lowest guitar string (E2)
-    private static final double MAX_FREQUENCY = 2000.0; // Upper harmonics range
-    
+
     // Pitch detection parameters
     private static final double MAGNITUDE_THRESHOLD = 0.01;  // Minimum magnitude to consider as valid signal
     private static final int SMOOTHING_WINDOW = 5;  // Number of frames to average for stability
 
-    // YIN algorithm parameters
-    private static final double YIN_THRESHOLD = 0.15;  // Threshold for voicing detection
-    private static final int YIN_MIN_PERIOD = (int)(SAMPLE_RATE / MAX_FREQUENCY);  // Minimum period in samples
-    private static final int YIN_MAX_PERIOD = (int)(SAMPLE_RATE / MIN_FREQUENCY);  // Maximum period in samples
-
     // Voicing detection parameters
-    private static final double VOICING_THRESHOLD = 0.001;  // RMS threshold for sound detection
     private static final int VOICING_HISTORY_SIZE = 10;  // Frames to consider for voicing stability
-    
-    // Musical note data
-    private static final String[] NOTE_NAMES = {
-        "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
-    };
-    private static final double A4_FREQUENCY = 440.0;  // A4 reference frequency
-    private static final int A4_NOTE_NUMBER = 69;      // MIDI note number for A4
     
     private final AtomicBoolean running = new AtomicBoolean(false);
     private final Queue<Double> recentPitches = new ArrayDeque<>();
@@ -116,7 +103,7 @@ public class PitchDetectionDemo {
         logger.info("Setting up audio capture...");
 
         AudioFormat format = new AudioFormat(
-            SAMPLE_RATE, SAMPLE_SIZE_IN_BITS, CHANNELS, SIGNED, BIG_ENDIAN
+            (float) AudioConstants.SAMPLE_RATE, SAMPLE_SIZE_IN_BITS, CHANNELS, SIGNED, BIG_ENDIAN
         );
 
         DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
@@ -131,10 +118,10 @@ public class PitchDetectionDemo {
             microphone.start();
 
             logger.info("Audio capture started!");
-            logger.info("Optimized FFT implementation: {}", FFTUtils.getImplementationInfo(FFT_SIZE));
-            logger.info("Sample rate: {} Hz", SAMPLE_RATE);
-            logger.info("FFT size: {} samples", FFT_SIZE);
-            logger.info("Frequency resolution: {} Hz", String.format("%.2f", SAMPLE_RATE / FFT_SIZE));
+            logger.info("Optimized FFT implementation: {}", FFTUtils.getImplementationInfo(AudioConstants.FFT_SIZE));
+            logger.info("Sample rate: {} Hz", AudioConstants.SAMPLE_RATE);
+            logger.info("FFT size: {} samples", AudioConstants.FFT_SIZE);
+            logger.info("Frequency resolution: {} Hz", String.format("%.2f", AudioConstants.SAMPLE_RATE / AudioConstants.FFT_SIZE));
             logger.info("\nPress Enter to stop...\n");
             
             // Start background thread to detect Enter key
@@ -202,9 +189,9 @@ public class PitchDetectionDemo {
      * @param microphone initialized and started {@link TargetDataLine}
      */
     private void processAudioStream(TargetDataLine microphone) {
-        byte[] buffer = new byte[FFT_SIZE * 2]; // 16-bit samples
-        double[] audioSamples = new double[FFT_SIZE];
-        double[] previousSamples = new double[OVERLAP_SIZE];
+        byte[] buffer = new byte[AudioConstants.FFT_SIZE * 2]; // 16-bit samples
+        double[] audioSamples = new double[AudioConstants.FFT_SIZE];
+        double[] previousSamples = new double[AudioConstants.FFT_SIZE / 2];
         
         int frameCount = 0;
         
@@ -218,14 +205,14 @@ public class PitchDetectionDemo {
             
             // Apply overlap from previous frame
             if (frameCount > 0) {
-                System.arraycopy(previousSamples, 0, audioSamples, 0, OVERLAP_SIZE);
+                System.arraycopy(previousSamples, 0, audioSamples, 0, AudioConstants.FFT_SIZE / 2);
             }
-            
+
             // Store samples for next overlap
-            System.arraycopy(audioSamples, FFT_SIZE - OVERLAP_SIZE, previousSamples, 0, OVERLAP_SIZE);
-            
+            System.arraycopy(audioSamples, AudioConstants.FFT_SIZE / 2, previousSamples, 0, AudioConstants.FFT_SIZE / 2);
+
             // Apply windowing function
-            applyHammingWindow(audioSamples);
+            AudioProcessingUtils.applyHammingWindow(audioSamples);
 
             // Check if signal is voiced (contains sound)
             boolean currentVoiced = isSignalVoiced(audioSamples);
@@ -252,8 +239,8 @@ public class PitchDetectionDemo {
                         // Both methods agree (within 5%), high confidence
                         // Average for best accuracy
                         double avgFreq = (pitchResult.frequency + yinResult.frequency) / 2.0;
-                        String noteName = frequencyToNote(avgFreq);
-                        int octave = frequencyToOctave(avgFreq);
+                        String noteName = FrequencyUtils.frequencyToNoteName(avgFreq);
+                        int octave = extractOctaveFromNoteName(noteName);
                         pitchResult = new PitchDetectionResult(avgFreq,
                             Math.max(pitchResult.magnitude, yinResult.magnitude), noteName, octave);
                     }
@@ -329,10 +316,10 @@ public class PitchDetectionDemo {
         double[] magnitudes = spectrum.getMagnitudes();
         int maxBin = 0;
         double maxMagnitude = 0.0;
-        
+
         // Find frequency range of interest
-        int minBin = frequencyToBin(MIN_FREQUENCY);
-        int maxBinIndex = Math.min(frequencyToBin(MAX_FREQUENCY), magnitudes.length / 2);
+        int minBin = FrequencyUtils.frequencyToBin(AudioAlgorithmConstants.MIN_FREQUENCY);
+        int maxBinIndex = Math.min(FrequencyUtils.frequencyToBin(AudioAlgorithmConstants.MAX_FREQUENCY), magnitudes.length / 2);
         
         // Find peak in frequency domain
         for (int i = minBin; i < maxBinIndex; i++) {
@@ -348,14 +335,14 @@ public class PitchDetectionDemo {
         
         // Improve frequency accuracy using parabolic interpolation
         double refinedFrequency = refineFrequencyEstimate(magnitudes, maxBin);
-        
+
         // Apply harmonic analysis for better pitch detection
         double fundamentalFreq = findFundamentalFrequency(magnitudes, refinedFrequency);
-        
+
         // Convert to musical note
-        String noteName = frequencyToNote(fundamentalFreq);
-        int octave = frequencyToOctave(fundamentalFreq);
-        
+        String noteName = FrequencyUtils.frequencyToNoteName(fundamentalFreq);
+        int octave = extractOctaveFromNoteName(noteName);
+
         return new PitchDetectionResult(fundamentalFreq, maxMagnitude, noteName, octave);
     }
     
@@ -369,20 +356,20 @@ public class PitchDetectionDemo {
      */
     private double refineFrequencyEstimate(double[] magnitudes, int peakBin) {
         if (peakBin <= 0 || peakBin >= magnitudes.length - 1) {
-            return binToFrequency(peakBin);
+            return FrequencyUtils.binToFrequency(peakBin);
         }
-        
+
         // Parabolic interpolation for sub-bin accuracy
         double y1 = magnitudes[peakBin - 1];
         double y2 = magnitudes[peakBin];
         double y3 = magnitudes[peakBin + 1];
-        
+
         double a = (y1 - 2 * y2 + y3) / 2;
         double b = (y3 - y1) / 2;
-        
+
         double xPeak = a != 0 ? -b / (2 * a) : 0;
-        
-        return binToFrequency(peakBin + xPeak);
+
+        return FrequencyUtils.binToFrequency((int) Math.round(peakBin + xPeak));
     }
     
     /**
@@ -393,11 +380,14 @@ public class PitchDetectionDemo {
      */
     private PitchDetectionResult detectPitchYin(double[] audioSamples) {
         // Apply YIN algorithm for more accurate pitch detection
-        double[] yinBuffer = new double[YIN_MAX_PERIOD];
-        double[] cmnd = new double[YIN_MAX_PERIOD];  // Cumulative Mean Normalized Difference
+        int yinMaxPeriod = (int) (AudioConstants.SAMPLE_RATE / AudioAlgorithmConstants.MIN_FREQUENCY);
+        int yinMinPeriod = (int) (AudioConstants.SAMPLE_RATE / AudioAlgorithmConstants.MAX_FREQUENCY);
+
+        double[] yinBuffer = new double[yinMaxPeriod];
+        double[] cmnd = new double[yinMaxPeriod];  // Cumulative Mean Normalized Difference
 
         // Calculate difference function
-        for (int tau = YIN_MIN_PERIOD; tau < YIN_MAX_PERIOD; tau++) {
+        for (int tau = yinMinPeriod; tau < yinMaxPeriod; tau++) {
             double sum = 0.0;
             for (int i = 0; i < audioSamples.length - tau; i++) {
                 double diff = audioSamples[i] - audioSamples[i + tau];
@@ -409,7 +399,7 @@ public class PitchDetectionDemo {
         // Calculate cumulative mean normalized difference
         cmnd[0] = 1.0;  // By definition
         double runningSum = 0.0;
-        for (int tau = YIN_MIN_PERIOD; tau < YIN_MAX_PERIOD; tau++) {
+        for (int tau = yinMinPeriod; tau < yinMaxPeriod; tau++) {
             runningSum += yinBuffer[tau];
             cmnd[tau] = yinBuffer[tau] / ((1.0 / tau) * runningSum);
         }
@@ -417,8 +407,8 @@ public class PitchDetectionDemo {
         // Find minimum below threshold
         int bestTau = -1;
         double minCmnd = Double.MAX_VALUE;
-        for (int tau = YIN_MIN_PERIOD; tau < YIN_MAX_PERIOD; tau++) {
-            if (cmnd[tau] < YIN_THRESHOLD && cmnd[tau] < minCmnd) {
+        for (int tau = yinMinPeriod; tau < yinMaxPeriod; tau++) {
+            if (cmnd[tau] < AudioAlgorithmConstants.YIN_THRESHOLD && cmnd[tau] < minCmnd) {
                 minCmnd = cmnd[tau];
                 bestTau = tau;
             }
@@ -430,19 +420,19 @@ public class PitchDetectionDemo {
         }
 
         // Refine the period estimate using parabolic interpolation
-        double refinedTau = refineTauEstimate(cmnd, bestTau);
+        double refinedTau = refineTauEstimate(cmnd, bestTau, yinMinPeriod, yinMaxPeriod);
 
         // Convert period to frequency
-        double frequency = SAMPLE_RATE / refinedTau;
+        double frequency = AudioConstants.SAMPLE_RATE / refinedTau;
 
         // Validate frequency range
-        if (frequency < MIN_FREQUENCY || frequency > MAX_FREQUENCY) {
+        if (frequency < AudioAlgorithmConstants.MIN_FREQUENCY || frequency > AudioAlgorithmConstants.MAX_FREQUENCY) {
             return new PitchDetectionResult(0.0, 0.0, "N/A", 0);
         }
 
         // Convert to musical note
-        String noteName = frequencyToNote(frequency);
-        int octave = frequencyToOctave(frequency);
+        String noteName = FrequencyUtils.frequencyToNoteName(frequency);
+        int octave = extractOctaveFromNoteName(noteName);
 
         return new PitchDetectionResult(frequency, minCmnd, noteName, octave);
     }
@@ -452,10 +442,12 @@ public class PitchDetectionDemo {
      *
      * @param cmnd the cumulative mean normalized difference array
      * @param tau the initial tau estimate
+     * @param yinMinPeriod minimum period for YIN
+     * @param yinMaxPeriod maximum period for YIN
      * @return refined tau value
      */
-    private double refineTauEstimate(double[] cmnd, int tau) {
-        if (tau <= YIN_MIN_PERIOD || tau >= YIN_MAX_PERIOD - 1) {
+    private double refineTauEstimate(double[] cmnd, int tau, int yinMinPeriod, int yinMaxPeriod) {
+        if (tau <= yinMinPeriod || tau >= yinMaxPeriod - 1) {
             return tau;
         }
 
@@ -482,14 +474,7 @@ public class PitchDetectionDemo {
      * @return true if the signal is voiced, false if silent
      */
     private boolean isSignalVoiced(double[] samples) {
-        // Calculate RMS (Root Mean Square) energy
-        double sum = 0.0;
-        for (double sample : samples) {
-            sum += sample * sample;
-        }
-        double rms = Math.sqrt(sum / samples.length);
-
-        return rms > VOICING_THRESHOLD;
+        return AudioProcessingUtils.isVoiced(samples);
     }
 
     /**
@@ -537,8 +522,9 @@ public class PitchDetectionDemo {
             double stabilityThreshold = medianPitch * 0.05;
             if (Math.abs(currentResult.frequency - medianPitch) < stabilityThreshold) {
                 lastStablePitch = medianPitch;
-                return new PitchDetectionResult(medianPitch, currentResult.magnitude,
-                                              frequencyToNote(medianPitch), frequencyToOctave(medianPitch));
+                String noteName = FrequencyUtils.frequencyToNoteName(medianPitch);
+                int octave = extractOctaveFromNoteName(noteName);
+                return new PitchDetectionResult(medianPitch, currentResult.magnitude, noteName, octave);
             }
         }
 
@@ -582,7 +568,7 @@ public class PitchDetectionDemo {
         double bestFreq = candidateFreq;
 
         for (double testFreq : candidates) {
-            if (testFreq < MIN_FREQUENCY) continue;
+            if (testFreq < AudioAlgorithmConstants.MIN_FREQUENCY) continue;
 
             double score = calculateHarmonicScore(magnitudes, testFreq);
             if (score > bestScore) {
@@ -604,65 +590,83 @@ public class PitchDetectionDemo {
      */
     private double calculateHarmonicScore(double[] magnitudes, double fundamentalFreq) {
         double score = 0;
-        
+
         // Check strength of fundamental and first few harmonics
         for (int harmonic = 1; harmonic <= 4; harmonic++) {
             double harmonicFreq = fundamentalFreq * harmonic;
-            if (harmonicFreq > MAX_FREQUENCY) break;
-            
-            int bin = frequencyToBin(harmonicFreq);
+            if (harmonicFreq > AudioAlgorithmConstants.MAX_FREQUENCY) break;
+
+            int bin = FrequencyUtils.frequencyToBin(harmonicFreq);
             if (bin < magnitudes.length) {
                 score += magnitudes[bin] / harmonic; // Weight by inverse of harmonic number
             }
         }
-        
+
         return score;
     }
     
     /**
+     * Extract octave number from a note name string (e.g., "A4" -> 4).
+     *
+     * @param noteName note name like "A4", "C#5"
+     * @return octave number or 0 if invalid
+     */
+    private int extractOctaveFromNoteName(String noteName) {
+        if (noteName == null || noteName.length() < 2) {
+            return 0;
+        }
+        try {
+            // Extract the numeric part after the note letter(s)
+            String numPart = noteName.replaceAll("[^0-9]", "");
+            return numPart.isEmpty() ? 0 : Integer.parseInt(numPart);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    /**
      * Converts a frequency in Hz to the corresponding FFT bin index.
+     * Wrapper around FrequencyUtils for backward compatibility with tests.
      *
      * @param frequency frequency in Hz
      * @return bin index
      */
     private int frequencyToBin(double frequency) {
-        return (int) Math.round(frequency * FFT_SIZE / SAMPLE_RATE);
+        return FrequencyUtils.frequencyToBin(frequency);
     }
 
     /**
      * Converts a bin index to the corresponding frequency in Hz.
+     * Wrapper around FrequencyUtils for backward compatibility with tests.
      *
      * @param bin FFT bin index
      * @return frequency in Hz
      */
     private double binToFrequency(double bin) {
-        return bin * SAMPLE_RATE / FFT_SIZE;
+        return FrequencyUtils.binToFrequency((int) bin);
     }
 
     /**
      * Maps a frequency to the nearest musical note name.
+     * Wrapper around FrequencyUtils for backward compatibility with tests.
      *
      * @param frequency frequency in Hz
      * @return note name or {@code "N/A"} if invalid
      */
     private String frequencyToNote(double frequency) {
-        if (frequency <= 0) return "N/A";
-        
-        int noteNumber = (int) Math.round(A4_NOTE_NUMBER + 12 * Math.log(frequency / A4_FREQUENCY) / Math.log(2));
-        return NOTE_NAMES[noteNumber % 12];
+        return FrequencyUtils.frequencyToNoteName(frequency);
     }
-    
+
     /**
      * Calculates the octave number for a given frequency.
+     * Wrapper for backward compatibility with tests.
      *
      * @param frequency frequency in Hz
      * @return octave number or 0 if frequency is invalid
      */
     private int frequencyToOctave(double frequency) {
-        if (frequency <= 0) return 0;
-        
-        int noteNumber = (int) Math.round(A4_NOTE_NUMBER + 12 * Math.log(frequency / A4_FREQUENCY) / Math.log(2));
-        return (noteNumber / 12) - 1;
+        String noteName = FrequencyUtils.frequencyToNoteName(frequency);
+        return extractOctaveFromNoteName(noteName);
     }
     
     /**
@@ -758,11 +762,11 @@ public class PitchDetectionDemo {
 
         for (int i = 0; i < parsonsSequence.size(); i++) {
             PitchChange change = parsonsSequence.get(i);
-            String note = frequencyToNote(change.frequency);
-            int octave = frequencyToOctave(change.frequency);
+            String noteName = FrequencyUtils.frequencyToNoteName(change.frequency);
+            int octave = extractOctaveFromNoteName(noteName);
 
-            logger.info("{}. {} → {}{} ({} Hz)",
-                i + 1, change.direction, note, octave, String.format("%.1f", change.frequency));
+            logger.info("{}. {} → {} ({} Hz)",
+                i + 1, change.direction, noteName, String.format("%.1f", change.frequency));
         }
 
         logger.info("\nThis Parsons code can be used for melody matching and song identification!");
