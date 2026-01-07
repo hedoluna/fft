@@ -1,6 +1,6 @@
 # JMH Benchmarking Guide
 
-**Purpose**: Provide statistically rigorous performance measurements with variance analysis to address the performance instability identified in CONSENSUS_ANALYSIS.md.
+**Purpose**: Provide statistically rigorous performance measurements with variance analysis to address the performance instability identified in archived P0 analysis (see `../performance/archive/fase2/CONSENSUS_ANALYSIS.md`).
 
 ---
 
@@ -331,7 +331,7 @@ Even when using `-Dexec.classpathScope=test`, the plugin fails to find the `Benc
 
 ## Addressing P0 Recommendations
 
-From CONSENSUS_ANALYSIS.md P0 priorities:
+From archived P0 analysis (see `../performance/archive/fase2/CONSENSUS_ANALYSIS.md`):
 
 ### ✅ Stabilize FFT8 Performance Measurement
 - JMH provides proper warmup (5 iterations)
@@ -416,8 +416,8 @@ If variance remains high:
 
 - [JMH Documentation](https://github.com/openjdk/jmh)
 - [JMH Samples](http://hg.openjdk.java.net/code-tools/jmh/file/tip/jmh-samples/src/main/java/org/openjdk/jmh/samples/)
-- ../../docs/performance/CONSENSUS_ANALYSIS.md: Multi-agent analysis identifying performance variance
-- ../../docs/performance/FASE_2_LESSONS_LEARNED.md: What worked and what didn't
+- `../performance/archive/fase2/CONSENSUS_ANALYSIS.md`: Multi-agent analysis (archived P0 analysis)
+- `../performance/archive/fase2/FASE_2_LESSONS_LEARNED.md`: What worked and what didn't (archived)
 
 ---
 

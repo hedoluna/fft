@@ -57,7 +57,7 @@ The profiling suite isolates the following operations across sizes 32, 64, 128, 
 
 ## Expected Findings (Hypothesis)
 
-Based on algorithm analysis and CONSENSUS_ANALYSIS.md insights:
+Based on algorithm analysis and archived P0 analysis (see `../archive/fase2/CONSENSUS_ANALYSIS.md`):
 
 ### Primary Bottlenecks (Predicted)
 1. **Twiddle Factor Calculation**: 40-60% of time
@@ -274,9 +274,10 @@ Based on actual profiling results:
 
 ## References
 
-- [CONSENSUS_ANALYSIS.md](CONSENSUS_ANALYSIS.md) - P1 recommendation for profiling
-- [JMH_BENCHMARKING_GUIDE.md](JMH_BENCHMARKING_GUIDE.md) - JMH methodology
-- [OPTIMIZATION_LESSONS_LEARNED.md](OPTIMIZATION_LESSONS_LEARNED.md) - Controversial claims to validate
+- [CONSENSUS_ANALYSIS.md](../archive/fase2/CONSENSUS_ANALYSIS.md) - P1 recommendation for profiling (archived)
+- [JMH_BENCHMARKING_GUIDE.md](../testing/JMH_BENCHMARKING_GUIDE.md) - JMH methodology
+- [BASELINE_MEASUREMENT_JAN2026.md](BASELINE_MEASUREMENT_JAN2026.md) - Actual v2.1 measurements
+- [FASE2_FINAL_REPORT.md](FASE2_FINAL_REPORT.md) - FASE 2 optimization lessons
 
 ---
 
