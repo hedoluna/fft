@@ -3,6 +3,10 @@ package com.fft.demo;
 import com.fft.core.FFTResult;
 import com.fft.utils.FFTUtils;
 import com.fft.utils.PitchDetectionUtils;
+import com.fft.utils.AudioConstants;
+import com.fft.utils.AudioAlgorithmConstants;
+import com.fft.utils.FrequencyUtils;
+import com.fft.utils.AudioProcessingUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +44,6 @@ public class ChordRecognitionDemo {
 
     private static final Logger logger = LoggerFactory.getLogger(ChordRecognitionDemo.class);
 
-    private static final double SAMPLE_RATE = 44100.0;
-    private static final int FFT_SIZE = 4096;
     private static final double CHORD_DURATION = 1.0; // seconds per chord
     private static final int MAX_SIMULTANEOUS_FREQUENCIES = 4;
 
@@ -337,7 +339,7 @@ public class ChordRecognitionDemo {
         FFTResult spectrum = FFTUtils.fft(paddedSignal);
 
         // Detect chord
-        PitchDetectionUtils.ChordResult result = PitchDetectionUtils.detectChord(spectrum, SAMPLE_RATE, MAX_SIMULTANEOUS_FREQUENCIES);
+        PitchDetectionUtils.ChordResult result = PitchDetectionUtils.detectChord(spectrum, AudioConstants.SAMPLE_RATE, MAX_SIMULTANEOUS_FREQUENCIES);
 
         if (verbose) {
             logger.info("  Generated signal for: %s%n", chordName);
@@ -414,7 +416,7 @@ public class ChordRecognitionDemo {
     private double[] generateChordSignal(String chordName) {
         double[] frequencies = chordNameToFrequencies(chordName);
         if (frequencies.length == 0) {
-            return new double[(int) (SAMPLE_RATE * CHORD_DURATION)]; // Return silence for unknown chords
+            return new double[(int) (AudioConstants.SAMPLE_RATE * CHORD_DURATION)]; // Return silence for unknown chords
         }
         return generateMultiTone(frequencies, CHORD_DURATION, 1.0);
     }
@@ -465,11 +467,11 @@ public class ChordRecognitionDemo {
      * Generates a signal with multiple simultaneous tones.
      */
     private double[] generateMultiTone(double[] frequencies, double duration, double amplitude) {
-        int samples = (int) (SAMPLE_RATE * duration);
+        int samples = (int) (AudioConstants.SAMPLE_RATE * duration);
         double[] signal = new double[samples];
 
         for (int i = 0; i < samples; i++) {
-            double t = i / SAMPLE_RATE;
+            double t = i / AudioConstants.SAMPLE_RATE;
             double sample = 0.0;
             for (double freq : frequencies) {
                 sample += Math.sin(2.0 * Math.PI * freq * t);
@@ -506,11 +508,11 @@ public class ChordRecognitionDemo {
      */
     private List<PitchDetectionUtils.PitchResult> extractMelodyFromCombined(double[] signal) {
         List<PitchDetectionUtils.PitchResult> results = new ArrayList<>();
-        int windowSize = (int) (SAMPLE_RATE * 0.1);
+        int windowSize = (int) (AudioConstants.SAMPLE_RATE * 0.1);
 
         for (int start = 0; start < signal.length - windowSize; start += windowSize / 2) {
             double[] window = Arrays.copyOfRange(signal, start, start + windowSize);
-            PitchDetectionUtils.PitchResult result = PitchDetectionUtils.detectPitchHybrid(window, SAMPLE_RATE);
+            PitchDetectionUtils.PitchResult result = PitchDetectionUtils.detectPitchHybrid(window, AudioConstants.SAMPLE_RATE);
             if (result.isVoiced && result.confidence > 0.3) {
                 results.add(result);
             }
@@ -524,13 +526,13 @@ public class ChordRecognitionDemo {
      */
     private List<PitchDetectionUtils.ChordResult> extractChordsFromCombined(double[] signal) {
         List<PitchDetectionUtils.ChordResult> results = new ArrayList<>();
-        int windowSize = FFT_SIZE;
+        int windowSize = AudioConstants.FFT_SIZE;
 
         for (int start = 0; start < signal.length - windowSize; start += windowSize / 2) {
             double[] window = Arrays.copyOfRange(signal, start, start + windowSize);
             double[] padded = FFTUtils.zeroPadToPowerOfTwo(window);
             FFTResult spectrum = FFTUtils.fft(padded);
-            PitchDetectionUtils.ChordResult result = PitchDetectionUtils.detectChord(spectrum, SAMPLE_RATE, MAX_SIMULTANEOUS_FREQUENCIES);
+            PitchDetectionUtils.ChordResult result = PitchDetectionUtils.detectChord(spectrum, AudioConstants.SAMPLE_RATE, MAX_SIMULTANEOUS_FREQUENCIES);
             if (result.confidence > 0.3) {
                 results.add(result);
             }
@@ -543,11 +545,11 @@ public class ChordRecognitionDemo {
      * Generates a basic sine wave tone.
      */
     private double[] generateTone(double frequency, double duration, double amplitude) {
-        int samples = (int) (SAMPLE_RATE * duration);
+        int samples = (int) (AudioConstants.SAMPLE_RATE * duration);
         double[] signal = new double[samples];
 
         for (int i = 0; i < samples; i++) {
-            double t = i / SAMPLE_RATE;
+            double t = i / AudioConstants.SAMPLE_RATE;
             signal[i] = amplitude * Math.sin(2.0 * Math.PI * frequency * t);
         }
 

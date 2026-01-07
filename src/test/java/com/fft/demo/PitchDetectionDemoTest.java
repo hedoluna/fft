@@ -159,10 +159,12 @@ class PitchDetectionDemoTest {
             frequencyToNote.setAccessible(true);
 
             // Test common musical frequencies
-            assertThat(frequencyToNote.invoke(demo, 440.0)).isEqualTo("A");
-            assertThat(frequencyToNote.invoke(demo, 261.63)).isEqualTo("C");
-            assertThat(frequencyToNote.invoke(demo, 0.0)).isEqualTo("N/A");
-            assertThat(frequencyToNote.invoke(demo, -100.0)).isEqualTo("N/A");
+            // Note: frequencyToNote now returns note name with octave (e.g., "A4" instead of "A")
+            assertThat(frequencyToNote.invoke(demo, 440.0)).isEqualTo("A4");
+            assertThat(frequencyToNote.invoke(demo, 261.63)).isEqualTo("C4");
+            // Invalid frequencies return "UNKNOWN" (not "N/A")
+            assertThat(frequencyToNote.invoke(demo, 0.0)).isEqualTo("UNKNOWN");
+            assertThat(frequencyToNote.invoke(demo, -100.0)).isEqualTo("UNKNOWN");
         }
 
         @Test
@@ -407,8 +409,8 @@ class PitchDetectionDemoTest {
             assertDoesNotThrow(() -> {
                 Field sampleRateField = PitchDetectionDemo.class.getDeclaredField("SAMPLE_RATE");
                 sampleRateField.setAccessible(true);
-                float sampleRate = sampleRateField.getFloat(null);
-                assertThat(sampleRate).isEqualTo(44100.0f);
+                double sampleRate = sampleRateField.getDouble(null);
+                assertThat(sampleRate).isEqualTo(44100.0);
 
                 Field fftSizeField = PitchDetectionDemo.class.getDeclaredField("FFT_SIZE");
                 fftSizeField.setAccessible(true);
