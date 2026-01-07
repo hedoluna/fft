@@ -292,12 +292,21 @@ public class PitchDetectionDemo {
             samples[i] = 0.0;
         }
     }
-    
+
+    // ========== BACKWARD COMPATIBILITY WRAPPER METHODS ==========
+    // These private methods are kept for reflection-based test access via getDeclaredMethod().
+    // Tests use reflection to verify internal behavior of demo-specific logic.
+    // Do not remove without updating PitchDetectionDemoTest.java
+    // See: src/test/java/com/fft/demo/PitchDetectionDemoTest.java
+    // For new code, use: AudioProcessingUtils.applyHammingWindow(), FrequencyUtils.frequencyToNoteName(), etc.
+
     /**
      * Applies a Hamming window to the provided sample array in-place.
+     * @deprecated Use AudioProcessingUtils.applyHammingWindow() instead.
      *
      * @param samples audio frame to window
      */
+    @Deprecated
     private void applyHammingWindow(double[] samples) {
         int n = samples.length;
         for (int i = 0; i < n; i++) {

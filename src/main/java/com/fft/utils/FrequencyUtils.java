@@ -129,7 +129,8 @@ public final class FrequencyUtils {
 
     /**
      * Convert a note name with octave to frequency (Hz).
-     * Example: "A4" → 440.0, "C4" → 261.63, "D#5" → 311.13
+     * Example: "A4" → 440.0, "C4" → 261.63, "D#5" → 311.13, "Db5" → 277.18
+     * Supports both sharp (#) and flat (b) notation.
      *
      * @param noteName Note name like "A4", "C#5", "Db5", "E3"
      * @return Frequency in Hz, or -1 if note name is invalid
@@ -141,25 +142,29 @@ public final class FrequencyUtils {
 
         try {
             // Parse note name: extract note and octave
-            // Format: "[Note][Octave]" where Note is 1-2 chars (C, C#, Db, etc.)
-            String note = noteName.substring(0, Math.min(2, noteName.length())).toUpperCase();
-            int octave = Integer.parseInt(noteName.substring(note.length()));
+            // Format: "[Note][Accidental][Octave]" where Note is 1 char, Accidental is 0-1 chars
+            noteName = noteName.toUpperCase();
 
-            // Handle natural vs. sharp/flat
-            if (note.length() == 2 && (note.charAt(1) == '#' || note.charAt(1) == 'B')) {
-                // C#, Db, etc.
-                note = note.substring(0, 1); // Get base note
-                if (note.charAt(1) == 'B') {
-                    // Flat notation (Db = C#)
-                    note = (char) (note.charAt(0) - 1) + "#";
-                }
+            // Extract note character (first char)
+            char noteChar = noteName.charAt(0);
+
+            // Extract accidental (# or B for sharp/flat)
+            char accidental = '\0';
+            int octaveStartIndex = 1;
+
+            if (noteName.length() > 1 && (noteName.charAt(1) == '#' || noteName.charAt(1) == 'B')) {
+                accidental = noteName.charAt(1);
+                octaveStartIndex = 2;
             }
 
-            // Find note index in NOTE_NAMES
-            String baseNote = note.replace("#", "").replace("b", "");
+            // Extract octave
+            int octave = Integer.parseInt(noteName.substring(octaveStartIndex));
+
+            // Find base note index
+            String noteStr = String.valueOf(noteChar);
             int noteIndex = -1;
             for (int i = 0; i < AudioConstants.NOTE_NAMES.length; i++) {
-                if (AudioConstants.NOTE_NAMES[i].equals(baseNote)) {
+                if (AudioConstants.NOTE_NAMES[i].startsWith(noteStr)) {
                     noteIndex = i;
                     break;
                 }
@@ -169,19 +174,22 @@ public final class FrequencyUtils {
                 return -1; // Invalid note
             }
 
-            // Handle sharps (move up one semitone)
-            if (note.contains("#")) {
+            // Handle accidental
+            if (accidental == '#') {
+                // Sharp: move up one semitone
                 noteIndex = (noteIndex + 1) % AudioConstants.SEMITONES_PER_OCTAVE;
-                if (note.contains("#")) {
-                    octave -= 1; // Adjust octave if wrapping
-                }
+            } else if (accidental == 'B') {
+                // Flat: move down one semitone
+                noteIndex = (noteIndex - 1 + AudioConstants.SEMITONES_PER_OCTAVE) % AudioConstants.SEMITONES_PER_OCTAVE;
             }
 
             // Convert to MIDI note number
+            // MIDI octaves: Middle C (C4) = note 60, which is octave 4, semitone 0
+            // Formula: MIDI = (octave + 1) * 12 + noteIndex
             int midiNote = (octave + 1) * AudioConstants.SEMITONES_PER_OCTAVE + noteIndex;
 
             return midiNoteToFrequency(midiNote);
-        } catch (Exception e) {
+        } catch (NumberFormatException | IndexOutOfBoundsException e) {
             return -1; // Invalid format
         }
     }
