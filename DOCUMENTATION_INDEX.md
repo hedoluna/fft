@@ -40,6 +40,7 @@ This index organizes all documentation in the FFT library for easy navigation. D
 | Document | Content | Date |
 |----------|---------|------|
 | [BASELINE_MEASUREMENT_JAN2026.md](docs/performance/BASELINE_MEASUREMENT_JAN2026.md) | **v2.1 baseline with all optimizations** | Jan 7, 2026 |
+| [OPTIMIZATION_COMPLETION_SUMMARY_JAN2026.md](docs/performance/OPTIMIZATION_COMPLETION_SUMMARY_JAN2026.md) | **Final Optimization Summary** | Jan 7, 2026 |
 | [PHASE_3_BUTTERFLY_OPTIMIZATION_REPORT.md](docs/performance/PHASE_3_BUTTERFLY_OPTIMIZATION_REPORT.md) | **Butterfly optimization analysis & lessons** | Jan 7, 2026 |
 | [PROFILING_RESULTS.md](docs/performance/PROFILING_RESULTS.md) | Profiling data and bottleneck analysis (historical) | Oct 6, 2025 |
 | [FASE_2_LESSONS_LEARNED.md](docs/performance/FASE_2_LESSONS_LEARNED.md) | What worked/didn't work in FASE 2 | Oct 6, 2025 |
@@ -84,6 +85,9 @@ This index organizes all documentation in the FFT library for easy navigation. D
 | Document | Location | Description |
 |----------|----------|-------------|
 | [DEMO_DOCUMENTATION.md](docs/demos/DEMO_DOCUMENTATION.md) | Comprehensive demo guide | Audio feature documentation |
+| [HOWTO_SONG_RECOGNITION.md](docs/demos/HOWTO_SONG_RECOGNITION.md) | Song recognition how-to | End users |
+| [SONG_DATABASE_GUIDE.md](docs/demos/SONG_DATABASE_GUIDE.md) | Song database guide | End users |
+| [SONG_RECOGNITION_LESSONS.md](docs/demos/SONG_RECOGNITION_LESSONS.md) | Lessons learned | Developers |
 | [DEMO_TESTING_SUMMARY.md](docs/demos/DEMO_TESTING_SUMMARY.md) | Demo test coverage | QA reference |
 | [FFT_Library.md](docs/demos/FFT_Library.md) | Legacy library documentation | Historical |
 
@@ -107,7 +111,8 @@ See [docs/archive/README.md](docs/archive/README.md) for complete archive index.
 - CURRENT_STATUS_SUMMARY.md (superseded by PERFORMANCE_OPTIMIZATION_STATUS.md)
 - PERFORMANCE_IMPROVEMENT_PLAN.md (work completed in FASE 1/2)
 - REFACTORING_ROADMAP.md (Phase 1-2 completed, see REFACTORING_SUMMARY.md)
-- AGENTS.md (brief coordination notes, no longer needed)
+- REFACTORING_ROADMAP.md (Phase 1-2 completed, see REFACTORING_SUMMARY.md)
+- AGENTS.md (merged into CLAUDE.md)
 
 #### FASE 2 Duplicates (2 files) → docs/archive/fase2/
 - OPTIMIZATION_LESSONS_LEARNED.md (consolidated into FASE_2_LESSONS_LEARNED.md)
@@ -133,7 +138,7 @@ See [docs/archive/README.md](docs/archive/README.md) for complete archive index.
 6. [REFACTORING_SUMMARY.md](REFACTORING_SUMMARY.md) - Architecture overview
 
 ### For Performance Engineers
-1. [PERFORMANCE_OPTIMIZATION_STATUS.md](PERFORMANCE_OPTIMIZATION_STATUS.md) - **Current state**
+1. [OPTIMIZATION_COMPLETION_SUMMARY_JAN2026.md](docs/performance/OPTIMIZATION_COMPLETION_SUMMARY_JAN2026.md) - **Current state**
 2. [PROFILING_RESULTS.md](docs/performance/PROFILING_RESULTS.md) - Profiling data
 3. [FASE_2_LESSONS_LEARNED.md](docs/performance/FASE_2_LESSONS_LEARNED.md) - What worked
 4. [optimized package docs](src/main/java/com/fft/optimized/package-info.java) - Optimization techniques
@@ -147,7 +152,7 @@ See [docs/archive/README.md](docs/archive/README.md) for complete archive index.
 
 ### For AI Assistants (Claude Code)
 1. [CLAUDE.md](CLAUDE.md) - **Primary reference**
-2. [PERFORMANCE_OPTIMIZATION_STATUS.md](PERFORMANCE_OPTIMIZATION_STATUS.md) - Optimization state
+2. [OPTIMIZATION_COMPLETION_SUMMARY_JAN2026.md](docs/performance/OPTIMIZATION_COMPLETION_SUMMARY_JAN2026.md) - Optimization state
 3. [DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md) - This file
 4. [docs/archive/README.md](docs/archive/README.md) - Historical documentation
 

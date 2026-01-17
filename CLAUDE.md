@@ -44,7 +44,7 @@ mvn exec:java -Dexec.mainClass="com.fft.demo.SongRecognitionDemo"
 
 **Key Docs:**
 - `DOCUMENTATION_INDEX.md` - Master navigation
-- `PERFORMANCE_OPTIMIZATION_STATUS.md` - Current optimization state
+- `docs/performance/OPTIMIZATION_COMPLETION_SUMMARY_JAN2026.md` - Current optimization state
 - `docs/performance/FASE_2_LESSONS_LEARNED.md` - What worked/didn't work
 - `docs/testing/JMH_BENCHMARKING_GUIDE.md` - Rigorous benchmarking howto
 
@@ -148,7 +148,7 @@ mvn exec:java -Dexec.mainClass="com.fft.demo.RefactoringDemo"
 - ✅ Run `mvn clean test` before committing
 - ✅ Use helper scripts (`.bat` or `.sh`) for JMH benchmarks
 - ✅ Verify correctness before measuring performance
-- ✅ Check `PERFORMANCE_OPTIMIZATION_STATUS.md` before optimization work
+- ✅ Check `docs/performance/OPTIMIZATION_COMPLETION_SUMMARY_JAN2026.md` before optimization work
 - ✅ Update tests when adding new optimized implementations
 
 ## Git Workflow
