@@ -160,12 +160,19 @@ public class FFTBase implements FFT {
         System.arraycopy(inputReal, 0, xReal, 0, n);
         System.arraycopy(inputImag, 0, xImag, 0, n);
 
+        // Precompute bit reversal table
+        // Use cached bit-reversal lookup table for O(n) complexity instead of O(n log n)
+        // Profiling showed bit-reversal accounts for 8.2% of FFT time (221ns for size 32)
+        // Expected improvement: 50-70% faster on bit-reversal operation, 4-6% overall FFT speedup
+        int[] bitReversal = BitReversalCache.getTable(n);
+
         // First phase - calculation
         int k = 0;
         for (int l = 1; l <= nu; l++) {
             while (k < n) {
                 for (int i = 1; i <= n2; i++) {
-                    p = bitreverseReference(k >> nu1, nu);
+                    // Use precomputed bit reversal table
+                    p = bitReversal[k >> nu1];
 
                     // Use precomputed twiddle factors for 2.3-3.2x speedup
                     // (profiling showed Math.cos/sin accounts for 43-56% of FFT time)
@@ -188,10 +195,6 @@ public class FFTBase implements FFT {
         }
 
         // Second phase - recombination
-        // Use cached bit-reversal lookup table for O(n) complexity instead of O(n log n)
-        // Profiling showed bit-reversal accounts for 8.2% of FFT time (221ns for size 32)
-        // Expected improvement: 50-70% faster on bit-reversal operation, 4-6% overall FFT speedup
-        int[] bitReversal = BitReversalCache.getTable(n);
         for (k = 0; k < n; k++) {
             int r = bitReversal[k];
             if (r > k) {
@@ -222,6 +225,7 @@ public class FFTBase implements FFT {
      * @param nu number of bits to reverse
      * @return bit-reversed value of j
      */
+    @SuppressWarnings("unused")
     private static int bitreverseReference(int j, int nu) {
         int j2;
         int j1 = j;
