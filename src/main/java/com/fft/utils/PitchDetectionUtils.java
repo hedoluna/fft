@@ -63,6 +63,18 @@ public class PitchDetectionUtils {
     private static final CacheEntry[] pitchCache = new CacheEntry[CACHE_SIZE];
     private static final AtomicInteger cacheIndex = new AtomicInteger(0);
 
+    // Chord identification constants
+    private static final List<int[]> CHORD_PATTERNS = Arrays.asList(
+            new int[]{0, 4, 7},     // Major
+            new int[]{0, 3, 7},     // Minor
+            new int[]{0, 4, 7, 10}, // Major 7th
+            new int[]{0, 3, 7, 10}, // Minor 7th
+            new int[]{0, 4, 8},     // Augmented
+            new int[]{0, 3, 6}      // Diminished
+    );
+    private static final String[] CHORD_TYPES = {"major", "minor", "major7", "minor7", "augmented", "diminished"};
+    private static final String[] ROOT_NAMES = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+
     /**
      * Simple cache entry for pitch detection results.
      */
@@ -674,23 +686,10 @@ public class PitchDetectionUtils {
         Arrays.sort(midiNotes);
         int root = midiNotes[0] % 12;
 
-        // Check for common chord patterns (relative to root)
-        List<int[]> chordPatterns = Arrays.asList(
-                new int[] { 0, 4, 7 }, // Major
-                new int[] { 0, 3, 7 }, // Minor
-                new int[] { 0, 4, 7, 10 }, // Major 7th
-                new int[] { 0, 3, 7, 10 }, // Minor 7th
-                new int[] { 0, 4, 8 }, // Augmented
-                new int[] { 0, 3, 6 } // Diminished
-        );
-
-        String[] chordTypes = { "major", "minor", "major7", "minor7", "augmented", "diminished" };
-        String[] rootNames = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
-
         // Check each pattern
-        for (int i = 0; i < chordPatterns.size(); i++) {
-            if (matchesChordPattern(midiNotes, root, chordPatterns.get(i))) {
-                return new ChordIdentification(rootNames[root], chordTypes[i]);
+        for (int i = 0; i < CHORD_PATTERNS.size(); i++) {
+            if (matchesChordPattern(midiNotes, root, CHORD_PATTERNS.get(i))) {
+                return new ChordIdentification(ROOT_NAMES[root], CHORD_TYPES[i]);
             }
         }
 
