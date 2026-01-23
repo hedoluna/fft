@@ -717,8 +717,10 @@ public class SongRecognitionDemo {
      * Calculates rhythm similarity (placeholder - would need rhythm database).
      */
     private double calculateRhythmSimilarity(String queryRhythm, MelodyEntry entry) {
-        // Simplified - in a real system this would compare against stored rhythm patterns
-        return 0.5; // Neutral score
+        if (entry.rhythmPattern == null || entry.rhythmPattern.isEmpty() || queryRhythm.isEmpty()) {
+            return 0.5; // Neutral score if no data
+        }
+        return ParsonsCodeUtils.calculateSimilarity(queryRhythm, entry.rhythmPattern);
     }
 
     /**
@@ -1051,13 +1053,13 @@ public class SongRecognitionDemo {
      * Finds matches based on rhythm patterns.
      */
     private List<RecognitionResult> findRhythmBasedMatches(String rhythmPattern, int maxResults) {
-        // Simplified rhythm matching - in a real system this would use stored rhythm patterns
         List<RecognitionResult> results = new ArrayList<>();
 
         for (Map.Entry<String, MelodyEntry> entry : melodyDatabase.entrySet()) {
-            // For now, give neutral score to all songs
-            // In a real implementation, this would compare against stored rhythm patterns
-            results.add(new RecognitionResult(entry.getKey(), 0.5, entry.getValue().parsonsCode));
+            double score = calculateRhythmSimilarity(rhythmPattern, entry.getValue());
+            if (score > 0.3) {
+                results.add(new RecognitionResult(entry.getKey(), score, entry.getValue().parsonsCode));
+            }
         }
 
         return results.stream()
@@ -1317,9 +1319,29 @@ public class SongRecognitionDemo {
      * Enhances recognition result with rhythm-based scoring.
      */
     private RecognitionResult enhanceWithRhythmScoring(RecognitionResult result, String rhythmPattern, List<DetectedNote> detectedNotes) {
-        // For now, maintain original confidence
-        // Future enhancement: compare rhythm patterns between query and database
-        return result;
+        if (result == null || rhythmPattern == null || rhythmPattern.isEmpty()) {
+            return result;
+        }
+
+        MelodyEntry entry = melodyDatabase.get(result.songTitle);
+        if (entry == null || entry.rhythmPattern == null || entry.rhythmPattern.isEmpty()) {
+            return result;
+        }
+
+        // Calculate similarity between query rhythm and stored rhythm
+        double similarity = ParsonsCodeUtils.calculateSimilarity(rhythmPattern, entry.rhythmPattern);
+
+        // Adjust confidence based on rhythm similarity
+        // We adjust the confidence by a factor related to how well the rhythm matches
+        // Range: -0.1 to +0.1 adjustment based on similarity (0.0 to 1.0)
+        double adjustment = (similarity - 0.5) * 0.2;
+
+        double newConfidence = result.confidence + adjustment;
+
+        // Ensure within bounds
+        newConfidence = Math.max(0.0, Math.min(1.0, newConfidence));
+
+        return new RecognitionResult(result.songTitle, newConfidence, result.matchedCode);
     }
 
     /**
@@ -1893,17 +1915,17 @@ public class SongRecognitionDemo {
 
         // Add comprehensive entries with multiple variations and metadata for robust recognition
         database.put("Twinkle, Twinkle, Little Star",
-            new MelodyEntry("*RURURDRRURURDR",
+            new MelodyEntry("*RURURDRRURURDR", "MCMCMCMCMCMC",
                 Arrays.asList("*RURUR", "*RURURD", "*RDRRUR", "*RURURDRRUR", "*RURURDRRURUR"),
                 "Children's", "Traditional", "Traditional", 120.0, "C", 0.9));
 
         database.put("Mary Had a Little Lamb",
-            new MelodyEntry("*DRRRRDDDRRU",
+            new MelodyEntry("*DRRRRDDDRRU", "MCMCMCMCMCMC",
                 Arrays.asList("*DRRRR", "*DDDRRU", "*DRRRRDDD", "*DRRRRD", "*RRRDDDRRU"),
                 "Children's", "Traditional", "Traditional", 100.0, "E", 0.8));
 
         database.put("Happy Birthday",
-            new MelodyEntry("*RRUURURURU",
+            new MelodyEntry("*RRUURURURU", "SCSCMCMCMC",
                 Arrays.asList("*RRURU", "*RURURU", "*RRURURU", "*RRUURUR", "*RURURURU"),
                 "Celebration", "Traditional", "Traditional", 110.0, "C", 1.0));
 
@@ -1913,12 +1935,14 @@ public class SongRecognitionDemo {
                 Arrays.asList("*RURUR", "*RURURD", "*RURURDR", "*URURDRR")));
 
         database.put("Ode to Joy",
-            new MelodyEntry("*RURURDRURURDR",
-                Arrays.asList("*RURURD", "*RURURDR", "*URURDR", "*RURURDRUR")));
+            new MelodyEntry("*RURURDRURURDR", "MCMCMCMCMCMCMC",
+                Arrays.asList("*RURURD", "*RURURDR", "*URURDR", "*RURURDRUR"),
+                "Classical", "Romantic", "Beethoven", 120.0, "D", 0.95));
 
         database.put("London Bridge",
-            new MelodyEntry("*RURUDRURU",
-                Arrays.asList("*RURU", "*RURUD", "*URUDRURU", "*RURUDRUR")));
+            new MelodyEntry("*RURUDRURU", "MCSCMCMCMCMC",
+                Arrays.asList("*RURU", "*RURUD", "*URUDRURU", "*RURUDRUR"),
+                "Children's", "Traditional", "Traditional", 100.0, "D", 0.7));
 
         database.put("Frère Jacques",
             new MelodyEntry("*RDRURDRU",
@@ -1962,6 +1986,7 @@ public class SongRecognitionDemo {
     // Data classes
     private static class MelodyEntry {
         final String parsonsCode;
+        final String rhythmPattern;
         final List<String> variations;
         final String genre;
         final String era;
@@ -1971,12 +1996,13 @@ public class SongRecognitionDemo {
         final double popularity; // 0.0 to 1.0
 
         MelodyEntry(String parsonsCode, List<String> variations) {
-            this(parsonsCode, variations, "Unknown", "Unknown", "Unknown", 120.0, "C", 0.5);
+            this(parsonsCode, "", variations, "Unknown", "Unknown", "Unknown", 120.0, "C", 0.5);
         }
 
-        MelodyEntry(String parsonsCode, List<String> variations, String genre, String era,
+        MelodyEntry(String parsonsCode, String rhythmPattern, List<String> variations, String genre, String era,
                    String artist, double avgTempo, String key, double popularity) {
             this.parsonsCode = parsonsCode;
+            this.rhythmPattern = rhythmPattern;
             this.variations = variations;
             this.genre = genre;
             this.era = era;
