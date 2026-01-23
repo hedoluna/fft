@@ -644,8 +644,14 @@ public class PitchDetectionUtils {
                     magnitudes[i] > MAGNITUDE_THRESHOLD) {
 
                 // Check minimum distance from existing peaks
-                final int currentBin = i;
-                boolean tooClose = peaks.stream().anyMatch(p -> Math.abs(p.bin - currentBin) < MIN_DISTANCE);
+                boolean tooClose = false;
+                for (Peak p : peaks) {
+                    if (Math.abs(p.bin - i) < MIN_DISTANCE) {
+                        tooClose = true;
+                        break;
+                    }
+                }
+
                 if (!tooClose) {
                     peaks.add(new Peak(i, magnitudes[i]));
                 }
