@@ -164,14 +164,14 @@ public class FFTBase implements FFT {
         int k = 0;
         for (int l = 1; l <= nu; l++) {
             while (k < n) {
+                p = bitreverseReference(k >> nu1, nu);
+
+                // Use precomputed twiddle factors for 2.3-3.2x speedup
+                // (profiling showed Math.cos/sin accounts for 43-56% of FFT time)
+                c = TwiddleFactorCache.getCos(n, (int) p, DIRECT);
+                s = TwiddleFactorCache.getSin(n, (int) p, DIRECT);
+
                 for (int i = 1; i <= n2; i++) {
-                    p = bitreverseReference(k >> nu1, nu);
-
-                    // Use precomputed twiddle factors for 2.3-3.2x speedup
-                    // (profiling showed Math.cos/sin accounts for 43-56% of FFT time)
-                    c = TwiddleFactorCache.getCos(n, (int) p, DIRECT);
-                    s = TwiddleFactorCache.getSin(n, (int) p, DIRECT);
-
                     tReal = xReal[k + n2] * c + xImag[k + n2] * s;
                     tImag = xImag[k + n2] * c - xReal[k + n2] * s;
                     xReal[k + n2] = xReal[k] - tReal;
