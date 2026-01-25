@@ -1768,8 +1768,10 @@ public class SongRecognitionDemo {
             updateWeights();
         }
 
+        private static final String[] ALGORITHMS = {"exact", "partial", "variation", "dtw"};
+
         private void updateWeights() {
-            for (String algorithm : new String[]{"exact", "partial", "variation", "dtw"}) {
+            for (String algorithm : ALGORITHMS) {
                 String key = "algorithm_" + algorithm;
                 int successes = successCounts.getOrDefault(key, 0);
                 int total = totalCounts.getOrDefault(key, 1); // Avoid division by zero
@@ -1786,7 +1788,7 @@ public class SongRecognitionDemo {
             // Normalize weights to sum to 1.0 (excluding length bonus)
             double totalWeight = algorithmWeights.values().stream()
                 .mapToDouble(Double::doubleValue).sum() - algorithmWeights.get("length");
-            for (String algorithm : new String[]{"exact", "partial", "variation", "dtw"}) {
+            for (String algorithm : ALGORITHMS) {
                 algorithmWeights.put(algorithm, algorithmWeights.get(algorithm) / totalWeight * 0.9);
             }
         }
@@ -1798,7 +1800,7 @@ public class SongRecognitionDemo {
         void printLearningStats() {
             logger.info("Learning System Statistics:");
             logger.info("---------------------------");
-            for (String algorithm : new String[]{"exact", "partial", "variation", "dtw"}) {
+            for (String algorithm : ALGORITHMS) {
                 String key = "algorithm_" + algorithm;
                 int successes = successCounts.getOrDefault(key, 0);
                 int total = totalCounts.getOrDefault(key, 0);
