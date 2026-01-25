@@ -1,6 +1,6 @@
 # FFT Library - Documentation Index
 
-**Last Updated**: January 7, 2026 (v2.1 completion)
+**Last Updated**: January 25, 2026 (documentation deduplication)
 **Current Status**: See CLAUDE.md Performance Optimization section for v2.1 verified metrics
 **Major Reorganization**: Documentation restructured into logical subdirectories
 
@@ -45,7 +45,6 @@ This index organizes all documentation in the FFT library for easy navigation. D
 | [PROFILING_RESULTS.md](docs/performance/PROFILING_RESULTS.md) | Profiling data and bottleneck analysis (historical) | Oct 6, 2025 |
 | [FASE_2_LESSONS_LEARNED.md](docs/performance/FASE_2_LESSONS_LEARNED.md) | What worked/didn't work in FASE 2 | Oct 6, 2025 |
 | [FASE2_FINAL_REPORT.md](docs/performance/FASE2_FINAL_REPORT.md) | FASE 2 comprehensive report | Oct 6, 2025 |
-| [PERFORMANCE_MEASUREMENT_CRISIS.md](docs/performance/PERFORMANCE_MEASUREMENT_CRISIS.md) | Investigation of measurement discrepancies | Oct 6, 2025 |
 | [CONSENSUS_ANALYSIS.md](docs/performance/CONSENSUS_ANALYSIS.md) | Multi-agent FFT8 variance analysis | Oct 6, 2025 |
 
 **Archived**: [PERFORMANCE_OPTIMIZATION_STATUS.md](docs/archive/fase2/PERFORMANCE_OPTIMIZATION_STATUS_OCT2025.md) (October 2025 status, superseded by v2.1)
@@ -67,7 +66,6 @@ This index organizes all documentation in the FFT library for easy navigation. D
 |----------|---------|----------|
 | [JMH_BENCHMARKING_GUIDE.md](docs/testing/JMH_BENCHMARKING_GUIDE.md) | Performance benchmarking guide (consolidated) | Performance engineers |
 | [VALIDATION_FRAMEWORK.md](docs/testing/VALIDATION_FRAMEWORK.md) | FFT correctness validation system | QA engineers |
-| [TESTING_COMPLIANCE.md](docs/testing/TESTING_COMPLIANCE.md) | Test coverage and quality gates | QA engineers |
 | [PITCH_DETECTION_ANALYSIS.md](docs/testing/PITCH_DETECTION_ANALYSIS.md) | Pitch detection accuracy analysis | Audio engineers |
 
 ---
@@ -95,28 +93,29 @@ This index organizes all documentation in the FFT library for easy navigation. D
 
 ## 📋 Archived Documentation (docs/archive/)
 
-**13 documents archived** to eliminate duplication and preserve history.
+**25 documents archived** to eliminate duplication and preserve history.
 
 ### Archive Location
 See [docs/archive/README.md](docs/archive/README.md) for complete archive index.
 
 ### Archived Categories
 
-#### Completed Planning Documents (1 file) → docs/archive/completed/
-- DOCUMENTATION_DEDUPLICATION_PLAN.md (work completed October 6, 2025)
+#### Completed Planning Documents (4 files) → docs/archive/completed/
+- DOCUMENTATION_DEDUPLICATION_PLAN.md, OPTIMIZATION_ROADMAP_PHASE_2.md
+- REORGANIZATION_PLAN.md, ROADMAP_DESIGN_DEC2025.md
 
-#### Historical Documents (10 files) → docs/archive/historical/
+#### Historical Documents (15 files) → docs/archive/historical/
 - CLEANUP_PLAN.md, CLEANUP_SUMMARY.md, FIXES_APPLIED.md
 - CRITICAL_ISSUES.md, CORRECTED_ANALYSIS.md, OPTIMIZATION_ACTIONS.md
-- CURRENT_STATUS_SUMMARY.md (superseded by PERFORMANCE_OPTIMIZATION_STATUS.md)
-- PERFORMANCE_IMPROVEMENT_PLAN.md (work completed in FASE 1/2)
-- REFACTORING_ROADMAP.md (Phase 1-2 completed, see REFACTORING_SUMMARY.md)
-- REFACTORING_ROADMAP.md (Phase 1-2 completed, see REFACTORING_SUMMARY.md)
-- AGENTS.md (merged into CLAUDE.md)
+- CURRENT_STATUS_SUMMARY.md, PERFORMANCE_IMPROVEMENT_PLAN.md
+- REFACTORING_ROADMAP.md, TEST_COVERAGE_SUMMARY.md
+- SESSION_RESUME_JAN2026.md, QWEN_LEGACY_TOOL_CONTEXT.md
+- FLAKY_TEST_FIXES.md, TESTING_COMPLIANCE_JUN2025.md, AGENTS.md
 
-#### FASE 2 Duplicates (2 files) → docs/archive/fase2/
-- OPTIMIZATION_LESSONS_LEARNED.md (consolidated into FASE_2_LESSONS_LEARNED.md)
-- FASE2_OVERHEAD_REMOVAL.md (subset of FASE2_FINAL_REPORT.md)
+#### FASE 2 Archive (6 files) → docs/archive/fase2/
+- OPTIMIZATION_LESSONS_LEARNED.md, FASE2_OVERHEAD_REMOVAL.md
+- OPTIMIZATION_2_ANALYSIS.md, OPTIMIZATION_REPORT_JAN2026.md
+- PERFORMANCE_MEASUREMENT_CRISIS.md, PERFORMANCE_OPTIMIZATION_STATUS_OCT2025.md
 
 ---
 
@@ -145,10 +144,10 @@ See [docs/archive/README.md](docs/archive/README.md) for complete archive index.
 5. [JMH_BENCHMARKING_GUIDE.md](docs/testing/JMH_BENCHMARKING_GUIDE.md) - Benchmarking howto
 
 ### For Quality Assurance
-1. [TESTING_COMPLIANCE.md](docs/testing/TESTING_COMPLIANCE.md) - Test requirements
-2. [VALIDATION_FRAMEWORK.md](docs/testing/VALIDATION_FRAMEWORK.md) - Validation approach
-3. [DEMO_TESTING_SUMMARY.md](docs/demos/DEMO_TESTING_SUMMARY.md) - Demo test coverage
-4. [JMH_BENCHMARKING_GUIDE.md](docs/testing/JMH_BENCHMARKING_GUIDE.md) - Performance testing
+1. [VALIDATION_FRAMEWORK.md](docs/testing/VALIDATION_FRAMEWORK.md) - Validation approach
+2. [DEMO_TESTING_SUMMARY.md](docs/demos/DEMO_TESTING_SUMMARY.md) - Demo test coverage
+3. [JMH_BENCHMARKING_GUIDE.md](docs/testing/JMH_BENCHMARKING_GUIDE.md) - Performance testing
+4. [PITCH_DETECTION_ANALYSIS.md](docs/testing/PITCH_DETECTION_ANALYSIS.md) - Accuracy analysis
 
 ### For AI Assistants (Claude Code)
 1. [CLAUDE.md](CLAUDE.md) - **Primary reference**
@@ -160,29 +159,22 @@ See [docs/archive/README.md](docs/archive/README.md) for complete archive index.
 
 ## 📦 Documentation Statistics
 
-**Before Reorganization** (Nov 4, 2025 morning):
-- Root Directory: 19 .md files (cluttered)
-- Subdirectories: Flat structure, limited organization
-- JMH Docs: Split across 2 files
-
-**After Reorganization** (Nov 4, 2025):
-- **Root Directory**: 8 .md files (7 essential + 1 plan)
-- **docs/performance/**: 5 files
+**Current State** (January 25, 2026):
+- **Root Directory**: 6 .md files
+- **docs/performance/**: 7 files
 - **docs/implementation/**: 2 files
-- **docs/testing/**: 4 files (JMH consolidated)
-- **docs/demos/**: 3 files
-- **docs/archive/**: 13 files (including new completed/ subdirectory)
-
-**After User Guide Addition** (Nov 4, 2025):
-- **Root Directory**: 8 .md files (adds comprehensive USER_GUIDE.md)
+- **docs/testing/**: 3 files
+- **docs/demos/**: 6 files
+- **docs/quality/**: 1 file
+- **docs/archive/**: 25 files (4 completed + 15 historical + 6 fase2)
 
 **Breakdown by Location**:
-- **Root (Essential)**: 8 (README, USER_GUIDE, CLAUDE, CONTRIBUTING, INDEX, PERF_STATUS, REFACTORING, PLAN)
-- **docs/performance/**: 5 (PROFILING, FASE2_LESSONS, FASE2_REPORT, CRISIS, CONSENSUS)
+- **Root**: 6 (README, USER_GUIDE, CLAUDE, CONTRIBUTING, INDEX, REFACTORING_SUMMARY)
+- **docs/performance/**: 7 (BASELINE, CONSENSUS, FASE2_LESSONS, FASE2_REPORT, OPTIMIZATION_SUMMARY, PHASE3_BUTTERFLY, PROFILING)
 - **docs/implementation/**: 2 (P0_SUMMARY, P1_SUMMARY)
-- **docs/testing/**: 4 (JMH_GUIDE, VALIDATION, COMPLIANCE, PITCH_ANALYSIS)
-- **docs/demos/**: 3 (DEMO_DOCS, DEMO_TESTS, FFT_LIBRARY)
-- **docs/archive/**: 13 (1 completed + 10 historical + 2 fase2)
+- **docs/testing/**: 3 (JMH_GUIDE, VALIDATION, PITCH_ANALYSIS)
+- **docs/demos/**: 6 (DEMO_DOCS, HOWTO_SONG, SONG_DB_GUIDE, SONG_LESSONS, DEMO_TESTING, FFT_LIBRARY)
+- **docs/archive/**: 25 files organized in completed/, historical/, fase2/
 
 ---
 

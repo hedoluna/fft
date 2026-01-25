@@ -78,27 +78,26 @@ FASE 2 optimization documents superseded by consolidated versions.
 
 ---
 
-## FASE 2 Documents (9 files)
+## FASE 2 Documents (6 files)
 
 ### v2.1 Consolidation Archival (January 7, 2026)
-**Duplicate Content Consolidated** - Archived to eliminate overlap:
-- **FASE_2_LESSONS_LEARNED.md** - Concise version (archived, consolidated into FASE2_FINAL_REPORT)
+**Archived to eliminate overlap with active docs**:
 - **OPTIMIZATION_2_ANALYSIS.md** - Phase 3 analysis (findings now in PHASE_3_BUTTERFLY_OPTIMIZATION_REPORT)
-- **PERFORMANCE_MEASUREMENT_CRISIS.md** - Variance investigation (consolidated into CONSENSUS_ANALYSIS)
-- **CONSENSUS_ANALYSIS.md** - Multi-agent FFT8 analysis (reference/foundational, findings in FASE2_FINAL_REPORT)
-
-### Original v2.1 Completion Archival (January 7, 2026)
-- **PERFORMANCE_OPTIMIZATION_STATUS_OCT2025.md** - October status (superseded by v2.1)
+- **PERFORMANCE_MEASUREMENT_CRISIS.md** - Variance investigation (historical reference)
 - **OPTIMIZATION_REPORT_JAN2026.md** - Phase 3 butterfly analysis (superseded by comprehensive v2.1)
+- **PERFORMANCE_OPTIMIZATION_STATUS_OCT2025.md** - October status (superseded by v2.1)
 
 ### Original October 2025 Duplicates (from previous consolidation)
 - **OPTIMIZATION_LESSONS_LEARNED.md** - What worked/didn't work (268 lines, 80% overlap)
 - **FASE2_OVERHEAD_REMOVAL.md** - Delegation overhead removal (143 lines, subset)
 
+**Note**: CONSENSUS_ANALYSIS.md and FASE_2_LESSONS_LEARNED.md removed from archive (Jan 25, 2026) - canonical versions are in docs/performance/
+
 **Current Authoritative Source**:
 - `docs/performance/FASE2_FINAL_REPORT.md` - **Single source of truth** for FASE 2 optimization
+- `docs/performance/CONSENSUS_ANALYSIS.md` - Multi-agent analysis (canonical location)
+- `docs/performance/FASE_2_LESSONS_LEARNED.md` - Lessons learned (canonical location)
 - **v2.1 Integration**: Key insights incorporated in CLAUDE.md Performance Optimization section
-- **Current Status**: See CLAUDE.md for v2.1 verified metrics (not historical analysis docs)
 
 ---
 
@@ -222,6 +221,6 @@ Each topic now has ONE authoritative document:
 
 ---
 
-**Last Updated**: January 7, 2026 (v2.1 completion)
+**Last Updated**: January 25, 2026 (deduplication cleanup)
 **Active Documentation Index**: See DOCUMENTATION_INDEX.md
 **Current Status**: See CLAUDE.md (Performance Optimization section)
