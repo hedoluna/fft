@@ -204,12 +204,6 @@ public class PitchDetectionUtils {
             int minPeriod, int maxPeriod) {
         int sampleLength = samples.length;
 
-        // Pre-calculate squares for efficiency
-        double[] squaredSamples = new double[sampleLength];
-        for (int i = 0; i < sampleLength; i++) {
-            squaredSamples[i] = samples[i] * samples[i];
-        }
-
         for (int tau = minPeriod; tau < maxPeriod; tau++) {
             double sum = 0.0;
             int maxI = sampleLength - tau;
