@@ -172,7 +172,8 @@
                     <excludes>
                         <exclude>**/*IntegrationTest.java</exclude>
                     </excludes>
-                     <forkCount>0</forkCount>
+                     <forkCount>1</forkCount>
+                     <reuseForks>true</reuseForks>
                      <argLine>${argLine}</argLine>
                 </configuration>
             </plugin>
@@ -213,6 +214,10 @@
                                 <exclude>sun/util/resources/cldr/provider/*</exclude>
                                 <exclude>sun/util/cldr/*</exclude>
                                 <exclude>java/util/Formatter*</exclude>
+                                <exclude>sun/util/resources/provider/*</exclude>
+                                <exclude>sun/text/resources/cldr/ext/*</exclude>
+                                <exclude>**/LocaleDataProvider*</exclude>
+                                <exclude>**/FormatData*</exclude>
                             </excludes>
                         </configuration>
                     </execution>
