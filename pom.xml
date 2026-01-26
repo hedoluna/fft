@@ -26,7 +26,7 @@
         
         <!-- Dependency versions -->
         <junit.jupiter.version>5.9.2</junit.jupiter.version>
-        <assertj.version>3.24.2</assertj.version>
+        <assertj.version>3.27.7</assertj.version>
         <mockito.version>5.1.1</mockito.version>
         
         <!-- Plugin versions -->
