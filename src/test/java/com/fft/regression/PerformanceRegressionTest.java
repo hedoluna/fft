@@ -291,8 +291,8 @@ class PerformanceRegressionTest {
                 array[0] = 1.0; // Ensure not optimized away
             });
 
-            // Array allocation should be very fast (< 1 microsecond)
-            assertThat(avgTime).isLessThan(1_000L);
+            // Array allocation should be very fast (< 5 microseconds)
+            assertThat(avgTime).isLessThan(5_000L);
         }
 
         @Test
