@@ -6,12 +6,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Java Fast Fourier Transform (FFT) library with factory pattern, auto-discovery, and audio processing. v2.1 release with proven performance optimizations (6-9% improvement), comprehensive testing, and advanced audio features.
 
-**✅ BUILD STATUS**: Maven 3.6.3 + Java 17, 414 total tests (406 passing, 8 skipped) - ALL PASSING
+**✅ BUILD STATUS**: Maven 3.6.3 + Java 17, 622 total tests (614 passing, 8 skipped) - ALL PASSING
 **🚀 PERFORMANCE**: v2.1 - 1.06-1.09x overall (6-9%), FFT8: 1.83-1.91x (83-91%), zero regressions
 **⚡ OPTIMIZATIONS**: System.arraycopy (2-3%), TwiddleFactorCache (30-50%), BitReversalCache (O(n) vs O(n log n))
 **✅ COVERAGE**: JaCoCo enforces 90% line / 85% branch coverage - verified passing
 **🎯 PITCH ACCURACY**: Spectral method 44x more accurate than YIN (0.92% vs 40.6% error)
-**📅 LAST UPDATED**: January 7, 2026 (Milestone 1.1 complete, Phase 2-3 optimization analysis)
+**📅 LAST UPDATED**: March 3, 2026 (Repository cleanup, AssertJ 3.27.7, 622 tests)
 
 ## ⚙️ Prerequisites
 
@@ -61,7 +61,7 @@ mvn exec:java -Dexec.mainClass="com.fft.demo.SongRecognitionDemo"
 - ✅ **Real measurement > Theory** - Phase 3 caught bad optimization via production testing
 - ✅ **Precomputation wins** - TwiddleFactorCache and BitReversalCache proven effective
 - ✅ **Context matters** - Butterfly optimization: +67% isolated, -5% production → REJECTED
-- ✅ **Proper testing catches problems** - 414/414 tests passing, process validated
+- ✅ **Proper testing catches problems** - 622/622 tests passing, process validated
 
 ## Platform-Specific Notes
 
@@ -233,7 +233,7 @@ git push origin <branch>           # Push to feature branch
   - ✅ **BitReversalCache**: O(n) vs O(n log n) complexity (universal, all sizes)
   - ✅ **System.arraycopy**: 33% faster array initialization (confirmed)
   - ✅ **Overall**: 1.06-1.09x speedup (6-9% improvement) - proven via real measurement
-  - ✅ All sizes: 100% correctness maintained (414 tests: 406 passing, 8 skipped)
+  - ✅ All sizes: 100% correctness maintained (622 tests: 614 passing, 8 skipped)
 
 **What Worked (Verified in v2.1):**
 - ✅ **Precomputed caches** (TwiddleFactorCache, BitReversalCache): Measurable production gains
@@ -284,7 +284,7 @@ mvn test -Dtest=FFTPerformanceBenchmarkTest
 ## Testing & Quality
 
 **Test Organization:**
-- Unit tests: `src/test/java/**/*Test.java` (414 total tests: 406 passing, 8 skipped)
+- Unit tests: `src/test/java/**/*Test.java` (622 total tests: 614 passing, 8 skipped)
 - **Skipped Tests**: 8 tests skipped/disabled due to known YIN algorithm limitations (40.6% error rate on pure tones - see PITCH_DETECTION_ANALYSIS.md)
 - **All Core Tests Passing**: Zero failures, zero regressions from v2.1 optimizations
 - Accuracy tests: `src/test/java/com/fft/analysis/PitchDetectionAccuracyTest.java` (4 test scenarios)
@@ -470,7 +470,7 @@ mvn test -Djava.util.logging.config.file=logging.properties
   - **JUnit Jupiter API**: Explicit dependency for test annotations
   - **JUnit Jupiter Params**: Explicit dependency for parameterized tests
 - **JUnit 4.13.2 + Vintage Engine**: Backward compatibility for legacy tests
-- **AssertJ 3.24.2**: Fluent assertion library
+- **AssertJ 3.27.7**: Fluent assertion library (upgraded March 2026, fixes CVE-2026-24400 XXE)
 - **Mockito 5.1.1**: Mocking framework
 - **JMH 1.37**: Benchmarking (test scope) with annotation processor configured
 - **Minimal runtime dependencies**: Core library only depends on SLF4J API
@@ -590,7 +590,7 @@ mvn test -Djava.util.logging.config.file=logging.properties
 - Full git history preserved for reference
 
 **Important Notes (v2.1 - January 2026):**
-- **Test suite**: 414 total tests (406 passing, 8 skipped) - ✅ ALL PASSING
+- **Test suite**: 622 total tests (614 passing, 8 skipped) - ✅ ALL PASSING
   - **8 skipped tests**: YIN algorithm tests disabled due to known 40.6% error on pure tones (subharmonic detection)
   - **All core tests passing**: Zero failures, zero regressions from v2.1 optimizations
   - Includes PitchDetectionAccuracyTest.java with 4 comprehensive test scenarios
