@@ -138,9 +138,9 @@ To add a new size-specific optimized implementation:
        description = "Optimized implementation for size 128",
        characteristics = {"loop-unrolling", "twiddle-cache"}
    )
-   public class FFTOptimized128 implements FFT {
-       // Implementation
-   }
+    public class FFTOptimizedCustomSize implements FFT {
+        // Implementation
+    }
    ```
 
 2. **Place in Correct Package**
@@ -148,7 +148,7 @@ To add a new size-specific optimized implementation:
    - `com.fft.experimental` for experimental work
 
 3. **Create Corresponding Test**
-   - `src/test/java/com/fft/optimized/FFTOptimized128Test.java`
+    - `src/test/java/com/fft/optimized/FFTOptimizedCustomSizeTest.java`
    - Extend from appropriate base test class
    - Include correctness and performance tests
 
@@ -225,7 +225,7 @@ The project uses **GitHub Actions** for automated quality checks. All pull reque
 
 1. **Build & Test** (ci.yml)
    - Runs on Java 17 and Java 21
-   - Executes full test suite (296+ tests)
+    - Executes the full test suite
    - Generates code coverage report
    - Uploads coverage to Codecov
    - **Must pass before merge**

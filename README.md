@@ -6,7 +6,7 @@
 [![Java Version](https://img.shields.io/badge/Java-17%2B-orange.svg)](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
 [![Maven Central](https://img.shields.io/badge/Maven-2.0.0--SNAPSHOT-green.svg)](pom.xml)
 
-A comprehensive, high-performance Java implementation of the Fast Fourier Transform algorithm with multiple optimized versions, factory pattern, and modern API design. This library provides both educational reference implementations and production-ready optimized versions suitable for real-world signal processing applications including real-time audio analysis, pitch detection, and song recognition.
+A Java FFT library with a reference implementation, factory-based selection, one size-specific optimized implementation for FFT-8, and audio analysis demos built on top of the FFT primitives.
 
 Based on the algorithms originally published by E. Oran Brigham "The Fast Fourier Transform" 1973, in ALGOL60 and FORTRAN.  
 Originally written in the summer of 2008 during holidays in Sardinia by Orlando Selenu.  
@@ -14,11 +14,11 @@ Enhanced and refactored in 2025 with modern Java patterns, comprehensive testing
 
 ## ✨ Key Features
 
-- **🚀 High Performance**: v2.1 optimizations complete - **1.06-1.09x overall speedup (6-9% improvement)**, FFT8 achieves 1.83-1.91x (83-91% faster), zero regressions
-- **🏭 Factory Pattern**: Automatic implementation selection with optimized FFT8 and FFTBase fallback for all sizes
-- **⚡ Advanced Optimizations**: System.arraycopy for array initialization, precomputed Twiddle Factor Cache (30-50% speedup), cached Bit-Reversal lookup tables
+- **🚀 Performance-Oriented Core**: `FFTOptimized8` is auto-selected for size 8, while other power-of-two sizes use `FFTBase`
+- **🏭 Factory Pattern**: Automatic implementation selection via `DefaultFFTFactory`
+- **⚡ Core Optimizations**: cached twiddle factors, cached bit-reversal tables, and efficient array copying in `FFTBase`
 - **🎯 Type Safety**: Modern API with immutable result objects and rich data extraction
-- **🧪 Comprehensive Testing**: 414 tests across multiple test suites with 100% pass rate (0 failures, 8 skipped)
+- **🧪 Comprehensive Testing**: large JUnit suite covering correctness, factory behavior, demos, performance checks, and regression scenarios
 - **🎵 Audio Processing**: Real-time pitch detection (0.92% error), song recognition using Parsons code, chord detection
 - **📦 Zero Dependencies**: Pure Java 17 implementation (uses javax.sound for audio demos only)
 - **🔧 Maven Build**: Modern build system with quality gates (JaCoCo: 90% line, 85% branch coverage)
@@ -38,13 +38,14 @@ com.fft.factory/      # Implementation selection and factory pattern
 └── FFTImplementationDiscovery.java # Auto-registration system
 
 com.fft.optimized/    # Size-specific optimized implementations
-├── FFTOptimized8.java    # 8-point FFT (1.83-1.91x speedup - complete loop unrolling)
-└── FFTBase.java          # Generic fallback for all other sizes (sizes 16-65536)
-                          # Benefits from TwiddleFactorCache and BitReversalCache
+├── FFTOptimized8.java        # 8-point FFT with complete loop unrolling
+├── OptimizedFFTFramework.java # Historical/deprecated optimization scaffold
+└── OptimizedFFTUtils.java    # Shared optimized helpers
 
-com.fft.cache/        # Performance optimization caches
-├── TwiddleFactorCache.java   # Precomputed cos/sin tables (30-50% twiddle speedup)
-└── BitReversalCache.java     # Cached bit-reversal O(n) instead of O(n log n)
+com.fft.core/         # Core algorithm + performance support classes
+├── FFTBase.java              # Generic fallback for all other power-of-two sizes
+├── TwiddleFactorCache.java   # Precomputed cos/sin tables
+└── BitReversalCache.java     # Cached bit-reversal tables
 
 com.fft.utils/        # Utility classes and helpers
 ├── FFTUtils.java     # Convenience methods and legacy API
@@ -191,31 +192,18 @@ System.out.println("Parsons code: " + parsonsCode); // e.g., "*UDUDRDU"
 
 ## 📊 Performance Characteristics
 
-### Benchmark Results (October 2025 - With Twiddle Cache)
+### Current Implementation Snapshot
 
-| Size | Implementation | Optimization Status | Verified Performance |
-|------|---------------|---------------------|--------------------|
-| 8 | FFTOptimized8 | 🏆 **Excellent** | **2.27x verified** (10K warmup, loop unrolling, hardcoded twiddles) |
-| 16 | FFTOptimized16 | ✅ **Neutral** | ~1.0x (overhead removed) |
-| 32 | FFTOptimized32 | ✅ **Small Gain** | ~1.1x (overhead removed) |
-| 64 | FFTOptimized64 | ✅ **Neutral** | ~1.0x (overhead removed) |
-| 128 | FFTOptimized128 | ✅ **Good** | ~1.4x (direct implementation) |
-| 256 | FFTOptimized256 | ✅ **Neutral** | ~1.0x (baseline) |
-| 512+ | FFTOptimized* | ✅ **Baseline** | ~1.0x (uses base with twiddle cache) |
-| **ALL** | **FFTBase** | 🚀 **NEW: Twiddle Cache** | **30-50% faster** (precomputed cos/sin) |
+| Size | Implementation selected by factory | Notes |
+|------|------------------------------------|-------|
+| 8 | `FFTOptimized8` | Specialized implementation with loop unrolling |
+| 16+ power-of-two sizes | `FFTBase` | Uses cached twiddle factors and cached bit-reversal tables |
+| non power-of-two sizes | not supported directly | Use `FFTUtils.zeroPadToPowerOfTwo(...)` first |
 
-**Major Performance Improvements (October 2025):**
-- 🚀 **Twiddle Factor Cache**: Precomputed cos/sin tables provide 30-50% overall FFT speedup
-  - Twiddle factors were #1 bottleneck (43-56% of FFT execution time)
-  - Precomputation provides 2.3-3.2x speedup for twiddle operations
-  - Memory cost: ~128 KB for 10 common sizes (8-4096)
-  - Cache hits: 100% for sizes 8-4096 (most common use cases)
-- 🏆 **FFTOptimized8**: **2.27x verified** with clean methodology (10,000 warmup iterations)
-  - Previous claims of 3.36x were measurement artifacts (insufficient warmup)
-  - Actual 2.27x is solid and reproducible
-- ✅ **All Optimizations Validated**: 305+/305+ tests passing (including pitch detection accuracy tests)
-- ✅ **Zero Regressions**: Twiddle cache maintains 100% correctness
-- 🎯 **Pitch Detection Validated**: PitchDetectionAccuracyTest proves spectral method 44x more accurate than YIN
+The repository contains historical benchmark reports under `docs/performance/`, but the current codebase should be understood as:
+- one specialized optimized implementation for FFT size 8
+- one general-purpose `FFTBase` implementation for the remaining supported sizes
+- performance-sensitive caches integrated into the base implementation
 
 **Performance Breakdown (from PROFILING_RESULTS.md):**
 ```
@@ -229,35 +217,12 @@ Size 256 (with twiddle cache):
 - Overall improvement: 30-50% faster execution
 ```
 
-### 🔬 Optimization Techniques (Validated October 2025)
+### Optimization Notes
 
-**✅ What Worked Successfully:**
-- 🚀 **Precomputed twiddle factor cache** (30-50% overall speedup - BIGGEST WIN!)
-  - Profiling identified twiddle factors as #1 bottleneck (43-56% of time)
-  - TwiddleFactorCache replaces Math.cos/sin with array lookups
-  - 2.3-3.2x speedup for twiddle operations, ~128 KB memory
-- ✅ **Complete loop unrolling** (FFT8: 2.27x verified speedup)
-- ✅ **Hardcoded twiddle factors** as static final constants (FFT8)
-- ✅ **Direct FFTBase implementation** (no delegation layers)
-- ✅ **Manual unrolled array copying** for small sizes
-- ✅ **Removing ConcurrentHashMap caching** (overhead elimination)
-- ✅ **Profiling-driven optimization** (identify bottlenecks before optimizing)
-- ✅ **Proper benchmarking methodology** (10K+ warmup iterations critical)
-
-**❌ What Didn't Work:**
-- ❌ **Naive algorithm extension** (FFT8 → FFT16 pattern failed)
-- ❌ **Delegation patterns** through OptimizedFFTUtils (5-16% overhead)
-- ❌ **ConcurrentHashMap caching** for lightweight objects
-- ❌ **Framework abstractions** in performance-critical paths
-- ❌ **Insufficient warmup** (50 iterations too few - FFT8 showed as 0.14x instead of 2.27x!)
-
-**🎓 Key Lessons (see OPTIMIZATION_LESSONS_LEARNED.md, PROFILING_RESULTS.md):**
-- **Profile first, optimize second** - Twiddle cache provided biggest win by targeting actual bottleneck
-- Direct implementation > Delegation patterns (always)
-- Proper warmup is CRITICAL (10,000+ iterations for complex optimized code)
-- Measure baseline correctly (don't trust System.nanoTime() without heavy warmup)
-- Each FFT size needs mathematical verification
-- JVM optimizes straight-line code better than loops
+The current optimization strategy is conservative:
+- specialize only the tiny FFT-8 case where manual unrolling is manageable
+- keep the larger-size implementation centralized in `FFTBase`
+- rely on shared caches and validation tests instead of duplicating many size-specific classes
 
 ### Audio Processing Performance
 - **Real-time Capability**: 44.1 kHz sampling rate supported
@@ -340,38 +305,17 @@ mvn clean test jacoco:report
 Additional details about the demos and testing process are available in the
 project documentation:
 
-- [docs/DEMO_DOCUMENTATION.md](docs/DEMO_DOCUMENTATION.md) – comprehensive demo guide
-- [docs/DEMO_TESTING_SUMMARY.md](docs/DEMO_TESTING_SUMMARY.md) – summary of testing and coverage
-- [docs/FFT_Library.md](docs/FFT_Library.md) – Italian overview of the library
+- [docs/demos/DEMO_DOCUMENTATION.md](docs/demos/DEMO_DOCUMENTATION.md) - comprehensive demo guide
+- [docs/demos/DEMO_TESTING_SUMMARY.md](docs/demos/DEMO_TESTING_SUMMARY.md) - summary of demo testing
+- [docs/demos/FFT_Library.md](docs/demos/FFT_Library.md) - historical library overview
 
-## 🚧 Current Development Status
+## Current Status
 
-### ✅ Completed and Functional
-- ✅ **Modern package structure** with clean separation of concerns
-- ✅ **Core FFT functionality** via FFTBase supporting all power-of-2 sizes  
-- ✅ **Build system** working (Maven compiles successfully)
- - ✅ **Auto-discovery system** finds and registers all 14 implementations
-- ✅ **Two genuine optimizations** (FFTOptimized8: 1.24x, FFTOptimized32: stage-optimized)
-- ✅ **Basic test validation** (105+ core tests passing including FFTBaseTest 20/20)
-- ✅ **Modern API design** (FFTResult wrapper, type-safe interfaces)
-- ✅ **Advanced audio processing** framework exists (pitch detection, song recognition)
-
-### ✅ Recent Major Improvements
-- **✅ Advanced Pitch Detection**: YIN algorithm implementation with superior accuracy
-- **✅ PitchDetectionUtils**: Shared utility class for YIN and spectral pitch detection
-- **✅ Voicing Detection**: RMS-based sound/silence discrimination
-- **✅ Song Recognition Integration**: Improved pitch detection integrated into recognition pipeline
-- **✅ Memory Optimizations**: 95% memory reduction in large FFT transforms
-- **✅ Critical Bug Fixes**: FFTBase validation and null checking improvements
-- **✅ FFTUtils Static Initialization Fixed**: Implemented lazy initialization with double-checked locking
-- **✅ Test Suite Stabilized**: 296+ unit tests with 100% pass rate
-- **✅ Auto-Discovery Working**: All 14 implementations correctly discovered and registered
-
-### ✅ Current Status (100% Tests Passing)
-- **296+ out of 296+ tests passing** - Complete functionality fully operational
-- **Factory Pattern Working**: Automatic implementation selection functional
-- **Advanced Audio Processing**: YIN algorithm, voicing detection, song recognition pipeline
-- **Memory Optimized**: 95% reduction in large transforms, efficient implementations
+- Core FFT support is provided by `FFTBase` for power-of-two sizes.
+- `FFTOptimized8` is the only dedicated optimized implementation currently present.
+- Factory auto-discovery is active and currently finds that optimized implementation.
+- Audio demos and utilities for pitch, melody, and chord analysis are included.
+- Current local verification: `622` tests passed, `0` failures, `0` errors, `8` skipped via `mvn test`.
 - **Production Ready**: Enterprise-grade reliability with comprehensive error handling
 
 ### 🔄 Future Optimization Opportunities

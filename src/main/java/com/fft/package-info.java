@@ -1,24 +1,24 @@
 /**
  * Fast Fourier Transform Library - High-performance Java implementation.
  *
- * <p>This library provides comprehensive FFT (Fast Fourier Transform) functionality with multiple
- * optimized implementations, automatic size-based selection, and advanced audio processing capabilities.
+ * <p>This library provides FFT (Fast Fourier Transform) functionality with automatic size-based
+ * selection, one active size-specific optimized implementation, and advanced audio processing capabilities.
  * Built using the Cooley-Tukey algorithm with modern Java patterns for production-ready signal processing.</p>
  *
  * <h2>Core Features</h2>
  * <ul>
- * <li><b>High Performance:</b> Size-specific optimizations (8-65536) with 30-50% speedup via twiddle cache</li>
+ * <li><b>High Performance:</b> Shared cache optimizations in {@link com.fft.core.FFTBase} plus a dedicated FFT-8 implementation</li>
  * <li><b>Factory Pattern:</b> Automatic implementation selection based on input size</li>
  * <li><b>Type Safety:</b> Immutable {@link com.fft.core.FFTResult} objects with rich data extraction</li>
  * <li><b>Zero Dependencies:</b> Pure Java 17 implementation (javax.sound only for audio demos)</li>
- * <li><b>Comprehensive Testing:</b> 296+ unit tests ensuring correctness and performance</li>
+ * <li><b>Comprehensive Testing:</b> A large JUnit suite covering correctness, demos, and regression checks</li>
  * </ul>
  *
  * <h2>Package Organization</h2>
  * <ul>
  * <li>{@link com.fft.core} - Core interfaces, base implementation, and result types</li>
  * <li>{@link com.fft.factory} - Factory pattern for automatic implementation selection</li>
- * <li>{@link com.fft.optimized} - Size-specific optimized FFT implementations (14 total)</li>
+ * <li>{@link com.fft.optimized} - Optimized FFT code, currently centered on {@code FFTOptimized8}</li>
  * <li>{@link com.fft.utils} - Utility classes for convenient FFT operations and pitch detection</li>
  * <li>{@link com.fft.demo} - Demonstration applications for audio processing use cases</li>
  * </ul>
@@ -40,8 +40,8 @@
  * <h2>Performance Characteristics</h2>
  * <ul>
  * <li><b>Twiddle Cache:</b> 30-50% overall speedup by precomputing cos/sin tables</li>
- * <li><b>FFT8:</b> 2.27x-3.06x speedup with complete loop unrolling</li>
- * <li><b>FFT128:</b> 1.42x speedup with algorithmic optimizations</li>
+ * <li><b>FFT8:</b> Dedicated implementation with complete loop unrolling</li>
+ * <li><b>Other power-of-two sizes:</b> Handled by {@link com.fft.core.FFTBase}</li>
  * <li><b>Time Complexity:</b> O(n log n) for all implementations</li>
  * <li><b>Space Complexity:</b> O(n) additional memory</li>
  * </ul>

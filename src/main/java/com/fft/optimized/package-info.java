@@ -1,11 +1,11 @@
 /**
  * Size-specific optimized FFT implementations for maximum performance.
  *
- * <p>This package contains 14 specialized FFT implementations covering all power-of-2 sizes from
- * 8 to 65536. Each implementation is tuned for its specific size, with techniques ranging from
- * complete loop unrolling (FFT8) to algorithmic optimizations for larger sizes.</p>
+ * <p>This package currently contains one active size-specific FFT implementation,
+ * {@link com.fft.optimized.FFTOptimized8}, plus historical helper classes that support earlier
+ * optimization experiments.</p>
  *
- * <h2>Available Implementations</h2>
+ * <h2>Current Implementation Layout</h2>
  * <table>
  * <caption>Optimized FFT Implementation Summary</caption>
  * <tr>
@@ -17,32 +17,26 @@
  * <tr>
  *     <td>8</td>
  *     <td>{@link com.fft.optimized.FFTOptimized8}</td>
- *     <td>2.27x-3.06x</td>
+ *     <td>Specialized</td>
  *     <td>Complete loop unrolling, hardcoded twiddles</td>
  * </tr>
  * <tr>
- *     <td>16-64</td>
- *     <td>{@link com.fft.optimized.FFTOptimized16}, etc.</td>
- *     <td>1.3x-1.5x</td>
- *     <td>Twiddle cache benefit</td>
+ *     <td>Helpers</td>
+ *     <td>{@link com.fft.optimized.OptimizedFFTUtils}</td>
+ *     <td>N/A</td>
+ *     <td>Shared utility methods</td>
  * </tr>
  * <tr>
- *     <td>128</td>
- *     <td>{@link com.fft.optimized.FFTOptimized128}</td>
- *     <td>1.42x</td>
- *     <td>Algorithmic + twiddle cache</td>
- * </tr>
- * <tr>
- *     <td>256-65536</td>
- *     <td>{@link com.fft.optimized.FFTOptimized256}, etc.</td>
- *     <td>1.3x-1.5x</td>
- *     <td>Twiddle cache benefit</td>
+ *     <td>Historical scaffold</td>
+ *     <td>{@link com.fft.optimized.OptimizedFFTFramework}</td>
+ *     <td>N/A</td>
+ *     <td>Legacy framework retained for reference</td>
  * </tr>
  * </table>
  *
  * <h2>Optimization Strategies</h2>
  *
- * <h3>FFT8: Manual Optimization (2.27x-3.06x verified)</h3>
+ * <h3>FFT8: Manual Optimization</h3>
  * <ul>
  * <li><b>Complete Loop Unrolling:</b> All 3 stages manually unrolled (8 = 2³)</li>
  * <li><b>Hardcoded Twiddles:</b> W₈⁰, W₈¹, W₈², W₈³ as static final constants</li>
@@ -102,7 +96,7 @@
  * <pre>{@code
  * // Factory selects optimal implementation
  * FFTFactory factory = new DefaultFFTFactory();
- * FFT fft = factory.createFFT(128);  // Returns FFTOptimized128
+ * FFT fft = factory.createFFT(128);  // Returns FFTBase in the current codebase
  * FFTResult result = fft.transform(data, true);
  * }</pre>
  *
@@ -130,8 +124,8 @@
  * <h2>Historical Context</h2>
  * <ul>
  * <li><b>FASE 1 (Complete):</b> Framework overhead eliminated (3.1x speedup on small sizes)</li>
- * <li><b>FASE 2 (Complete):</b> Twiddle cache implemented (30-50% universal speedup)</li>
- * <li><b>FFT8 Manual:</b> Complete loop unrolling verified at 2.27x-3.06x</li>
+ * <li><b>FASE 2 (Complete):</b> Twiddle cache implemented as a shared optimization</li>
+ * <li><b>FFT8 Manual:</b> Complete loop unrolling retained as the active specialized implementation</li>
  * <li><b>Lessons Learned:</b> Universal optimizations (twiddle cache) > per-size manual coding</li>
  * </ul>
  *
@@ -139,7 +133,7 @@
  * @author Claude Code (optimization and refactoring, 2025)
  * @version 2.0.0
  * @since 1.0
- * @see com.fft.core.TwiddleFactorCache For universal speedup mechanism
+ * @see com.fft.core.TwiddleFactorCache For shared twiddle-factor caching
  * @see com.fft.factory For automatic implementation selection
  */
 package com.fft.optimized;

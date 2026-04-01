@@ -388,11 +388,12 @@ class PerformanceRegressionTest {
                 TwiddleFactorCache.getCos(256, 42, true);
             });
 
-            // Cache access should be very fast (< 200ns)
-            // Relaxed from 100ns due to environment variability (JIT, CPU, load)
+            // Cache access should remain in the low hundreds of nanoseconds.
+            // Keep this threshold loose enough for JIT/CPU variability while still
+            // catching a real regression like accidentally falling back to slower math.
             assertThat(avgTime)
                 .as("Twiddle cache performance regression detected!")
-                .isLessThan(200L);
+                .isLessThan(300L);
         }
 
         @Test

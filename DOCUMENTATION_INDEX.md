@@ -1,7 +1,7 @@
 # FFT Library - Documentation Index
 
 **Last Updated**: January 25, 2026 (documentation deduplication)
-**Current Status**: See CLAUDE.md Performance Optimization section for v2.1 verified metrics
+**Current Status**: See `README.md` for the user-facing overview and `docs/performance/` for historical benchmark reports
 **Major Reorganization**: Documentation restructured into logical subdirectories
 
 This index organizes all documentation in the FFT library for easy navigation. Documentation is categorized by purpose and audience, with related documents grouped in subdirectories for better discoverability.
@@ -28,12 +28,10 @@ This index organizes all documentation in the FFT library for easy navigation. D
 
 ## 📊 Performance & Optimization
 
-### Current Status (v2.1 - January 2026)
-**See [CLAUDE.md](CLAUDE.md)** - **Performance Optimization** section for v2.1 verified metrics:
-- Overall: 1.06-1.09x speedup (6-9% improvement)
-- FFT8: 1.83-1.91x (complete loop unrolling)
-- Universal caches: TwiddleFactorCache (30-50%), BitReversalCache (O(n))
-- All tests passing: 414 tests, 406 passing, 8 skipped
+### Current Status
+- `FFTOptimized8` is the only dedicated size-specific implementation currently present in `src/main/java/com/fft/optimized/`
+- other supported power-of-two sizes are handled by `FFTBase`
+- historical performance notes remain in `docs/performance/`, but some older documents describe superseded experiments
 
 ### Historical Performance Documentation (docs/performance/)
 
