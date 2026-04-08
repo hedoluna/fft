@@ -97,23 +97,6 @@ public final class TwiddleFactorCache {
     }
 
     /**
-     * Gets both cosine and sine components for a bit-reversed index.
-     * This is the primary access pattern used in FFTBase.
-     *
-     * @param n FFT size
-     * @param p bit-reversed index
-     * @param forward true for forward transform, false for inverse
-     * @return array [cos, sin] for the twiddle factor
-     */
-    public static double[] getTwiddle(int n, double p, boolean forward) {
-        int k = (int) p;
-        return new double[] {
-            getCos(n, k, forward),
-            getSin(n, k, forward)
-        };
-    }
-
-    /**
      * Checks if twiddle factors for a given size are precomputed.
      *
      * @param n FFT size

@@ -60,7 +60,6 @@ public class DefaultFFTFactory implements FFTFactory {
     }
 
     private final Map<Integer, List<ImplementationEntry>> implementations = new ConcurrentHashMap<>();
-    private final FFT fallbackImplementation = new FFTBase();
 
     /**
      * Creates a new default factory with standard optimized implementations
@@ -77,12 +76,11 @@ public class DefaultFFTFactory implements FFTFactory {
      * implementations.
      */
     private void registerDefaultImplementations() {
-        // Register optimized implementations with priorities matching their annotations
-        registerImplementation(8, com.fft.optimized.FFTOptimized8::new, 50);
-
-        // Register FFTBase as fallback for power-of-two sizes up to 65536
+        // Register FFTBase as fallback for power-of-two sizes up to 65536.
+        // Optimized implementations (e.g. FFTOptimized8) are auto-discovered
+        // via @FFTImplementation annotation in registerDiscoveredImplementations().
         for (int size = 2; size <= 65536; size *= 2) {
-            registerImplementation(size, FFTBase::new, 0); // Low priority fallback
+            registerImplementation(size, FFTBase::new, 0);
         }
     }
 

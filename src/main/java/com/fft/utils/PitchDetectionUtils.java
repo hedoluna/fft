@@ -43,19 +43,16 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class PitchDetectionUtils {
 
-    // YIN algorithm parameters - optimized for performance
-    private static final double YIN_THRESHOLD = 0.15;
-    private static final double YIN_PROBABILITY_THRESHOLD = 0.1; // More aggressive threshold
-    private static final double MAGNITUDE_THRESHOLD = 0.01;
-    private static final double VOICING_THRESHOLD = 0.001;
-
-    // Frequency range parameters - optimized for musical instruments
-    private static final double MIN_FREQUENCY = 75.0; // Slightly lower for bass instruments
-    private static final double MAX_FREQUENCY = 2500.0; // Higher for harmonics
+    // Delegate to centralized constants to avoid drift
+    private static final double YIN_THRESHOLD = AudioAlgorithmConstants.YIN_THRESHOLD;
+    private static final double YIN_PROBABILITY_THRESHOLD = AudioAlgorithmConstants.YIN_PROBABILITY_THRESHOLD;
+    private static final double MAGNITUDE_THRESHOLD = AudioAlgorithmConstants.NOISE_FLOOR_MAGNITUDE;
+    private static final double VOICING_THRESHOLD = AudioAlgorithmConstants.VOICING_THRESHOLD;
+    private static final double MIN_FREQUENCY = AudioAlgorithmConstants.MIN_FREQUENCY;
+    private static final double MAX_FREQUENCY = AudioAlgorithmConstants.MAX_FREQUENCY;
 
     // Performance optimization parameters
-    private static final int YIN_MAX_BUFFER_SIZE = 4096; // Limit buffer size for performance
-    private static final double YIN_ADAPTIVE_THRESHOLD_FACTOR = 0.8; // Adaptive threshold
+    private static final int YIN_MAX_BUFFER_SIZE = 4096;
 
     // Caching for performance optimization
     private static final int CACHE_SIZE = 16; // Number of cached results
