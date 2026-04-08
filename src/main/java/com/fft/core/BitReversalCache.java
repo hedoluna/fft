@@ -160,13 +160,7 @@ public final class BitReversalCache {
         return result;
     }
 
-    /**
-     * Checks if a number is a power of 2.
-     *
-     * @param n the number to check
-     * @return true if n is a power of 2, false otherwise
-     */
     private static boolean isPowerOfTwo(int n) {
-        return n > 0 && (n & (n - 1)) == 0;
+        return FFTMath.isPowerOfTwo(n);
     }
 }

@@ -2,11 +2,13 @@ package com.fft.factory;
 
 import com.fft.core.FFT;
 import com.fft.core.FFTBase;
+import com.fft.core.FFTMath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 
 /**
@@ -58,7 +60,6 @@ public class DefaultFFTFactory implements FFTFactory {
     }
 
     private final Map<Integer, List<ImplementationEntry>> implementations = new ConcurrentHashMap<>();
-    private final FFT fallbackImplementation = new FFTBase();
 
     /**
      * Creates a new default factory with standard optimized implementations
@@ -75,12 +76,13 @@ public class DefaultFFTFactory implements FFTFactory {
      * implementations.
      */
     private void registerDefaultImplementations() {
-        // Register optimized implementations with priorities matching their annotations
+        // Register known optimized implementations explicitly as safety net.
+        // Auto-discovery may fail in JAR/security-restricted environments.
         registerImplementation(8, com.fft.optimized.FFTOptimized8::new, 50);
 
-        // Register FFTBase as fallback for power-of-two sizes up to 65536
+        // Register FFTBase as fallback for all power-of-two sizes up to 65536
         for (int size = 2; size <= 65536; size *= 2) {
-            registerImplementation(size, FFTBase::new, 0); // Low priority fallback
+            registerImplementation(size, FFTBase::new, 0);
         }
     }
 
@@ -161,10 +163,10 @@ public class DefaultFFTFactory implements FFTFactory {
             logger.warn("Could not verify FFT implementation: {}", e.getMessage());
         }
 
-        implementations.computeIfAbsent(size, k -> new ArrayList<>())
+        implementations.computeIfAbsent(size, k -> new CopyOnWriteArrayList<>())
                 .add(new ImplementationEntry(implementation, priority));
 
-        // Sort by priority (highest first)
+        // Sort by priority (highest first) - CopyOnWriteArrayList makes a fresh copy on sort
         implementations.get(size).sort((a, b) -> Integer.compare(b.priority, a.priority));
     }
 
@@ -200,14 +202,8 @@ public class DefaultFFTFactory implements FFTFactory {
         return entries != null ? entries.size() : 0;
     }
 
-    /**
-     * Checks if a number is a power of 2.
-     * 
-     * @param n the number to check
-     * @return true if n is a power of 2, false otherwise
-     */
     private static boolean isPowerOfTwo(int n) {
-        return n > 0 && (n & (n - 1)) == 0;
+        return FFTMath.isPowerOfTwo(n);
     }
 
     /**

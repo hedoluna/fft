@@ -1,6 +1,8 @@
 package com.fft.demo;
 
 import com.fft.core.FFTResult;
+import com.fft.utils.AudioConstants;
+import com.fft.utils.AudioProcessingUtils;
 import com.fft.utils.FFTUtils;
 import com.fft.utils.PitchDetectionUtils;
 
@@ -42,8 +44,8 @@ public class SongRecognitionDemo {
 
     private static final Logger logger = LoggerFactory.getLogger(SongRecognitionDemo.class);
 
-    private static final double SAMPLE_RATE = 44100.0;
-    private static final int FFT_SIZE = 4096;
+    private static final double SAMPLE_RATE = AudioConstants.SAMPLE_RATE;
+    private static final int FFT_SIZE = AudioConstants.FFT_SIZE;
     private static final double NOTE_DURATION = 0.4; // seconds per note
     private static final double FREQUENCY_TOLERANCE = 25.0; // Hz for grouping notes
 
@@ -1839,24 +1841,14 @@ public class SongRecognitionDemo {
      * Generates a basic sine wave tone.
      */
     private double[] generateTone(double frequency, double duration, double amplitude) {
-        int samples = (int) (SAMPLE_RATE * duration);
-        double[] signal = new double[samples];
-        
-        for (int i = 0; i < samples; i++) {
-            double t = i / SAMPLE_RATE;
-            signal[i] = amplitude * Math.sin(2.0 * Math.PI * frequency * t);
-        }
-        
-        return signal;
+        return AudioProcessingUtils.generateTone(frequency, duration, amplitude);
     }
     
     /**
      * Adds white noise to the signal.
      */
     private void addNoise(double[] signal, double noiseLevel) {
-        for (int i = 0; i < signal.length; i++) {
-            signal[i] += noiseLevel * RANDOM.nextGaussian();
-        }
+        AudioProcessingUtils.addWhiteNoise(signal, noiseLevel, RANDOM);
     }
     
     /**

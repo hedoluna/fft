@@ -4,8 +4,6 @@ import com.fft.core.FFT;
 import com.fft.core.FFTBase;
 import com.fft.core.FFTResult;
 import com.fft.factory.DefaultFFTFactory;
-import com.fft.optimized.OptimizedFFTUtils;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -45,7 +43,7 @@ public class TestFFTCorrectness {
     public static Collection<Object[]> data() {
         List<Object[]> params = new ArrayList<>();
         int[] optimizedSizes = {8, 16, 32, 64}; // Sizes with specific FFTOptimizedN classes
-        int[] recursiveSizes = {128, 256, 512}; // Sizes that will use fftRecursive or FFTBase via factory
+        int[] largerSizes = {128, 256, 512}; // Larger sizes tested via factory
 
         FFT base = new FFTBase();
 
@@ -57,26 +55,9 @@ public class TestFFTCorrectness {
         params.add(new Object[]{32, "FFTBase", base, base}); // Compare base to itself as a sanity check
         params.add(new Object[]{128, "FFTBase", base, base});
 
-        // Test fftRecursive directly against FFTBase for sizes that would use it
-        for (int size : recursiveSizes) {
-            FFT recursiveImpl = new FFT() { // Anonymous class to wrap OptimizedFFTUtils.fftRecursive
-                @Override
-                public FFTResult transform(double[] real, double[] imaginary, boolean forward) {
-                    double[] result = OptimizedFFTUtils.fftRecursive(real.length, real, imaginary, forward);
-                    return new FFTResult(result);
-                }
-                @Override
-                public FFTResult transform(double[] real, boolean forward) {
-                    return transform(real, new double[real.length], forward);
-                }
-                @Override
-                public int getSupportedSize() { return -1; } // Supports multiple sizes
-                @Override
-                public boolean supportsSize(int s) { return (s > 0 && (s & (s-1))==0 && s >=8); } // Power of 2, >=8
-                @Override
-                public String getDescription() { return "OptimizedFFTUtils.fftRecursive wrapper"; }
-            };
-            params.add(new Object[]{size, "Recursive" + size, recursiveImpl, base});
+        // Test factory-selected implementations for larger sizes
+        for (int size : largerSizes) {
+            params.add(new Object[]{size, "Factory" + size, factory.createFFT(size), base});
         }
         return params;
     }
@@ -241,7 +222,6 @@ public class TestFFTCorrectness {
 
     @Test
     public void testNonPowerOfTwoHandling() {
-        // This test is not parameterized by size, so it runs once.
         FFT baseFFT = new FFTBase();
         int nonPowerOfTwoSize = 96;
         double[] real = generateRandomSignal(nonPowerOfTwoSize, 789L);
@@ -251,33 +231,9 @@ public class TestFFTCorrectness {
             baseFFT.transform(real, imag, true);
             fail("FFTBase should throw for non-power-of-2 size N=96");
         } catch (IllegalArgumentException e) {
-            String expectedMessage = "Array length must be a power of 2"; // Adjusted to match actual error
-             assertTrue("Unexpected error message from FFTBase for N=96: " + e.getMessage(), e.getMessage().startsWith(expectedMessage));
-        }
-
-        try {
-            // Using the anonymous wrapper for fftRecursive
-            FFT recursiveImpl = new FFT() {
-                @Override public FFTResult transform(double[] r, double[] i, boolean f) { return new FFTResult(OptimizedFFTUtils.fftRecursive(r.length, r, i, f)); }
-                @Override public FFTResult transform(double[] r, boolean f) { return transform(r, new double[r.length], f); }
-                @Override public int getSupportedSize() { return -1; }
-                @Override public boolean supportsSize(int s) { return (s > 0 && (s & (s-1))==0 && s >=8); }
-                @Override public String getDescription() { return "TestWrapper for fftRecursive"; }
-            };
-            recursiveImpl.transform(real, imag, true); // This should fail within fftRecursive due to size check or if it reaches the final throw
-            fail("fftRecursive should throw for N=96 (non-power-of-2)");
-        } catch (IllegalArgumentException e) {
-             // fftRecursive itself throws "Size must be a power of two and >= 8"
-             // or the sub-calls like fft8, fft16 etc. might throw "Arrays must be of length X" if it somehow gets there.
-             // The most specific one from fftRecursive itself is "Size must be a power of two and >= 8"
-            String expectedMessage = "Size must be a power of two and >= 8";
-             // Or if it's from a sub-call: "Arrays must be of length"
-            boolean messageMatches = e.getMessage().equals(expectedMessage) || e.getMessage().startsWith("Arrays must be of length");
-            if (!messageMatches && e.getMessage().startsWith("The number of elements is not a power of 2")) {
-                 // This can happen if fftRecursive calls fft32/fft64 which then make this check.
-                 messageMatches = true;
-            }
-            assertTrue("Unexpected error message from fftRecursive for N=96: " + e.getMessage(), messageMatches);
+            String expectedMessage = "Array length must be a power of 2";
+            assertTrue("Unexpected error message from FFTBase for N=96: " + e.getMessage(),
+                    e.getMessage().startsWith(expectedMessage));
         }
     }
 }

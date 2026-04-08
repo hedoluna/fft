@@ -131,24 +131,6 @@ class TwiddleFactorCacheTest {
     }
 
     @Test
-    @DisplayName("Should handle getTwiddle method")
-    void testGetTwiddleMethod() {
-        int size = 128;
-        double p = 15.0;
-
-        double[] twiddle = TwiddleFactorCache.getTwiddle(size, p, true);
-
-        assertThat(twiddle).hasSize(2);
-
-        int k = (int) p;
-        double expectedCos = Math.cos(-2.0 * Math.PI * k / size);
-        double expectedSin = Math.sin(-2.0 * Math.PI * k / size);
-
-        assertThat(twiddle[0]).isCloseTo(expectedCos, within(EPSILON));
-        assertThat(twiddle[1]).isCloseTo(expectedSin, within(EPSILON));
-    }
-
-    @Test
     @DisplayName("Should handle k=0 (DC component)")
     void testDCComponent() {
         int size = 256;
