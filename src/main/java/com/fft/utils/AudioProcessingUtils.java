@@ -292,6 +292,68 @@ public final class AudioProcessingUtils {
     }
 
     /**
+     * Calculate the median of an array of values.
+     *
+     * @param values input values
+     * @return median value, or 0.0 if empty
+     */
+    public static double calculateMedian(double[] values) {
+        if (values == null || values.length == 0) return 0.0;
+        double[] sorted = values.clone();
+        java.util.Arrays.sort(sorted);
+        if (sorted.length % 2 == 0) {
+            return (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2.0;
+        }
+        return sorted[sorted.length / 2];
+    }
+
+    /**
+     * Calculate the median of a list of values.
+     *
+     * @param values input values
+     * @return median value, or 0.0 if empty
+     */
+    public static double calculateMedian(java.util.List<Double> values) {
+        if (values == null || values.isEmpty()) return 0.0;
+        double[] arr = values.stream().mapToDouble(Double::doubleValue).toArray();
+        return calculateMedian(arr);
+    }
+
+    /**
+     * Add white Gaussian noise with a fixed amplitude (not relative to RMS).
+     *
+     * @param samples        audio samples to corrupt (modified in-place)
+     * @param noiseAmplitude absolute amplitude of the noise
+     * @param random         random number generator to use
+     */
+    public static void addWhiteNoise(double[] samples, double noiseAmplitude, java.util.Random random) {
+        if (samples == null || noiseAmplitude <= 0) {
+            return;
+        }
+        for (int i = 0; i < samples.length; i++) {
+            samples[i] += noiseAmplitude * random.nextGaussian();
+        }
+    }
+
+    /**
+     * Generate a pure sine tone at the given frequency.
+     *
+     * @param frequency frequency in Hz
+     * @param duration  duration in seconds
+     * @param amplitude peak amplitude (typically 1.0)
+     * @return array of audio samples
+     */
+    public static double[] generateTone(double frequency, double duration, double amplitude) {
+        int samples = (int) (AudioConstants.SAMPLE_RATE * duration);
+        double[] signal = new double[samples];
+        for (int i = 0; i < samples; i++) {
+            double t = i / AudioConstants.SAMPLE_RATE;
+            signal[i] = amplitude * Math.sin(2.0 * Math.PI * frequency * t);
+        }
+        return signal;
+    }
+
+    /**
      * Private constructor to prevent instantiation.
      * This is a utility class with only static methods.
      */

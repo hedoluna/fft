@@ -282,15 +282,7 @@ public class SimulatedPitchDetectionDemo {
      * @return generated signal samples
      */
     private double[] generateTone(double frequency, double duration, double amplitude) {
-        int samples = (int) (AudioConstants.SAMPLE_RATE * duration);
-        double[] signal = new double[samples];
-
-        for (int i = 0; i < samples; i++) {
-            double t = i / AudioConstants.SAMPLE_RATE;
-            signal[i] = amplitude * Math.sin(2.0 * Math.PI * frequency * t);
-        }
-
-        return signal;
+        return AudioProcessingUtils.generateTone(frequency, duration, amplitude);
     }
     
     /**
@@ -351,9 +343,7 @@ public class SimulatedPitchDetectionDemo {
      * @param noiseLevel standard deviation of the noise
      */
     private void addNoise(double[] signal, double noiseLevel) {
-        for (int i = 0; i < signal.length; i++) {
-            signal[i] += noiseLevel * RANDOM.nextGaussian();
-        }
+        AudioProcessingUtils.addWhiteNoise(signal, noiseLevel, RANDOM);
     }
     
     // Pitch detection methods

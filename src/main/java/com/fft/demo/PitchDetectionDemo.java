@@ -70,7 +70,7 @@ public class PitchDetectionDemo {
     private static final boolean BIG_ENDIAN = false;
 
     // Pitch detection parameters
-    private static final double MAGNITUDE_THRESHOLD = 0.01;  // Minimum magnitude to consider as valid signal
+    private static final double MAGNITUDE_THRESHOLD = AudioAlgorithmConstants.NOISE_FLOOR_MAGNITUDE;
     private static final int SMOOTHING_WINDOW = 5;  // Number of frames to average for stability
 
     // Voicing detection parameters
@@ -548,16 +548,7 @@ public class PitchDetectionDemo {
      * @return the median value
      */
     private double calculateMedian(double[] values) {
-        if (values.length == 0) return 0.0;
-
-        double[] sorted = values.clone();
-        java.util.Arrays.sort(sorted);
-
-        if (sorted.length % 2 == 0) {
-            return (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2.0;
-        } else {
-            return sorted[sorted.length / 2];
-        }
+        return AudioProcessingUtils.calculateMedian(values);
     }
 
     /**
