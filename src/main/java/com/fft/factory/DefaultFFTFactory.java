@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 
 /**
@@ -161,10 +162,10 @@ public class DefaultFFTFactory implements FFTFactory {
             logger.warn("Could not verify FFT implementation: {}", e.getMessage());
         }
 
-        implementations.computeIfAbsent(size, k -> new ArrayList<>())
+        implementations.computeIfAbsent(size, k -> new CopyOnWriteArrayList<>())
                 .add(new ImplementationEntry(implementation, priority));
 
-        // Sort by priority (highest first)
+        // Sort by priority (highest first) - CopyOnWriteArrayList makes a fresh copy on sort
         implementations.get(size).sort((a, b) -> Integer.compare(b.priority, a.priority));
     }
 

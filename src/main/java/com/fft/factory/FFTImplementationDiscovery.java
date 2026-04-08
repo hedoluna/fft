@@ -7,8 +7,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.*;
 import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Discovery mechanism for FFT implementations using annotations and classpath
@@ -45,7 +45,7 @@ import java.util.logging.Logger;
  */
 public class FFTImplementationDiscovery {
 
-    private static final Logger LOGGER = Logger.getLogger(FFTImplementationDiscovery.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(FFTImplementationDiscovery.class);
 
     /**
      * Package prefixes to scan for FFT implementations.
@@ -115,7 +115,7 @@ public class FFTImplementationDiscovery {
                     return constructor.newInstance();
                 } catch (NoSuchMethodException | InstantiationException | IllegalAccessException
                         | InvocationTargetException e) {
-                    LOGGER.log(Level.WARNING, "Failed to create instance of " + clazz.getName(), e);
+                    LOGGER.warn("Failed to create instance of {}", clazz.getName(), e);
                     throw new RuntimeException("Failed to create FFT implementation: " + clazz.getName(), e);
                 }
             };
@@ -154,8 +154,8 @@ public class FFTImplementationDiscovery {
         implementations.values()
                 .forEach(list -> list.sort((a, b) -> Integer.compare(b.getPriority(), a.getPriority())));
 
-        LOGGER.info("Discovered " + implementations.values().stream()
-                .mapToInt(List::size).sum() + " FFT implementations");
+        LOGGER.info("Discovered {} FFT implementations",
+                implementations.values().stream().mapToInt(List::size).sum());
 
         return implementations;
     }
@@ -168,7 +168,7 @@ public class FFTImplementationDiscovery {
             try {
                 scanPackage(packageName, implementations);
             } catch (Exception e) {
-                LOGGER.log(Level.WARNING, "Failed to scan package: " + packageName, e);
+                LOGGER.warn("Failed to scan package: {}", packageName, e);
             }
         }
     }
@@ -194,7 +194,7 @@ public class FFTImplementationDiscovery {
                 }
             }
         } catch (IOException e) {
-            LOGGER.log(Level.WARNING, "Failed to scan package: " + packageName, e);
+            LOGGER.warn("Failed to scan package: {}", packageName, e);
         }
     }
 
@@ -218,7 +218,7 @@ public class FFTImplementationDiscovery {
                 }
             }
         } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Failed to scan file system package: " + packageName, e);
+            LOGGER.warn("Failed to scan file system package: {}", packageName, e);
         }
     }
 
@@ -233,7 +233,7 @@ public class FFTImplementationDiscovery {
 
         // For now, we'll rely on explicit registration through the service loader
         // pattern
-        LOGGER.fine("JAR scanning not fully implemented, relying on service loader pattern");
+        LOGGER.debug("JAR scanning not fully implemented, relying on service loader pattern");
     }
 
     /**
@@ -249,25 +249,24 @@ public class FFTImplementationDiscovery {
                 Class<? extends FFT> fftClass = (Class<? extends FFT>) clazz;
                 FFTImplementation annotation = clazz.getAnnotation(FFTImplementation.class);
 
-                LOGGER.info("Discovered FFT implementation: " + clazz.getName()
-                        + " (size=" + annotation.size()
-                        + ", priority=" + annotation.priority()
-                        + ", characteristics=" + String.join(",", annotation.characteristics()) + ")");
+                LOGGER.info("Discovered FFT implementation: {} (size={}, priority={}, characteristics={})",
+                        clazz.getName(), annotation.size(), annotation.priority(),
+                        String.join(",", annotation.characteristics()));
 
                 if (annotation.autoRegister()) {
                     DiscoveredImplementation discovered = new DiscoveredImplementation(fftClass, annotation);
                     implementations.computeIfAbsent(discovered.getSize(), k -> new ArrayList<>())
                             .add(discovered);
 
-                    LOGGER.fine("Discovered FFT implementation: " + className +
-                            " for size " + discovered.getSize());
+                    LOGGER.debug("Discovered FFT implementation: {} for size {}",
+                            className, discovered.getSize());
                 }
             }
         } catch (ClassNotFoundException | NoClassDefFoundError e) {
             // Expected for some classes, don't log as warning
-            LOGGER.finest("Could not load class: " + className);
+            LOGGER.trace("Could not load class: {}", className);
         } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Failed to check class: " + className, e);
+            LOGGER.warn("Failed to check class: {}", className, e);
         }
     }
 
@@ -286,13 +285,13 @@ public class FFTImplementationDiscovery {
                         implementations.computeIfAbsent(discovered.getSize(), k -> new ArrayList<>())
                                 .add(discovered);
 
-                        LOGGER.fine("Discovered FFT implementation via service loader: " +
-                                clazz.getName() + " for size " + discovered.getSize());
+                        LOGGER.debug("Discovered FFT implementation via service loader: {} for size {}",
+                                clazz.getName(), discovered.getSize());
                     }
                 }
             }
         } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Failed to discover implementations via service loader", e);
+            LOGGER.warn("Failed to discover implementations via service loader", e);
         }
     }
 
@@ -309,14 +308,14 @@ public class FFTImplementationDiscovery {
             for (DiscoveredImplementation impl : entry.getValue()) {
                 if (impl.isAutoRegister()) {
                     factory.registerImplementation(size, impl.getSupplier(), impl.getPriority());
-                    LOGGER.fine("Auto-registered " + impl.getImplementationClass().getSimpleName() +
-                            " for size " + size + " with priority " + impl.getPriority());
+                    LOGGER.debug("Auto-registered {} for size {} with priority {}",
+                            impl.getImplementationClass().getSimpleName(), size, impl.getPriority());
                 }
             }
         }
 
-        LOGGER.info("Auto-registration completed for " +
-                discovered.values().stream().mapToInt(List::size).sum() + " implementations");
+        LOGGER.info("Auto-registration completed for {} implementations",
+                discovered.values().stream().mapToInt(List::size).sum());
     }
 
     /**
