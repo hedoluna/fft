@@ -84,14 +84,8 @@ public class FFTBase implements FFT {
         return "Generic FFT implementation (Cooley-Tukey algorithm)";
     }
     
-    /**
-     * Checks if a number is a power of 2.
-     * 
-     * @param n the number to check
-     * @return true if n is a power of 2, false otherwise
-     */
     private static boolean isPowerOfTwo(int n) {
-        return n > 0 && (n & (n - 1)) == 0;
+        return FFTMath.isPowerOfTwo(n);
     }
     
     /**
@@ -122,8 +116,6 @@ public class FFTBase implements FFT {
      * @return new array of length 2n with interleaved real and imaginary parts:
      *         [real0, imag0, real1, imag1, ...]
      * @throws IllegalArgumentException if input size is not a power of 2
-     * @see #bitreverseReference(int, int) for bit-reversal implementation details
-     * 
      * @since 1.0
      */
     public static double[] fft(final double[] inputReal, double[] inputImag, boolean DIRECT) {
@@ -207,34 +199,15 @@ public class FFTBase implements FFT {
             }
         }
 
-        // Here I have to normalize the result (just for the direct FFT)
+        // Symmetric normalization: 1/sqrt(n) applied to both forward and inverse transforms.
+        // This ensures that forward followed by inverse recovers the original signal.
         double[] newArray = new double[2 * n];
-        double radice = 1 / Math.sqrt(n);
+        double normFactor = 1 / Math.sqrt(n);
         for (int i = 0; i < n; i++) {
-            newArray[2 * i] = xReal[i] * radice;
-            newArray[2 * i + 1] = xImag[i] * radice;
+            newArray[2 * i] = xReal[i] * normFactor;
+            newArray[2 * i + 1] = xImag[i] * normFactor;
         }
         return newArray;
     }
 
-    /**
-     * The bit reversing function, which is used for the second phase of the
-     * recursive algorithm
-     * 
-     * @param j input value for bit reversal
-     * @param nu number of bits to reverse
-     * @return bit-reversed value of j
-     */
-    @SuppressWarnings("unused")
-    private static int bitreverseReference(int j, int nu) {
-        int j2;
-        int j1 = j;
-        int k = 0;
-        for (int i = 1; i <= nu; i++) {
-            j2 = j1 / 2;
-            k = 2 * k + j1 - 2 * j2;
-            j1 = j2;
-        }
-        return k;
-    }
 }

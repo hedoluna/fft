@@ -211,12 +211,13 @@ public class FFTUtils {
     
     /**
      * Checks if a number is a power of 2.
-     * 
+     *
      * @param n the number to check
      * @return true if n is a power of 2, false otherwise
+     * @see com.fft.core.FFTMath#isPowerOfTwo(int)
      */
     public static boolean isPowerOfTwo(int n) {
-        return n > 0 && (n & (n - 1)) == 0;
+        return com.fft.core.FFTMath.isPowerOfTwo(n);
     }
     
     /**

@@ -2,6 +2,7 @@ package com.fft.factory;
 
 import com.fft.core.FFT;
 import com.fft.core.FFTBase;
+import com.fft.core.FFTMath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -201,14 +202,8 @@ public class DefaultFFTFactory implements FFTFactory {
         return entries != null ? entries.size() : 0;
     }
 
-    /**
-     * Checks if a number is a power of 2.
-     * 
-     * @param n the number to check
-     * @return true if n is a power of 2, false otherwise
-     */
     private static boolean isPowerOfTwo(int n) {
-        return n > 0 && (n & (n - 1)) == 0;
+        return FFTMath.isPowerOfTwo(n);
     }
 
     /**
