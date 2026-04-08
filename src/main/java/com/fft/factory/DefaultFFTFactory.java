@@ -76,9 +76,11 @@ public class DefaultFFTFactory implements FFTFactory {
      * implementations.
      */
     private void registerDefaultImplementations() {
-        // Register FFTBase as fallback for power-of-two sizes up to 65536.
-        // Optimized implementations (e.g. FFTOptimized8) are auto-discovered
-        // via @FFTImplementation annotation in registerDiscoveredImplementations().
+        // Register known optimized implementations explicitly as safety net.
+        // Auto-discovery may fail in JAR/security-restricted environments.
+        registerImplementation(8, com.fft.optimized.FFTOptimized8::new, 50);
+
+        // Register FFTBase as fallback for all power-of-two sizes up to 65536
         for (int size = 2; size <= 65536; size *= 2) {
             registerImplementation(size, FFTBase::new, 0);
         }
