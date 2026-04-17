@@ -41,7 +41,7 @@ class FactorySwitchingTest {
         @Test
         @DisplayName("Should select optimized implementation when available")
         void shouldSelectOptimizedImplementation() {
-            // FFTOptimized8 is currently the only size-specific optimized implementation
+            // Sizes 8 and 16 currently have dedicated optimized implementations.
             FFT fft = factory.createFFT(8);
 
             assertThat(fft).isNotNull();

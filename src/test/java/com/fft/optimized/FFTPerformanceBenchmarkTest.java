@@ -54,6 +54,12 @@ class FFTPerformanceBenchmarkTest {
             benchmarkImplementation(8, new FFTOptimized8());
         }
 
+        @Test
+        @DisplayName("Should benchmark FFTOptimized16 performance")
+        void shouldBenchmarkFFTOptimized16Performance() {
+            benchmarkImplementation(16, new FFTOptimized16());
+        }
+
     }
 
     @Nested

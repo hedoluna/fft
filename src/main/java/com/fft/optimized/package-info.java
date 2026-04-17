@@ -1,8 +1,8 @@
 /**
  * Size-specific optimized FFT implementations for maximum performance.
  *
- * <p>This package currently contains one active size-specific FFT implementation,
- * {@link com.fft.optimized.FFTOptimized8}, plus historical helper classes that support earlier
+ * <p>This package currently contains two active size-specific FFT implementations,
+ * {@link com.fft.optimized.FFTOptimized8} and {@link com.fft.optimized.FFTOptimized16}, plus historical helper classes that support earlier
  * optimization experiments.</p>
  *
  * <h2>Current Implementation Layout</h2>
@@ -19,6 +19,12 @@
  *     <td>{@link com.fft.optimized.FFTOptimized8}</td>
  *     <td>Specialized</td>
  *     <td>Complete loop unrolling, hardcoded twiddles</td>
+ * </tr>
+ * <tr>
+ *     <td>16</td>
+ *     <td>{@link com.fft.optimized.FFTOptimized16}</td>
+ *     <td>Specialized</td>
+ *     <td>FFT8 decomposition with precomputed FFT16 twiddles</td>
  * </tr>
  * <tr>
  *     <td>Helpers</td>
@@ -96,7 +102,7 @@
  * <pre>{@code
  * // Factory selects optimal implementation
  * FFTFactory factory = new DefaultFFTFactory();
- * FFT fft = factory.createFFT(128);  // Returns FFTBase in the current codebase
+ * FFT fft = factory.createFFT(16);  // Returns FFTOptimized16 in the current codebase
  * FFTResult result = fft.transform(data, true);
  * }</pre>
  *
@@ -125,7 +131,7 @@
  * <ul>
  * <li><b>FASE 1 (Complete):</b> Framework overhead eliminated (3.1x speedup on small sizes)</li>
  * <li><b>FASE 2 (Complete):</b> Twiddle cache implemented as a shared optimization</li>
- * <li><b>FFT8 Manual:</b> Complete loop unrolling retained as the active specialized implementation</li>
+ * <li><b>FFT8/FFT16 Manual:</b> Small-size specializations retained as active optimized implementations</li>
  * <li><b>Lessons Learned:</b> Universal optimizations (twiddle cache) > per-size manual coding</li>
  * </ul>
  *

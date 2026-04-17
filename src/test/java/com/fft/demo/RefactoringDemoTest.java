@@ -161,10 +161,9 @@ class RefactoringDemoTest {
             assertThat(fft8.supportsSize(8)).isTrue();
             assertThat(fft8.supportsSize(16)).isFalse();
 
-            // FFT16 uses FFTBase (supports all power-of-2 sizes)
+            // FFT16 now uses a dedicated optimized implementation.
             assertThat(fft16.supportsSize(16)).isTrue();
-            // Note: FFTBase is generic and supports any power-of-2 size
-            assertThat(fft16.supportsSize(8)).isTrue();
+            assertThat(fft16.supportsSize(8)).isFalse();
         }
     }
     

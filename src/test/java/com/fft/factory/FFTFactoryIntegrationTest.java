@@ -2,6 +2,7 @@ package com.fft.factory;
 
 import com.fft.core.FFT;
 import com.fft.core.FFTResult;
+import com.fft.optimized.FFTOptimized16;
 import com.fft.optimized.FFTOptimized8;
 import com.fft.utils.FFTUtils;
 import org.junit.jupiter.api.DisplayName;
@@ -29,6 +30,18 @@ class FFTFactoryIntegrationTest {
         assertThat(fft8).isInstanceOf(FFTOptimized8.class);
         assertThat(fft8.getSupportedSize()).isEqualTo(8);
         assertThat(fft8.getDescription()).contains("Highly optimized");
+    }
+
+    @Test
+    @DisplayName("Should automatically select optimized implementation for size 16")
+    void testOptimized16ImplementationSelection() {
+        DefaultFFTFactory factory = new DefaultFFTFactory();
+
+        FFT fft16 = factory.createFFT(16);
+
+        assertThat(fft16).isInstanceOf(FFTOptimized16.class);
+        assertThat(fft16.getSupportedSize()).isEqualTo(16);
+        assertThat(fft16.getDescription()).contains("size 16");
     }
     
     @Test

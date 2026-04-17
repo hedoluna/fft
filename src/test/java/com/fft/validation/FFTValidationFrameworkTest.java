@@ -2,6 +2,7 @@ package com.fft.validation;
 
 import com.fft.core.FFTBase;
 import com.fft.core.FFTResult;
+import com.fft.optimized.FFTOptimized16;
 import com.fft.optimized.FFTOptimized8;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -189,6 +190,25 @@ class FFTValidationFrameworkTest {
 
         // Print detailed report for documentation
         System.out.println("\n" + report.getDetailedReport());
+    }
+
+    @Test
+    @DisplayName("Should work with FFTOptimized16 (real example)")
+    void testWithFFTOptimized16() {
+        FFTValidationFramework validator16 = new FFTValidationFramework(16, TOLERANCE);
+        double[] real = {1, 2, 3, 4, 5, 6, 7, 8, 1, 0, -1, -2, -3, -4, -5, -6};
+        double[] imag = new double[16];
+
+        FFTOptimized16 optimized = new FFTOptimized16();
+        FFTResult result = optimized.transform(real.clone(), imag.clone(), true);
+
+        validator16.setInput(real, imag, true);
+        validator16.captureStage("FFTOptimized16 FINAL", result.getRealParts(), result.getImaginaryParts());
+
+        FFTValidationFramework.ValidationReport report = validator16.validate();
+
+        assertThat(report.isValid()).isTrue();
+        assertThat(report.getMessage()).contains("successfully");
     }
 
     @Test

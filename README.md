@@ -311,9 +311,9 @@ project documentation:
 
 ## Current Status
 
-- Core FFT support is provided by `FFTBase` for power-of-two sizes.
-- `FFTOptimized8` is the only dedicated optimized implementation currently present.
-- Factory auto-discovery is active and currently finds that optimized implementation.
+- Core FFT support is provided by `FFTBase` for power-of-two sizes without a dedicated specialization.
+- `FFTOptimized8` and `FFTOptimized16` are the active dedicated optimized implementations currently present.
+- Factory auto-discovery is active and currently finds both optimized implementations.
 - Audio demos and utilities for pitch, melody, and chord analysis are included.
 - Current local verification: `622` tests passed, `0` failures, `0` errors, `8` skipped via `mvn test`.
 - **Production Ready**: Enterprise-grade reliability with comprehensive error handling
