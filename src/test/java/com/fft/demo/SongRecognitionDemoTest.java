@@ -1,5 +1,7 @@
 package com.fft.demo;
 
+import com.fft.utils.PitchDetectionUtils;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -51,9 +53,32 @@ class SongRecognitionDemoTest {
             assertThat(database).containsKey("Twinkle, Twinkle, Little Star");
             assertThat(database).containsKey("Mary Had a Little Lamb");
             assertThat(database).containsKey("Happy Birthday");
-            
-            // Should have at least 5 songs
-            assertThat(database.size()).isGreaterThanOrEqualTo(5);
+
+            // Keep the catalog stable so duplicate put() calls do not silently
+            // overwrite richer entries with legacy placeholders.
+            assertThat(database).hasSize(10);
+        }
+
+        @Test
+        @DisplayName("Should preserve rhythm metadata for advanced melody entries")
+        void shouldPreserveRhythmMetadataForAdvancedMelodyEntries() throws Exception {
+            Method createDatabase = SongRecognitionDemo.class.getDeclaredMethod("createEnhancedMelodyDatabase");
+            createDatabase.setAccessible(true);
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> database = (Map<String, Object>) createDatabase.invoke(demo);
+
+            Object odeToJoy = database.get("Ode to Joy");
+            Object silentNight = database.get("Silent Night");
+
+            Field rhythmPatternField = odeToJoy.getClass().getDeclaredField("rhythmPattern");
+            rhythmPatternField.setAccessible(true);
+            Field genreField = odeToJoy.getClass().getDeclaredField("genre");
+            genreField.setAccessible(true);
+
+            assertThat(rhythmPatternField.get(odeToJoy)).isEqualTo("MCMCMCMCMCMCMC");
+            assertThat(genreField.get(odeToJoy)).isEqualTo("Classical");
+            assertThat(rhythmPatternField.get(silentNight)).isEqualTo("LCLCMCMCMC");
         }
         
         @Test
@@ -309,7 +334,86 @@ class SongRecognitionDemoTest {
             assertThat(exactSimilarity).isEqualTo(0.8); // High score for substring matches
         }
     }
-    
+
+    @Nested
+    @DisplayName("Harmony Scoring Tests")
+    class HarmonyScoringTests {
+
+        @Test
+        @DisplayName("Should return neutral harmony score when no chords are available")
+        void shouldReturnNeutralHarmonyScoreWhenNoChordsAreAvailable() throws Exception {
+            Method createDatabase = SongRecognitionDemo.class.getDeclaredMethod("createEnhancedMelodyDatabase");
+            createDatabase.setAccessible(true);
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> database = (Map<String, Object>) createDatabase.invoke(demo);
+
+            Object twinkle = database.get("Twinkle, Twinkle, Little Star");
+
+            Method harmonyMethod = SongRecognitionDemo.class.getDeclaredMethod(
+                "calculateHarmonySimilarity", List.class, twinkle.getClass());
+            harmonyMethod.setAccessible(true);
+
+            double score = (double) harmonyMethod.invoke(demo, List.of(), twinkle);
+
+            assertThat(score).isEqualTo(0.5);
+        }
+
+        @Test
+        @DisplayName("Should score harmony higher when chord root matches the song key")
+        void shouldScoreHarmonyHigherWhenChordRootMatchesTheSongKey() throws Exception {
+            Method createDatabase = SongRecognitionDemo.class.getDeclaredMethod("createEnhancedMelodyDatabase");
+            createDatabase.setAccessible(true);
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> database = (Map<String, Object>) createDatabase.invoke(demo);
+
+            Object twinkle = database.get("Twinkle, Twinkle, Little Star"); // key C
+            Object londonBridge = database.get("London Bridge"); // key D
+
+            Method harmonyMethod = SongRecognitionDemo.class.getDeclaredMethod(
+                "calculateHarmonySimilarity", List.class, twinkle.getClass());
+            harmonyMethod.setAccessible(true);
+
+            List<PitchDetectionUtils.ChordResult> chords = List.of(
+                new PitchDetectionUtils.ChordResult(new double[]{261.63, 329.63, 392.00}, 0.95, "C", "major")
+            );
+
+            double matchingKeyScore = (double) harmonyMethod.invoke(demo, chords, twinkle);
+            double nonMatchingKeyScore = (double) harmonyMethod.invoke(demo, chords, londonBridge);
+
+            assertThat(matchingKeyScore).isGreaterThan(nonMatchingKeyScore);
+        }
+
+        @Test
+        @DisplayName("Should use chord confidence when computing harmony score")
+        void shouldUseChordConfidenceWhenComputingHarmonyScore() throws Exception {
+            Method createDatabase = SongRecognitionDemo.class.getDeclaredMethod("createEnhancedMelodyDatabase");
+            createDatabase.setAccessible(true);
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> database = (Map<String, Object>) createDatabase.invoke(demo);
+
+            Object twinkle = database.get("Twinkle, Twinkle, Little Star");
+
+            Method harmonyMethod = SongRecognitionDemo.class.getDeclaredMethod(
+                "calculateHarmonySimilarity", List.class, twinkle.getClass());
+            harmonyMethod.setAccessible(true);
+
+            List<PitchDetectionUtils.ChordResult> lowConfidenceChords = List.of(
+                new PitchDetectionUtils.ChordResult(new double[]{261.63, 329.63, 392.00}, 0.25, "C", "major")
+            );
+            List<PitchDetectionUtils.ChordResult> highConfidenceChords = List.of(
+                new PitchDetectionUtils.ChordResult(new double[]{261.63, 329.63, 392.00}, 0.95, "C", "major")
+            );
+
+            double lowConfidenceScore = (double) harmonyMethod.invoke(demo, lowConfidenceChords, twinkle);
+            double highConfidenceScore = (double) harmonyMethod.invoke(demo, highConfidenceChords, twinkle);
+
+            assertThat(highConfidenceScore).isGreaterThan(lowConfidenceScore);
+        }
+    }
+
     @Nested
     @DisplayName("Performance Tests")
     class PerformanceTests {

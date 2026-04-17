@@ -729,8 +729,71 @@ public class SongRecognitionDemo {
      * Calculates harmony similarity (placeholder - would need chord database).
      */
     private double calculateHarmonySimilarity(List<PitchDetectionUtils.ChordResult> chords, MelodyEntry entry) {
-        // Simplified - in a real system this would compare against stored chord progressions
-        return chords.isEmpty() ? 0.5 : 0.6;
+        if (chords.isEmpty() || entry == null || entry.key == null || entry.key.isEmpty()) {
+            return 0.5;
+        }
+
+        int songKey = noteNameToSemitone(entry.key);
+        if (songKey < 0) {
+            return 0.5;
+        }
+
+        double weightedScore = 0.0;
+        double totalWeight = 0.0;
+
+        for (PitchDetectionUtils.ChordResult chord : chords) {
+            if (chord == null || chord.chordName == null || chord.chordName.isEmpty()) {
+                continue;
+            }
+
+            int chordRoot = noteNameToSemitone(chord.chordName);
+            if (chordRoot < 0) {
+                continue;
+            }
+
+            double confidence = Math.max(0.0, Math.min(1.0, chord.confidence));
+            double score = 0.35; // Slightly skeptical baseline when harmony data exists.
+
+            if (chordRoot == songKey) {
+                score += 0.35;
+            } else if ((chordRoot + 7) % 12 == songKey || (songKey + 7) % 12 == chordRoot) {
+                score += 0.15; // Dominant-tonic relationship.
+            }
+
+            if ("major".equalsIgnoreCase(chord.chordType)) {
+                score += 0.15;
+            } else if (!"unknown".equalsIgnoreCase(chord.chordType)) {
+                score += 0.05;
+            }
+
+            score = Math.max(0.0, Math.min(1.0, score));
+            weightedScore += score * confidence;
+            totalWeight += confidence;
+        }
+
+        if (totalWeight == 0.0) {
+            return 0.5;
+        }
+
+        return weightedScore / totalWeight;
+    }
+
+    private int noteNameToSemitone(String noteName) {
+        return switch (noteName.trim().toUpperCase()) {
+            case "C" -> 0;
+            case "C#", "DB" -> 1;
+            case "D" -> 2;
+            case "D#", "EB" -> 3;
+            case "E" -> 4;
+            case "F" -> 5;
+            case "F#", "GB" -> 6;
+            case "G" -> 7;
+            case "G#", "AB" -> 8;
+            case "A" -> 9;
+            case "A#", "BB" -> 10;
+            case "B" -> 11;
+            default -> -1;
+        };
     }
 
     /**
@@ -1907,7 +1970,8 @@ public class SongRecognitionDemo {
     private Map<String, MelodyEntry> createEnhancedMelodyDatabase() {
         Map<String, MelodyEntry> database = new HashMap<>();
 
-        // Add comprehensive entries with multiple variations and metadata for robust recognition
+        // Keep one canonical entry per song title so later changes do not accidentally
+        // overwrite richer rhythm/metadata with legacy placeholder entries.
         database.put("Twinkle, Twinkle, Little Star",
             new MelodyEntry("*RURURDRRURURDR", "MCMCMCMCMCMC",
                 Arrays.asList("*RURUR", "*RURURD", "*RDRRUR", "*RURURDRRUR", "*RURURDRRURUR"),
@@ -1939,41 +2003,25 @@ public class SongRecognitionDemo {
                 "Children's", "Traditional", "Traditional", 100.0, "D", 0.7));
 
         database.put("Frère Jacques",
-            new MelodyEntry("*RDRURDRU",
-                Arrays.asList("*RDRU", "*RDRUR", "*DRURDRU", "*RDRURDR")));
+            new MelodyEntry("*RDRURDRU", "MCMCMCMCMC",
+                Arrays.asList("*RDRU", "*RDRUR", "*DRURDRU", "*RDRURDR"),
+                "Children's", "Traditional", "Traditional", 105.0, "C", 0.75));
 
         database.put("Silent Night",
-            new MelodyEntry("*RDRURDRURU",
-                Arrays.asList("*RDRU", "*RDRUR", "*DRURDRURU", "*RDRURDRU")));
-        
-        database.put("Ode to Joy", 
-            new MelodyEntry("*RRURURDRUR", 
-                Arrays.asList("*RRURU", "*RURDR", "*URURDR")));
-        
-        database.put("Amazing Grace", 
-            new MelodyEntry("*URDURDRDUR", 
-                Arrays.asList("*URDU", "*RDURD", "*URDURD")));
-        
-        database.put("Silent Night", 
-            new MelodyEntry("*RDURDURDRU", 
-                Arrays.asList("*RDUR", "*DURDR", "*RDURDU")));
-        
-        database.put("Jingle Bells", 
-            new MelodyEntry("*RRRUURURURU", 
-                Arrays.asList("*RRRU", "*RURURU", "*RRRUURU")));
-        
-        database.put("London Bridge", 
-            new MelodyEntry("*RDRRURDRUR", 
-                Arrays.asList("*RDRR", "*RURDR", "*RDRRUR")));
-        
-        database.put("Row, Row, Row Your Boat", 
-            new MelodyEntry("*RRURURDRUR", 
-                Arrays.asList("*RRUR", "*URURDR", "*RURURD")));
-        
-        database.put("Frère Jacques", 
-            new MelodyEntry("*URUURURDRUR", 
-                Arrays.asList("*URUR", "*RURUR", "*URUURU")));
-        
+            new MelodyEntry("*RDRURDRURU", "LCLCMCMCMC",
+                Arrays.asList("*RDRU", "*RDRUR", "*DRURDRURU", "*RDRURDRU"),
+                "Holiday", "Romantic", "Traditional", 72.0, "G", 0.85));
+
+        database.put("Amazing Grace",
+            new MelodyEntry("*URDURDRDUR", "LCLCMCMCMC",
+                Arrays.asList("*URDU", "*RDURD", "*URDURD", "*URDURDR"),
+                "Hymn", "Traditional", "Traditional", 76.0, "G", 0.88));
+
+        database.put("Jingle Bells",
+            new MelodyEntry("*RRRUURURURU", "SCSCSCMCMCMC",
+                Arrays.asList("*RRRU", "*RURURU", "*RRRUURU", "*RRRUURUR"),
+                "Holiday", "Traditional", "James Lord Pierpont", 120.0, "G", 0.9));
+
         return database;
     }
     

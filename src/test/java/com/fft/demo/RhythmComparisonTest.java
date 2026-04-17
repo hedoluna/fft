@@ -88,10 +88,9 @@ class RhythmComparisonTest {
         java.lang.reflect.Constructor<?> constructor = recognitionResultClass.getDeclaredConstructor(String.class, double.class, String.class);
         constructor.setAccessible(true);
 
-        // Create result for a song likely without rhythm pattern (if any) or use one with empty rhythm
-        // "Frère Jacques" was added without explicit rhythm pattern in my update,
-        // using the convenience constructor which defaults to ""
-        Object initialResult = constructor.newInstance("Frère Jacques", 0.5, "*RDRURDRU");
+        // Use a catalog entry that still relies on the convenience constructor and therefore
+        // has no stored rhythm metadata.
+        Object initialResult = constructor.newInstance("Row, Row, Row Your Boat", 0.5, "*RURURDRR");
 
         String rhythmPattern = "MCMCMCMCMCMC";
 
