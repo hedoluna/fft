@@ -676,7 +676,7 @@ public class SongRecognitionDemo {
 
             if (Math.abs(thirdRatio - Math.pow(2, 4.0/12.0)) < 0.1 &&
                 Math.abs(fifthRatio - Math.pow(2, 7.0/12.0)) < 0.1) {
-                return new PitchDetectionUtils.ChordResult(frequencies, 0.8, "C", "major");
+                return new PitchDetectionUtils.ChordResult(frequencies, 0.8, frequencyToPitchClassName(root), "major");
             }
         }
 
@@ -776,6 +776,12 @@ public class SongRecognitionDemo {
         }
 
         return weightedScore / totalWeight;
+    }
+
+    private String frequencyToPitchClassName(double frequency) {
+        String[] noteNames = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+        int midiNote = (int) Math.round(12 * Math.log(frequency / 440.0) / Math.log(2) + 69);
+        return noteNames[Math.floorMod(midiNote, 12)];
     }
 
     private int noteNameToSemitone(String noteName) {

@@ -249,16 +249,9 @@ public class FFTImplementationDiscovery {
                 Class<? extends FFT> fftClass = (Class<? extends FFT>) clazz;
                 FFTImplementation annotation = clazz.getAnnotation(FFTImplementation.class);
 
-<<<<<<< HEAD
                 LOGGER.info("Discovered FFT implementation: {} (size={}, priority={}, characteristics={})",
                         clazz.getName(), annotation.size(), annotation.priority(),
                         String.join(",", annotation.characteristics()));
-=======
-                LOGGER.fine("Discovered FFT implementation: " + clazz.getName()
-                        + " (size=" + annotation.size()
-                        + ", priority=" + annotation.priority()
-                        + ", characteristics=" + String.join(",", annotation.characteristics()) + ")");
->>>>>>> 7f48545 (Align docs and logging with current FFT implementation)
 
                 if (annotation.autoRegister()) {
                     DiscoveredImplementation discovered = new DiscoveredImplementation(fftClass, annotation);
@@ -321,13 +314,8 @@ public class FFTImplementationDiscovery {
             }
         }
 
-<<<<<<< HEAD
         LOGGER.info("Auto-registration completed for {} implementations",
                 discovered.values().stream().mapToInt(List::size).sum());
-=======
-        LOGGER.fine("Auto-registration completed for " +
-                discovered.values().stream().mapToInt(List::size).sum() + " implementations");
->>>>>>> 7f48545 (Align docs and logging with current FFT implementation)
     }
 
     /**
