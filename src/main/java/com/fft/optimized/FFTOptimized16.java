@@ -45,7 +45,11 @@ public class FFTOptimized16 implements FFT {
         0.3826834323650899
     };
 
-    private final FFTOptimized8 fft8 = new FFTOptimized8();
+    private static final ThreadLocal<double[]> EVEN_BUFFER =
+        ThreadLocal.withInitial(() -> new double[HALF_SIZE * 2]);
+
+    private static final ThreadLocal<double[]> ODD_BUFFER =
+        ThreadLocal.withInitial(() -> new double[HALF_SIZE * 2]);
 
     @Override
     public FFTResult transform(double[] real, double[] imaginary, boolean forward) {
@@ -53,41 +57,32 @@ public class FFTOptimized16 implements FFT {
             throw new IllegalArgumentException("Arrays must be of length " + SIZE);
         }
 
-        double[] evenReal = new double[HALF_SIZE];
-        double[] evenImag = new double[HALF_SIZE];
-        double[] oddReal = new double[HALF_SIZE];
-        double[] oddImag = new double[HALF_SIZE];
-
-        for (int i = 0; i < HALF_SIZE; i++) {
-            int evenIndex = i << 1;
-            evenReal[i] = real[evenIndex];
-            evenImag[i] = imaginary[evenIndex];
-            oddReal[i] = real[evenIndex + 1];
-            oddImag[i] = imaginary[evenIndex + 1];
-        }
-
-        FFTResult evenResult = fft8.transform(evenReal, evenImag, forward);
-        FFTResult oddResult = fft8.transform(oddReal, oddImag, forward);
-
-        double[] evenOutReal = evenResult.getRealParts();
-        double[] evenOutImag = evenResult.getImaginaryParts();
-        double[] oddOutReal = oddResult.getRealParts();
-        double[] oddOutImag = oddResult.getImaginaryParts();
-
+        double[] even = EVEN_BUFFER.get();
+        double[] odd = ODD_BUFFER.get();
         double[] result = new double[SIZE * 2];
+
+        FFTOptimized8.transformToInterleaved(real, imaginary, 0, 2, forward, even);
+        FFTOptimized8.transformToInterleaved(real, imaginary, 1, 2, forward, odd);
+
         double sign = forward ? -1.0 : 1.0;
 
         for (int k = 0; k < HALF_SIZE; k++) {
-            double tReal = W16_COS[k] * oddOutReal[k] + sign * W16_SIN[k] * oddOutImag[k];
-            double tImag = W16_COS[k] * oddOutImag[k] - sign * W16_SIN[k] * oddOutReal[k];
+            int sourceIndex = k << 1;
+            double evenReal = even[sourceIndex];
+            double evenImag = even[sourceIndex + 1];
+            double oddReal = odd[sourceIndex];
+            double oddImag = odd[sourceIndex + 1];
+            double tReal = W16_COS[k] * oddReal + sign * W16_SIN[k] * oddImag;
+            double tImag = W16_COS[k] * oddImag - sign * W16_SIN[k] * oddReal;
 
-            result[2 * k] = (evenOutReal[k] + tReal) * COMBINE_SCALE;
-            result[2 * k + 1] = (evenOutImag[k] + tImag) * COMBINE_SCALE;
-            result[2 * (k + HALF_SIZE)] = (evenOutReal[k] - tReal) * COMBINE_SCALE;
-            result[2 * (k + HALF_SIZE) + 1] = (evenOutImag[k] - tImag) * COMBINE_SCALE;
+            int lowerIndex = (k + HALF_SIZE) << 1;
+            result[sourceIndex] = (evenReal + tReal) * COMBINE_SCALE;
+            result[sourceIndex + 1] = (evenImag + tImag) * COMBINE_SCALE;
+            result[lowerIndex] = (evenReal - tReal) * COMBINE_SCALE;
+            result[lowerIndex + 1] = (evenImag - tImag) * COMBINE_SCALE;
         }
 
-        return new FFTResult(result);
+        return FFTResult.fromTrustedArray(result);
     }
 
     @Override

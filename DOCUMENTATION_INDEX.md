@@ -1,7 +1,7 @@
 # FFT Library - Documentation Index
 
-**Last Updated**: January 25, 2026 (documentation deduplication)
-**Current Status**: See `README.md` for the user-facing overview and `docs/performance/` for historical benchmark reports
+**Last Updated**: April 28, 2026 (FFT optimized implementation handoff)
+**Current Status**: See `README.md` for the user-facing overview and `docs/performance/` for benchmark reports and optimization handoffs
 **Major Reorganization**: Documentation restructured into logical subdirectories
 
 This index organizes all documentation in the FFT library for easy navigation. Documentation is categorized by purpose and audience, with related documents grouped in subdirectories for better discoverability.
@@ -29,14 +29,16 @@ This index organizes all documentation in the FFT library for easy navigation. D
 ## 📊 Performance & Optimization
 
 ### Current Status
-- `FFTOptimized8` is the only dedicated size-specific implementation currently present in `src/main/java/com/fft/optimized/`
+- `FFTOptimized8` and `FFTOptimized16` are the active dedicated size-specific implementations in `src/main/java/com/fft/optimized/`
 - other supported power-of-two sizes are handled by `FFTBase`
+- `FFT_OPTIMIZATION_HANDOFF_APR2026.md` records the latest low-allocation optimization work and restart context
 - historical performance notes remain in `docs/performance/`, but some older documents describe superseded experiments
 
 ### Historical Performance Documentation (docs/performance/)
 
 | Document | Content | Date |
 |----------|---------|------|
+| [FFT_OPTIMIZATION_HANDOFF_APR2026.md](docs/performance/FFT_OPTIMIZATION_HANDOFF_APR2026.md) | **Latest FFT8/FFT16 low-allocation optimization handoff** | Apr 28, 2026 |
 | [BASELINE_MEASUREMENT_JAN2026.md](docs/performance/BASELINE_MEASUREMENT_JAN2026.md) | **v2.1 baseline with all optimizations** | Jan 7, 2026 |
 | [OPTIMIZATION_COMPLETION_SUMMARY_JAN2026.md](docs/performance/OPTIMIZATION_COMPLETION_SUMMARY_JAN2026.md) | **Final Optimization Summary** | Jan 7, 2026 |
 | [PHASE_3_BUTTERFLY_OPTIMIZATION_REPORT.md](docs/performance/PHASE_3_BUTTERFLY_OPTIMIZATION_REPORT.md) | **Butterfly optimization analysis & lessons** | Jan 7, 2026 |
@@ -135,11 +137,12 @@ See [docs/archive/README.md](docs/archive/README.md) for complete archive index.
 6. [REFACTORING_SUMMARY.md](REFACTORING_SUMMARY.md) - Architecture overview
 
 ### For Performance Engineers
-1. [OPTIMIZATION_COMPLETION_SUMMARY_JAN2026.md](docs/performance/OPTIMIZATION_COMPLETION_SUMMARY_JAN2026.md) - **Current state**
-2. [PROFILING_RESULTS.md](docs/performance/PROFILING_RESULTS.md) - Profiling data
-3. [FASE_2_LESSONS_LEARNED.md](docs/performance/FASE_2_LESSONS_LEARNED.md) - What worked
-4. [optimized package docs](src/main/java/com/fft/optimized/package-info.java) - Optimization techniques
-5. [JMH_BENCHMARKING_GUIDE.md](docs/testing/JMH_BENCHMARKING_GUIDE.md) - Benchmarking howto
+1. [FFT_OPTIMIZATION_HANDOFF_APR2026.md](docs/performance/FFT_OPTIMIZATION_HANDOFF_APR2026.md) - **Latest FFT8/FFT16 optimization handoff**
+2. [OPTIMIZATION_COMPLETION_SUMMARY_JAN2026.md](docs/performance/OPTIMIZATION_COMPLETION_SUMMARY_JAN2026.md) - Historical v2.1 state
+3. [PROFILING_RESULTS.md](docs/performance/PROFILING_RESULTS.md) - Profiling data
+4. [FASE_2_LESSONS_LEARNED.md](docs/performance/FASE_2_LESSONS_LEARNED.md) - What worked
+5. [optimized package docs](src/main/java/com/fft/optimized/package-info.java) - Optimization techniques
+6. [JMH_BENCHMARKING_GUIDE.md](docs/testing/JMH_BENCHMARKING_GUIDE.md) - Benchmarking howto
 
 ### For Quality Assurance
 1. [VALIDATION_FRAMEWORK.md](docs/testing/VALIDATION_FRAMEWORK.md) - Validation approach
@@ -157,9 +160,9 @@ See [docs/archive/README.md](docs/archive/README.md) for complete archive index.
 
 ## 📦 Documentation Statistics
 
-**Current State** (January 25, 2026):
+**Current State** (April 28, 2026):
 - **Root Directory**: 6 .md files
-- **docs/performance/**: 7 files
+- **docs/performance/**: 8 files
 - **docs/implementation/**: 2 files
 - **docs/testing/**: 3 files
 - **docs/demos/**: 6 files
@@ -168,7 +171,7 @@ See [docs/archive/README.md](docs/archive/README.md) for complete archive index.
 
 **Breakdown by Location**:
 - **Root**: 6 (README, USER_GUIDE, CLAUDE, CONTRIBUTING, INDEX, REFACTORING_SUMMARY)
-- **docs/performance/**: 7 (BASELINE, CONSENSUS, FASE2_LESSONS, FASE2_REPORT, OPTIMIZATION_SUMMARY, PHASE3_BUTTERFLY, PROFILING)
+- **docs/performance/**: 8 (APR2026_HANDOFF, BASELINE, CONSENSUS, FASE2_LESSONS, FASE2_REPORT, OPTIMIZATION_SUMMARY, PHASE3_BUTTERFLY, PROFILING)
 - **docs/implementation/**: 2 (P0_SUMMARY, P1_SUMMARY)
 - **docs/testing/**: 3 (JMH_GUIDE, VALIDATION, PITCH_ANALYSIS)
 - **docs/demos/**: 6 (DEMO_DOCS, HOWTO_SONG, SONG_DB_GUIDE, SONG_LESSONS, DEMO_TESTING, FFT_LIBRARY)
@@ -177,6 +180,13 @@ See [docs/archive/README.md](docs/archive/README.md) for complete archive index.
 ---
 
 ## 🔄 Recent Changes
+
+### April 28, 2026 - FFT8/FFT16 Low-Allocation Optimization Handoff
+**Added**: Latest performance handoff in docs/performance/FFT_OPTIMIZATION_HANDOFF_APR2026.md
+- Documents changes to `FFTResult`, `FFTOptimized8`, `FFTOptimized16`, and JMH benchmarks
+- Records short-run JMH results and allocation measurements
+- Includes validation commands and restart guidance
+- Notes remaining caveats and next recommended benchmark steps
 
 ### November 4, 2025 - User Guide Added
 **Added**: Comprehensive USER_GUIDE.md (1000+ lines)

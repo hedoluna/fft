@@ -51,6 +51,27 @@ public class FFTResult {
         this.interleavedResult = Arrays.copyOf(interleavedResult, interleavedResult.length);
         this.size = interleavedResult.length / 2;
     }
+
+    private FFTResult(double[] interleavedResult, boolean trusted) {
+        if (interleavedResult == null) {
+            throw new IllegalArgumentException("Interleaved result array cannot be null");
+        }
+        if (interleavedResult.length % 2 != 0) {
+            throw new IllegalArgumentException("Interleaved result array length must be even");
+        }
+        this.interleavedResult = trusted ? interleavedResult : Arrays.copyOf(interleavedResult, interleavedResult.length);
+        this.size = interleavedResult.length / 2;
+    }
+
+    /**
+     * Creates a result by taking ownership of an internal, newly allocated array.
+     *
+     * @param interleavedResult the interleaved result array [real0, imag0, real1, imag1, ...]
+     * @return FFT result backed by the provided array
+     */
+    public static FFTResult fromTrustedArray(double[] interleavedResult) {
+        return new FFTResult(interleavedResult, true);
+    }
     
     /**
      * Creates a new FFT result from separate real and imaginary arrays.

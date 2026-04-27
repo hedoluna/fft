@@ -71,6 +71,42 @@ public class FFTPerformanceBenchmark {
     @Benchmark
     public void benchmarkFFT8_Optimized(Blackhole bh) {
         FFTResult result = optimized8.transform(
+                testData8,
+                testImag8,
+                true);
+        bh.consume(result);
+    }
+
+    @Benchmark
+    public void benchmarkFFT8_Base(Blackhole bh) {
+        FFTResult result = fftBase.transform(
+                testData8,
+                testImag8,
+                true);
+        bh.consume(result);
+    }
+
+    @Benchmark
+    public void benchmarkFFT16_Optimized(Blackhole bh) {
+        FFTResult result = optimized16.transform(
+                testData16,
+                testImag16,
+                true);
+        bh.consume(result);
+    }
+
+    @Benchmark
+    public void benchmarkFFT16_Base(Blackhole bh) {
+        FFTResult result = fftBase.transform(
+                testData16,
+                testImag16,
+                true);
+        bh.consume(result);
+    }
+
+    @Benchmark
+    public void benchmarkFFT8_Optimized_WithInputClone(Blackhole bh) {
+        FFTResult result = optimized8.transform(
                 testData8.clone(),
                 testImag8.clone(),
                 true);
@@ -78,7 +114,7 @@ public class FFTPerformanceBenchmark {
     }
 
     @Benchmark
-    public void benchmarkFFT8_Base(Blackhole bh) {
+    public void benchmarkFFT8_Base_WithInputClone(Blackhole bh) {
         FFTResult result = fftBase.transform(
                 testData8.clone(),
                 testImag8.clone(),
@@ -87,7 +123,7 @@ public class FFTPerformanceBenchmark {
     }
 
     @Benchmark
-    public void benchmarkFFT16_Optimized(Blackhole bh) {
+    public void benchmarkFFT16_Optimized_WithInputClone(Blackhole bh) {
         FFTResult result = optimized16.transform(
                 testData16.clone(),
                 testImag16.clone(),
@@ -96,7 +132,7 @@ public class FFTPerformanceBenchmark {
     }
 
     @Benchmark
-    public void benchmarkFFT16_Base(Blackhole bh) {
+    public void benchmarkFFT16_Base_WithInputClone(Blackhole bh) {
         FFTResult result = fftBase.transform(
                 testData16.clone(),
                 testImag16.clone(),

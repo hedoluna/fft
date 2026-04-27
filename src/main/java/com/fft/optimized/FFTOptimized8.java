@@ -49,17 +49,32 @@ public class FFTOptimized8 implements FFT {
             throw new IllegalArgumentException("Arrays must be of length " + SIZE);
         }
 
-        // Create working copies (manual unrolled copy for performance)
+        double[] result = new double[16];
+        transformToInterleaved(real, imaginary, 0, 1, forward, result);
+        return FFTResult.fromTrustedArray(result);
+    }
+
+    static void transformToInterleaved(
+            double[] real,
+            double[] imaginary,
+            int offset,
+            int stride,
+            boolean forward,
+            double[] result) {
         double sign = forward ? -1.0 : 1.0;
         double tRe, tIm;
 
-        // Fast manual copy - unrolled for JVM optimization
         double[] re = new double[8];
         double[] im = new double[8];
-        re[0] = real[0]; re[1] = real[1]; re[2] = real[2]; re[3] = real[3];
-        re[4] = real[4]; re[5] = real[5]; re[6] = real[6]; re[7] = real[7];
-        im[0] = imaginary[0]; im[1] = imaginary[1]; im[2] = imaginary[2]; im[3] = imaginary[3];
-        im[4] = imaginary[4]; im[5] = imaginary[5]; im[6] = imaginary[6]; im[7] = imaginary[7];
+        int index = offset;
+        re[0] = real[index]; im[0] = imaginary[index]; index += stride;
+        re[1] = real[index]; im[1] = imaginary[index]; index += stride;
+        re[2] = real[index]; im[2] = imaginary[index]; index += stride;
+        re[3] = real[index]; im[3] = imaginary[index]; index += stride;
+        re[4] = real[index]; im[4] = imaginary[index]; index += stride;
+        re[5] = real[index]; im[5] = imaginary[index]; index += stride;
+        re[6] = real[index]; im[6] = imaginary[index]; index += stride;
+        re[7] = real[index]; im[7] = imaginary[index];
 
         // STAGE 1: Butterflies with span 4 (W₈⁰ = 1)
         tRe = re[4]; tIm = im[4];
@@ -124,7 +139,6 @@ public class FFTOptimized8 implements FFT {
         re[6] = tRe; im[6] = tIm;
 
         // Create interleaved result with normalization
-        double[] result = new double[16];
         result[0] = re[0] * NORM_FACTOR;   result[1] = im[0] * NORM_FACTOR;
         result[2] = re[1] * NORM_FACTOR;   result[3] = im[1] * NORM_FACTOR;
         result[4] = re[2] * NORM_FACTOR;   result[5] = im[2] * NORM_FACTOR;
@@ -133,8 +147,6 @@ public class FFTOptimized8 implements FFT {
         result[10] = re[5] * NORM_FACTOR;  result[11] = im[5] * NORM_FACTOR;
         result[12] = re[6] * NORM_FACTOR;  result[13] = im[6] * NORM_FACTOR;
         result[14] = re[7] * NORM_FACTOR;  result[15] = im[7] * NORM_FACTOR;
-
-        return new FFTResult(result);
     }
 
     @Override
