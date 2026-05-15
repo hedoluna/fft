@@ -76,6 +76,7 @@ public class FFTResult {
      * @param interleavedResult freshly allocated interleaved array
      *                          {@code [real0, imag0, real1, imag1, ...]}; never retain after this call
      * @return FFT result backed by the supplied array
+     * @throws IllegalArgumentException if {@code interleavedResult} is {@code null} or has odd length
      */
     public static FFTResult fromTrustedArray(double[] interleavedResult) {
         return new FFTResult(interleavedResult, true);
