@@ -64,10 +64,18 @@ public class FFTResult {
     }
 
     /**
-     * Creates a result by taking ownership of an internal, newly allocated array.
+     * Creates a result by taking ownership of a newly allocated interleaved array.
      *
-     * @param interleavedResult the interleaved result array [real0, imag0, real1, imag1, ...]
-     * @return FFT result backed by the provided array
+     * <p><strong>Ownership transfer:</strong> the caller surrenders the array to
+     * this result and must not retain or mutate the reference afterwards.
+     * Subsequent writes to the array will corrupt the result and break the
+     * immutability guarantee of {@link FFTResult}. This factory exists to avoid
+     * a defensive copy on hot paths (optimized FFT implementations) where the
+     * source array is known to be freshly allocated and not aliased.</p>
+     *
+     * @param interleavedResult freshly allocated interleaved array
+     *                          {@code [real0, imag0, real1, imag1, ...]}; never retain after this call
+     * @return FFT result backed by the supplied array
      */
     public static FFTResult fromTrustedArray(double[] interleavedResult) {
         return new FFTResult(interleavedResult, true);

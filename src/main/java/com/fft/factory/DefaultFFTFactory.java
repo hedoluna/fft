@@ -60,6 +60,7 @@ public class DefaultFFTFactory implements FFTFactory {
     }
 
     private final Map<Integer, List<ImplementationEntry>> implementations = new ConcurrentHashMap<>();
+    private final Set<String> registeredKeys = ConcurrentHashMap.newKeySet();
 
     /**
      * Creates a new default factory with standard optimized implementations
@@ -152,16 +153,21 @@ public class DefaultFFTFactory implements FFTFactory {
             throw new IllegalArgumentException("Implementation supplier cannot be null");
         }
 
-        // Verify annotation presence (lenient for testing)
+        // Verify annotation presence (lenient for testing) and dedupe by (size, class)
+        String dedupKey = null;
         try {
             Class<?> clazz = implementation.get().getClass();
             if (!clazz.isAnnotationPresent(FFTImplementation.class)) {
-                // Only warn for missing annotations, don't fail
                 logger.warn("FFT implementation {} should be annotated with @FFTImplementation", clazz.getName());
             }
+            dedupKey = size + "::" + clazz.getName() + "::" + priority;
         } catch (Exception e) {
-            // Be lenient during testing - allow registration but warn
             logger.warn("Could not verify FFT implementation: {}", e.getMessage());
+        }
+
+        if (dedupKey != null && !registeredKeys.add(dedupKey)) {
+            logger.debug("Skipping duplicate registration for {}", dedupKey);
+            return;
         }
 
         implementations.computeIfAbsent(size, k -> new CopyOnWriteArrayList<>())
@@ -194,6 +200,7 @@ public class DefaultFFTFactory implements FFTFactory {
 
     @Override
     public synchronized boolean unregisterImplementations(int size) {
+        registeredKeys.removeIf(k -> k.startsWith(size + "::"));
         return implementations.remove(size) != null;
     }
 

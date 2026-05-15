@@ -20,12 +20,37 @@ class FFTResultTest {
     @DisplayName("Should create result from interleaved array")
     void testInterleavedConstructor() {
         double[] interleaved = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
-        
+
         FFTResult result = new FFTResult(interleaved);
-        
+
         assertThat(result.size()).isEqualTo(3);
         assertThat(result.getRealParts()).containsExactly(1.0, 3.0, 5.0);
         assertThat(result.getImaginaryParts()).containsExactly(2.0, 4.0, 6.0);
+    }
+
+    @Test
+    @DisplayName("fromTrustedArray skips defensive copy (ownership transfer contract)")
+    void testFromTrustedArrayNoCopy() {
+        double[] interleaved = {1.0, 2.0, 3.0, 4.0};
+
+        FFTResult result = FFTResult.fromTrustedArray(interleaved);
+        assertThat(result.getRealAt(0)).isEqualTo(1.0);
+
+        // Mutating the source after the call MUST be visible through the result —
+        // this proves no defensive copy was made. The contract requires callers
+        // to never mutate after handoff; this test asserts the mechanism only.
+        interleaved[0] = 99.0;
+        assertThat(result.getRealAt(0)).isEqualTo(99.0);
+    }
+
+    @Test
+    @DisplayName("fromTrustedArray rejects null and odd-length arrays")
+    void testFromTrustedArrayValidation() {
+        assertThatThrownBy(() -> FFTResult.fromTrustedArray(null))
+            .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> FFTResult.fromTrustedArray(new double[]{1.0, 2.0, 3.0}))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("even");
     }
     
     @Test
