@@ -127,12 +127,18 @@ public class PitchDetectionUtils {
      * @return pitch detection result
      */
     public static PitchResult detectPitchYin(double[] audioSamples, double sampleRate) {
+        // Guard: need enough samples for at least one full period at MIN_FREQUENCY
+        int minRequiredSamples = (int) (sampleRate / MIN_FREQUENCY) * 2;
+        if (audioSamples == null || audioSamples.length < minRequiredSamples) {
+            return new PitchResult(0.0, 0.0, false);
+        }
+
         // Pre-processing: limit buffer size for performance
         double[] processedSamples = preprocessAudioSamples(audioSamples);
 
         int minPeriod = (int) (sampleRate / MAX_FREQUENCY);
         int maxPeriod = Math.min((int) (sampleRate / MIN_FREQUENCY),
-                processedSamples.length / 2); // Limit for performance
+                processedSamples.length / 2);
 
         // Early voicing check - skip expensive computation if not voiced
         if (!checkVoicing(processedSamples)) {
@@ -160,6 +166,10 @@ public class PitchDetectionUtils {
             return new PitchResult(0.0, 0.0, false);
         }
 
+        // Harmonic sieve: reject subharmonic periods
+        // If tau/2, tau/3, ... also have low CMND, the shorter period is the fundamental
+        bestTau = applyHarmonicSieve(cmnd, bestTau, minPeriod);
+
         // Refine the period estimate using parabolic interpolation
         double refinedTau = refineTauEstimate(cmnd, bestTau);
 
@@ -175,6 +185,38 @@ public class PitchDetectionUtils {
         double confidence = calculateConfidence(cmnd, bestTau);
 
         return new PitchResult(frequency, confidence, true);
+    }
+
+    /**
+     * Applies a harmonic sieve to reject subharmonic period estimates.
+     *
+     * <p>Scans from the shortest period upward and finds the shortest tau
+     * whose CMND is within an acceptable range of the global minimum.
+     * The true fundamental is the shortest period with strong periodicity;
+     * longer periods at multiples are subharmonics.</p>
+     *
+     * @param cmnd      the cumulative mean normalized difference array
+     * @param bestTau   the candidate period from the YIN algorithm
+     * @param minPeriod the minimum allowed period
+     * @return the corrected period (shortest tau with acceptable CMND)
+     */
+    private static int applyHarmonicSieve(double[] cmnd, int bestTau, int minPeriod) {
+        double bestCmnd = cmnd[bestTau];
+
+        // Scan from shortest period upward to find the shortest tau
+        // whose CMND is close to the global minimum (within a relative band).
+        // This rejects subharmonics because tau=2*T will have nearly the same
+        // CMND as tau=T for a pure tone.
+        double threshold = Math.max(bestCmnd * 3.0, YIN_THRESHOLD * 0.5);
+        threshold = Math.min(threshold, YIN_THRESHOLD);
+
+        for (int tau = minPeriod; tau < bestTau; tau++) {
+            if (cmnd[tau] <= threshold) {
+                return tau;
+            }
+        }
+
+        return bestTau;
     }
 
     /**

@@ -55,7 +55,6 @@ class PitchDetectionUtilsTest {
         @ParameterizedTest
         @ValueSource(doubles = {110.0, 220.0, 440.0, 880.0, 1000.0})
         @DisplayName("Should detect pure tones with YIN")
-        @org.junit.jupiter.api.Disabled("YIN has known subharmonic detection issues (40.6% error). See docs/testing/PITCH_DETECTION_ANALYSIS.md. Use spectral method instead.")
         void shouldDetectPureTones(double frequency) {
             double[] signal = generatePureTone(frequency, 0.5, 0.8);
 
@@ -122,7 +121,6 @@ class PitchDetectionUtilsTest {
 
         @Test
         @DisplayName("Should handle large buffers with preprocessing")
-        @org.junit.jupiter.api.Disabled("YIN has known subharmonic detection issues (40.6% error). See docs/testing/PITCH_DETECTION_ANALYSIS.md. Use spectral method instead.")
         void shouldHandleLargeBuffers() {
             // Generate buffer larger than YIN_MAX_BUFFER_SIZE (4096)
             double[] largeSignal = generatePureTone(440.0, 1.0, 0.8);
@@ -513,14 +511,14 @@ class PitchDetectionUtilsTest {
 
         @Test
         @DisplayName("Should handle single sample")
-        @org.junit.jupiter.api.Disabled("YIN implementation doesn't handle edge case of single sample. Use spectral method for edge cases.")
         void shouldHandleSingleSample() {
             double[] singleSample = {0.5};
 
-            // Should handle gracefully without crashing
-            assertThatCode(() ->
-                PitchDetectionUtils.detectPitchYin(singleSample, SAMPLE_RATE)
-            ).doesNotThrowAnyException();
+            PitchDetectionUtils.PitchResult result =
+                PitchDetectionUtils.detectPitchYin(singleSample, SAMPLE_RATE);
+
+            assertThat(result.isVoiced).isFalse();
+            assertThat(result.frequency).isEqualTo(0.0);
         }
 
         @Test
