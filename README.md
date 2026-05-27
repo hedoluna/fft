@@ -208,7 +208,7 @@ The repository contains historical benchmark reports under `docs/performance/`, 
 - one general-purpose `FFTBase` implementation for the remaining supported sizes
 - performance-sensitive caches integrated into the base implementation
 
-**Performance Breakdown (from historical profiling, archived under `docs/archive/`):**
+**Performance Breakdown (from [docs/performance/PROFILING_RESULTS.md](docs/performance/PROFILING_RESULTS.md)):**
 ```
 Size 256 (before twiddle cache):
 - Twiddle factors: 56.1% of time
