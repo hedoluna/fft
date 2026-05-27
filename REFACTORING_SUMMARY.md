@@ -106,7 +106,7 @@ double[] powerSpectrum = spectrum.getPowerSpectrum();
 ```
 
 -### 5. **Comprehensive Quality Assurance**
-- 622 tests (614 passing, 8 skipped, 0 failures)
+- 675 tests (1 skipped - an environment-dependent performance test)
 - JaCoCo code coverage reporting
 - SpotBugs static analysis integration
 - Maven build automation
@@ -120,7 +120,7 @@ double[] powerSpectrum = spectrum.getPowerSpectrum();
 - **Memory Usage**: Efficient immutable result objects
 
 ### Quality Metrics
-- **Test Coverage**: 622 tests (614 passing, 8 skipped) covering all major functionality
+- **Test Coverage**: 675 tests (1 skipped) covering all major functionality
 - **Code Quality**: Modern Java 17 patterns and practices
 - **Documentation**: Comprehensive JavaDoc with examples
 - **Maintainability**: Clear separation of concerns

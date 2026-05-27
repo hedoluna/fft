@@ -136,22 +136,22 @@ double[] magnitudes = FFTUtils.getMagnitudes(result);
 
 ## 🎵 Audio Processing Capabilities
 
-### 🎯 Advanced Pitch Detection (Updated October 2025)
+### 🎯 Advanced Pitch Detection (Updated May 2026)
 
-**CRITICAL UPDATE**: After comprehensive accuracy analysis, the library now uses **spectral FFT-based method as primary** (0.92% error vs YIN's 40.6% error on pure tones). See [docs/testing/PITCH_DETECTION_ANALYSIS.md](docs/testing/PITCH_DETECTION_ANALYSIS.md) for complete details.
+**UPDATE**: The library uses the **spectral FFT-based method as primary** (0.92% error). The October 2025 finding that YIN had 40.6% error from subharmonic locking has been **fixed** with a harmonic sieve — YIN now measures ~0.83% on clean tones. Spectral stays primary because it is far more robust to noise. See [docs/testing/PITCH_DETECTION_ANALYSIS.md](docs/testing/PITCH_DETECTION_ANALYSIS.md) for complete details and re-measured evidence.
 
 The library features state-of-the-art pitch detection using a hybrid approach:
 
-- **Spectral Method (Primary)**: FFT-based peak detection with **0.92% error** (44x more accurate than YIN alone)
+- **Spectral Method (Primary)**: FFT-based peak detection with **0.92% error**
   - Parabolic interpolation for sub-bin accuracy
   - Harmonic analysis for fundamental frequency extraction
-  - 26% faster than YIN (O(N log N) vs O(N²))
-- **YIN Algorithm (Validation)**: Autocorrelation-based, used to detect subharmonic issues
-  - Prone to subharmonic errors on pure tones (detects 110Hz instead of 440Hz)
-  - Used as validation check, not primary method
+  - Faster than YIN (O(N log N) vs O(N²))
+- **YIN Algorithm (Validation)**: Autocorrelation-based with a harmonic sieve
+  - ~0.83% error on clean tones (no longer locks onto subharmonics)
+  - Used as a cross-check; degrades under heavy noise
 - **Hybrid Approach**: Combines both methods for best accuracy
   - Results averaged when both agree (within 5%)
-  - Subharmonic detection prevents octave errors
+  - Subharmonic cross-check prevents octave errors
 - **Voicing Detection**: RMS-based sound/silence discrimination
 - **Median Filtering**: Reduces pitch jitter for stable detection
 
@@ -169,7 +169,7 @@ if (result.isVoiced) {
 
 // Real-time pitch detection from microphone
 PitchDetectionDemo demo = new PitchDetectionDemo();
-demo.runDemo(); // Features spectral method + YIN validation, 0.92% error
+demo.runDemo(); // Spectral method (primary) + YIN cross-check, 0.92% error
 ```
 
 ### Song Recognition
@@ -229,7 +229,7 @@ The current optimization strategy is conservative:
 
 ### Audio Processing Performance
 - **Real-time Capability**: 44.1 kHz sampling rate supported
-- **Pitch Detection Speed**: 12,000+ detections/second (spectral method, ~26% faster than YIN)
+- **Pitch Detection Speed**: 12,000+ detections/second (spectral method, faster than YIN's O(N²))
 - **Song Recognition**: 60-80% accuracy for partial melody sequences with improved pitch detection
 - **Noise Robustness**: Maintains accuracy down to 6dB SNR with voicing detection
 - **Pitch Accuracy**: 0.92% error across musical range (80Hz-2000Hz) with the spectral method
@@ -252,7 +252,7 @@ The current optimization strategy is conservative:
 
 ### Audio Processing Algorithms
 1. **Spectral Pitch Detection (primary)**: FFT peak detection with parabolic interpolation (0.92% error)
-2. **YIN Algorithm (validation)**: Autocorrelation-based, used to flag subharmonic/octave errors
+2. **YIN Algorithm (validation)**: Autocorrelation-based with a harmonic sieve (~0.83% on clean tones); used to flag subharmonic/octave disagreements
 3. **Voicing Detection**: RMS-based sound/silence discrimination
 4. **Median Filtering**: Pitch stability enhancement through temporal smoothing
 5. **Windowing Functions**: Hamming window implementation for spectral leakage reduction
@@ -264,7 +264,7 @@ The current optimization strategy is conservative:
 ## 🧪 Testing and Quality
 
 ### Test Coverage
-- **622 Tests (614 passing, 8 skipped)**: Comprehensive coverage of all functionality
+- **675 Tests (1 skipped)**: Comprehensive coverage of all functionality (the skipped test is an environment-dependent performance check)
 - **Property-Based Testing**: Mathematical properties (Parseval's theorem, energy conservation)
 - **Performance Regression Testing**: Automated detection of performance degradation
 - **Audio Processing Tests**: Pitch detection accuracy and song recognition validation
@@ -284,7 +284,7 @@ cd fast-fourier-transform
 mvn clean compile test
 ```
 
-**Status**: Build succeeds with 622 tests (614 passing, 8 skipped, 0 failures). Core functionality is operational with working auto-discovery and factory pattern.
+**Status**: Build succeeds with 675 tests (1 skipped). Functional tests all pass; a couple of timing-based performance-regression tests can flake under host load. Core functionality is operational with working auto-discovery and factory pattern.
 
 ### Running Demos
 ```bash

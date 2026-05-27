@@ -1,23 +1,64 @@
 # Pitch Detection Accuracy & Performance Analysis
 
-**Date:** 2025-10-06
+**Original investigation:** 2025-10-06
+**Resolution verified:** 2026-05-27
 **Test Suite:** `PitchDetectionAccuracyTest.java`
 **Objective:** Evaluate accuracy and performance of pitch detection with base vs optimized FFT implementations
 
-## Executive Summary
+---
 
-**CRITICAL FINDINGS:**
-1. ✗ **YIN algorithm has severe accuracy issues** - 40.6% mean error due to subharmonic detection
-2. ✓ **Spectral method (FFT-based) is far superior** - 0.92% mean error
-3. ✓ **FFT implementation does NOT affect accuracy** - Base and optimized produce identical results
-4. ✓ **FFTOptimized provides 1.18x performance improvement** over FFTBase
-5. ✓ **Spectral method is faster than YIN** - Counter-intuitive but true!
+## Status: RESOLVED ✅
 
-**RECOMMENDATION:** Switch PitchDetectionDemo to use spectral method as primary, not YIN.
+The October 2025 investigation (preserved below) found that the YIN algorithm
+suffered a **40.6% mean error** on pure tones because its autocorrelation
+function locked onto **subharmonics** (detecting 110 Hz instead of 440 Hz, etc.).
+
+That defect has since been **fixed in code** by adding a *harmonic sieve* to
+`PitchDetectionUtils.detectPitchYin` (commit `6bafe58`,
+`applyHarmonicSieve`). The sieve scans from the shortest period upward and
+selects the shortest `tau` whose cumulative-mean-normalized-difference (CMND) is
+within an acceptable band of the global minimum, rejecting the longer
+subharmonic periods.
+
+**Re-measured evidence (2026-05-27):**
+
+| Method | Mean Error (pure tones) | Behaviour |
+|--------|------------------------|-----------|
+| YIN (with harmonic sieve) | **0.827%** | No subharmonic errors; degrades under heavy noise |
+| Spectral (FFTBase) | **0.922%** | Robust across all SNR levels |
+| Spectral (FFTOptimized path) | **0.922%** | Identical to FFTBase (see note on FFT selection below) |
+
+YIN and the spectral method are now **comparable on clean tones**. The library
+keeps the **spectral method as primary** because it remains markedly more
+**robust to noise** (YIN still fails at ≤5 dB SNR — see §4), and uses YIN as a
+cross-check/validation pass. All the action items from the original
+investigation have been implemented (see §7).
+
+> **FFT-selection correction:** There is no `FFTOptimized4096`. Only
+> `FFTOptimized8` and `FFTOptimized16` exist; every other size (including the
+> 4096-point transform used here) falls back to `FFTBase` enriched with the
+> universal `TwiddleFactorCache` / `BitReversalCache`. The "FFTBase vs
+> FFTOptimized" columns in this document therefore exercise the *same*
+> implementation for size 4096, which is why their results are byte-for-byte
+> identical. The earlier "FFTOptimized4096 / 1.18x speedup" claims were
+> inaccurate and have been removed.
 
 ---
 
-## 1. Accuracy Analysis
+## Executive Summary
+
+**FINDINGS (current, post-fix):**
+1. ✅ **YIN subharmonic defect is fixed** — harmonic sieve brings mean error from 40.6% down to **0.83%** on pure tones.
+2. ✅ **Spectral method (FFT-based) remains the primary detector** — 0.92% mean error and superior noise robustness.
+3. ✅ **FFT implementation does NOT affect accuracy** — for size 4096 both code paths resolve to `FFTBase` and produce identical results.
+4. ✅ **Spectral method is faster than YIN** — FFT spectral analysis is O(N log N) vs YIN's O(N²) difference function.
+5. ✅ **Recommended fixes are implemented** — demo and `detectPitchHybrid` use spectral as primary with YIN validation.
+
+**CURRENT STRATEGY:** Spectral method is primary; YIN provides a subharmonic/octave cross-check. Results are averaged only when both methods agree within 5%.
+
+---
+
+## 1. Accuracy Analysis (re-measured 2026-05-27)
 
 ### Test Setup
 - **Signal Type:** Pure sine waves with known frequencies
@@ -29,305 +70,208 @@
 
 | Method | Mean Error | Max Error | Min Error | Mean Confidence |
 |--------|-----------|-----------|-----------|----------------|
-| YIN Algorithm | **40.557%** | 88.889% | 0.000% | 1.000 |
+| YIN Algorithm (harmonic sieve) | **0.827%** | 1.057% | 0.260% | 0.763 |
 | Spectral (FFTBase) | **0.922%** | 2.883% | 0.110% | 27.774 |
-| Spectral (FFTOptimized) | **0.922%** | 2.883% | 0.110% | 27.774 |
+| Spectral (FFTOptimized path) | **0.922%** | 2.883% | 0.110% | 27.774 |
 
-### Detailed Frequency Analysis
+> Note: the YIN and spectral confidence scores are on different scales — YIN's
+> confidence is a normalized [0,1] CMND-derived value, whereas the spectral
+> "confidence" is the raw peak magnitude. They are not directly comparable.
+
+### Detailed Frequency Analysis (current)
 
 | Test Freq (Hz) | YIN Detected (Hz) | YIN Error | Spectral Detected (Hz) | Spectral Error |
 |---------------|-------------------|-----------|------------------------|----------------|
-| 82.41 | 82.41 | 0.000% ✓ | 84.79 | 2.883% |
-| 110.00 | 110.00 | 0.000% ✓ | 108.03 | 1.794% |
-| 146.83 | 146.83 | 0.000% ✓ | 149.23 | 1.636% |
-| **196.00** | **98.00** | **50.000% ✗** | 194.11 | 0.964% ✓ |
-| **246.94** | **123.47** | **50.000% ✗** | 247.62 | 0.273% ✓ |
-| **329.63** | **82.41** | **75.000% ✗** | 332.01 | 0.721% ✓ |
-| **440.00** | **110.00** | **75.000% ✗** | 441.33 | 0.301% ✓ |
-| 659.25 | 659.32 | 0.010% ✓ | 657.17 | 0.316% ✓ |
-| **987.77** | **329.27** | **66.666% ✗** | 990.00 | 0.226% ✓ |
-| **1318.51** | **146.50** | **88.889% ✗** | 1317.06 | 0.110% ✓ |
+| 82.41 | 81.60 | 0.977% | 84.79 | 2.883% |
+| 110.00 | 108.84 | 1.056% | 108.03 | 1.794% |
+| 146.83 | 145.28 | 1.057% | 149.23 | 1.636% |
+| 196.00 | 194.05 | 0.996% | 194.11 | 0.964% |
+| 246.94 | 244.82 | 0.859% | 247.62 | 0.273% |
+| 329.63 | 326.83 | 0.849% | 332.01 | 0.721% |
+| 440.00 | 435.60 | 0.999% | 441.33 | 0.301% |
+| 659.25 | 653.61 | 0.856% | 657.17 | 0.316% |
+| 987.77 | 985.21 | 0.260% | 990.00 | 0.226% |
+| 1318.51 | 1313.81 | 0.356% | 1317.06 | 0.110% |
 
-### YIN Algorithm Failure Pattern
-
-The YIN algorithm consistently detects **subharmonics** instead of the fundamental:
-- 196 Hz → detected as 98 Hz (exactly **1/2**)
-- 246.94 Hz → detected as 123.47 Hz (exactly **1/2**)
-- 329.63 Hz → detected as 82.41 Hz (exactly **1/4**)
-- 440 Hz → detected as 110 Hz (exactly **1/4**)
-- 987.77 Hz → detected as 329.27 Hz (exactly **1/3**)
-- 1318.51 Hz → detected as 146.50 Hz (approximately **1/9**)
-
-**Root Cause:** The YIN algorithm's autocorrelation function finds strong correlations at subharmonic periods, and the threshold-based selection prefers these incorrect periods. This is a known limitation of autocorrelation-based pitch detection on pure tones.
+**Observation:** YIN now tracks the true fundamental at every tested frequency
+(no more 1/2, 1/3, 1/4 subharmonic locks). It shows a small (~1%) consistent
+*underestimate* on low/mid frequencies, attributable to period quantization and
+the parabolic refinement — well within musical tolerance and far from the
+previous octave-scale errors.
 
 ---
 
 ## 2. Performance Analysis
 
-### Single-Threaded Performance (1000 iterations)
-
-| Method | Time per Operation | Total Time | Relative Speed |
-|--------|-------------------|------------|----------------|
-| YIN Algorithm | 1,417,291 ns/op | 1417.29 ms | Baseline |
-| Spectral + FFTBase | 1,231,777 ns/op | 1231.78 ms | **0.87x (faster!)** |
-| Spectral + FFTOptimized | 1,045,473 ns/op | 1045.47 ms | **0.74x (fastest!)** |
+The spectral pipeline (FFT + peak picking) is consistently faster than YIN's
+O(N²) difference function for a 4096-sample window. Exact ns/op figures vary
+with JIT warmup and host load, so treat the numbers from a single in-process run
+as indicative rather than authoritative; use the JMH harness for rigorous
+measurement.
 
 **Key Findings:**
-- Spectral method with FFTBase is **13% faster** than YIN
-- Spectral method with FFTOptimized is **26% faster** than YIN
-- FFTOptimized provides **1.18x speedup** over FFTBase
-
-**Explanation:** YIN's autocorrelation calculation is O(N²) in the worst case, while FFT-based spectral analysis is O(N log N). For FFT size 4096, FFT is significantly more efficient.
+- Spectral method (FFT-based) is faster than YIN for this window size.
+- The performance gap comes from algorithmic complexity: O(N log N) spectral vs O(N²) YIN difference function.
 
 ---
 
-## 3. Complex Waveform Analysis
+## 3. Complex Waveform Analysis (re-measured 2026-05-27)
 
 ### Test: Harmonic-Rich Signals (Fundamental + 3 Harmonics)
 
 | Fundamental | YIN Result | YIN Error | Spectral Result | Spectral Error |
 |-------------|-----------|-----------|----------------|----------------|
-| 110.0 Hz | 110.00 Hz | 0.000% ✓ | 107.89 Hz | 1.918% |
-| 220.0 Hz | **110.00 Hz** | **50.000% ✗** | 217.73 Hz | 1.032% ✓ |
-| 440.0 Hz | **110.00 Hz** | **75.000% ✗** | 441.30 Hz | 0.296% ✓ |
+| 110.0 Hz | 109.16 Hz | 0.763% | 107.89 Hz | 1.918% |
+| 220.0 Hz | 218.20 Hz | 0.817% | 217.73 Hz | 1.032% |
+| 440.0 Hz | 437.64 Hz | 0.536% | 441.30 Hz | 0.296% |
 
 **Findings:**
-- YIN continues to fail on harmonic-rich signals, detecting subharmonics
-- Spectral method handles harmonics well with 1-2% error
-- Both FFT implementations produce **identical results** (as expected)
+- YIN now handles harmonic-rich signals correctly (≤0.8% error); the previous 50–75% subharmonic errors are gone.
+- Spectral method continues to handle harmonics well (0.3–1.9% error).
+- Both FFT code paths produce **identical results** for size 4096 (same underlying `FFTBase`).
 
 ---
 
-## 4. Noise Tolerance Analysis
+## 4. Noise Tolerance Analysis (re-measured 2026-05-27)
 
 ### Test: Different SNR Levels with 440 Hz Sine Wave
 
-| SNR (dB) | YIN Result | YIN Conf | Spectral Result | Spectral Conf |
-|----------|-----------|----------|----------------|---------------|
-| 30 dB | 110.00 Hz ✗ | 1.000 | 441.33 Hz ✓ | 31.137 |
-| 20 dB | 110.00 Hz ✗ | 1.000 | 441.33 Hz ✓ | 31.194 |
-| 10 dB | 109.97 Hz ✗ | 0.650 | 441.34 Hz ✓ | 31.375 |
-| 5 dB | **0.00 Hz (failed)** | 0.000 | 441.36 Hz ✓ | 31.583 |
+| SNR (dB) | YIN Result | Spectral Result |
+|----------|-----------|-----------------|
+| 30 dB | 435.55 Hz ✓ | 441.33 Hz ✓ |
+| 20 dB | 434.01 Hz ✓ | 441.33 Hz ✓ |
+| 10 dB | **808.66 Hz ✗** | 441.34 Hz ✓ |
+| 5 dB | **0.00 Hz (failed)** | 441.36 Hz ✓ |
 
 **Findings:**
-- YIN detects subharmonic (110 Hz) even at high SNR
-- At 5 dB SNR, YIN completely fails (0 Hz detection)
-- Spectral method remains **robust** across all SNR levels
-- Spectral method maintains correct frequency even at 5 dB SNR
+- With the harmonic sieve, YIN now reports the correct fundamental at moderate-to-high SNR (30/20 dB).
+- YIN still degrades under heavy noise: it picks a spurious period at 10 dB and fails entirely at 5 dB.
+- The **spectral method remains robust** across all SNR levels — this is the primary reason it is kept as the primary detector.
 
 ---
 
 ## 5. FFT Implementation Comparison
 
-### Accuracy Impact: NONE (as expected)
+### Accuracy Impact: NONE
 
-| Metric | FFTBase | FFTOptimized | Difference |
-|--------|---------|--------------|------------|
+For the 4096-point transform, the factory has **no size-specific optimized
+implementation** and returns `FFTBase`. Both the "FFTBase" and "optimized" code
+paths in the test therefore run the same algorithm and yield identical results.
+
+| Metric | FFTBase | "Optimized" path | Difference |
+|--------|---------|------------------|------------|
 | Mean Error | 0.922% | 0.922% | **0.000%** |
 | Max Error | 2.883% | 2.883% | **0.000%** |
 | Min Error | 0.110% | 0.110% | **0.000%** |
-| Mean Confidence | 27.774 | 27.774 | **0.000** |
 
-**Conclusion:** Both FFT implementations produce **mathematically identical results**. The optimization affects performance only, not accuracy.
+### Performance Impact
 
-### Performance Impact: 1.18x Speedup
-
-| FFT Implementation | Mean Time (ns) | Speedup |
-|-------------------|---------------|---------|
-| FFTBase | 1,056,100 | Baseline |
-| FFTOptimized | 1,023,840 | **1.03x** |
-
-**Note:** The speedup is modest (1.18x for FFT alone, 1.03x for full pipeline) because:
-1. FFT is only part of the spectral pitch detection pipeline
-2. Peak finding and interpolation add overhead
-3. FFTOptimized4096 uses recursive decomposition, not the most aggressive optimizations
+There is no dedicated `FFTOptimized4096`; size-specific unrolling exists only for
+sizes 8 and 16 (`FFTOptimized8`, `FFTOptimized16`). For size 4096 the speedups
+come from the **universal caches** (`TwiddleFactorCache`, `BitReversalCache`)
+that `FFTBase` already uses, not from a separate optimized class. Any
+"FFTBase vs optimized" timing difference observed for 4096 is measurement noise.
 
 ---
 
-## 6. Analysis of Current Implementation
+## 6. Current Implementation
 
-### Current PitchDetectionDemo Strategy
+### PitchDetectionDemo Strategy (current — correct)
 
 ```java
-// From PitchDetectionDemo.java line 202-213
+// From PitchDetectionDemo.processAudioStream()
 if (isVoiced) {
-    // Detect pitch using YIN algorithm (more accurate) ← WRONG!
-    pitchResult = detectPitchYin(audioSamples);
+    // Primary: spectral method (robust, accurate)
+    pitchResult = detectPitch(spectrum);
 
-    // Fallback to spectral method if YIN fails
-    if (pitchResult.frequency == 0.0) {
-        pitchResult = detectPitch(spectrum);
+    // Cross-check with YIN to catch subharmonic/octave issues
+    PitchDetectionResult yinResult = detectPitchYin(audioSamples);
+    if (pitchResult.frequency > 0 && yinResult.frequency > 0) {
+        if (isSubharmonic(yinResult.frequency, pitchResult.frequency)) {
+            // YIN locked a subharmonic -> trust spectral
+        } else if (resultsAgree(pitchResult, yinResult, 0.05)) {
+            // Both agree within 5% -> average for best accuracy
+            ...
+        }
+        // Otherwise trust spectral (more robust)
     }
 }
 ```
 
-**Problem:** The comment says YIN is "more accurate" but our tests prove this is **false**!
-
-### Current PitchDetectionUtils.detectPitchHybrid Strategy
+### PitchDetectionUtils.detectPitchHybrid Strategy (current — correct)
 
 ```java
-// From PitchDetectionUtils.java line 355-362
-// Try YIN first (optimized version)
+// From PitchDetectionUtils.detectPitchHybrid()
+// 1. Spectral method runs first (primary)
+PitchResult spectralResult = detectPitchSpectral(spectrum, sampleRate);
+
+// 2. YIN runs as validation
 PitchResult yinResult = detectPitchYin(audioSamples, sampleRate);
 
-// If YIN is very confident, use it directly
-if (yinResult.confidence > 0.8) {
-    addToCache(fingerprint, yinResult);
-    return yinResult;
-}
-```
-
-**Problem:** YIN reports confidence of 1.0 even when detecting wrong subharmonics!
-
----
-
-## 7. Recommendations
-
-### Priority 1: Fix PitchDetectionDemo Strategy ⚠️
-
-**Current (WRONG):**
-```java
-// Primary: YIN algorithm
-pitchResult = detectPitchYin(audioSamples);
-// Fallback: Spectral method
-if (pitchResult.frequency == 0.0) {
-    pitchResult = detectPitch(spectrum);
-}
-```
-
-**Recommended (CORRECT):**
-```java
-// Primary: Spectral method (more accurate!)
-pitchResult = detectPitch(spectrum);
-// Optional: Use YIN for validation/refinement in specific cases
-```
-
-**Alternative (Hybrid Approach):**
-```java
-// Use both methods and validate
-PitchDetectionResult spectralResult = detectPitch(spectrum);
-PitchDetectionResult yinResult = detectPitchYin(audioSamples);
-
-// Check if YIN detected a subharmonic
+// 3. Combine: reject YIN subharmonics, average on agreement, else prefer spectral
 if (isSubharmonic(yinResult.frequency, spectralResult.frequency)) {
-    // Use spectral result (more reliable)
-    return spectralResult;
-} else if (resultsAgree(yinResult, spectralResult)) {
-    // Both agree, high confidence
-    return averageResults(yinResult, spectralResult);
+    finalResult = spectralResult;
+} else if (resultsAgree(...)) {
+    finalResult = average(...);
 } else {
-    // Disagreement, prefer spectral
-    return spectralResult;
+    finalResult = spectralResult;
 }
 ```
 
-### Priority 2: Fix PitchDetectionUtils ⚠️
-
-The `detectPitchHybrid` method should:
-1. Call spectral method FIRST (not second)
-2. Use YIN for validation, not primary detection
-3. Add subharmonic detection logic
-4. Not blindly trust YIN confidence scores
-
-### Priority 3: Always Use FFTOptimized ✓
-
-**Current Status:** Already correct! The factory automatically selects FFTOptimized4096.
-
-```java
-// From PitchDetectionDemo.java line 198
-FFTResult spectrum = FFTUtils.fft(audioSamples);
-// ↓ This automatically uses FFTOptimized4096 via factory
-```
-
-**Verification:**
-```
-INFO: Optimized FFT implementation: FFTOptimized4096
-```
-
-No changes needed - factory pattern works correctly.
-
-### Priority 4: Add Subharmonic Detection
-
-Add helper method to detect when YIN has found a subharmonic:
-
-```java
-private boolean isSubharmonic(double f1, double f2) {
-    double ratio = Math.max(f1, f2) / Math.min(f1, f2);
-    // Check if ratio is close to 2, 3, 4, etc.
-    double nearestInteger = Math.round(ratio);
-    return Math.abs(ratio - nearestInteger) < 0.1 && nearestInteger >= 2;
-}
-```
+Both methods now order spectral first and treat YIN as a validator — exactly the
+strategy recommended by the original investigation.
 
 ---
 
-## 8. Impact on Real-World Usage
+## 7. Recommendations — Implementation Status
 
-### PitchDetectionDemo
+| # | Original recommendation | Status |
+|---|-------------------------|--------|
+| 1 | Make PitchDetectionDemo use spectral method as primary | ✅ Done (`processAudioStream`) |
+| 2 | Fix `detectPitchHybrid` to call spectral first, YIN as validation | ✅ Done |
+| 3 | Always use optimized FFT (factory auto-selection) | ✅ Factory selects best available per size |
+| 4 | Add subharmonic detection | ✅ `isSubharmonic` + `applyHarmonicSieve` (in YIN itself) |
+| 5 | Remove "YIN is more accurate" comments | ✅ Updated in demo and tests |
 
-**Current Behavior:**
-- Likely detecting wrong pitches for many notes
-- Users would notice octave errors (e.g., playing E4 but system detects E3)
-- Parsons code generation would be incorrect
-
-**After Fix:**
-- Accurate pitch detection across full frequency range
-- Better song recognition performance
-- Correct Parsons code generation
-
-### SongRecognitionDemo
-
-**Current Behavior:**
-- 60-80% accuracy with flawed YIN algorithm
-- Could be much better with spectral method
-
-**After Fix:**
-- Expected accuracy improvement to 80-90%+
-- More reliable melody matching
+The most impactful additional fix beyond the original list was the **harmonic
+sieve inside YIN itself** (`applyHarmonicSieve`), which repairs YIN at the
+source rather than only working around it at the caller.
 
 ---
 
-## 9. Conclusion
+## 8. Conclusion
 
-### Main Findings
+### Main Findings (current)
 
-1. **YIN algorithm is unreliable** for pure tones and harmonic signals
-   - Detects subharmonics in 60% of test cases
-   - High confidence scores are misleading
-   - Fails completely at low SNR
+1. **The YIN subharmonic defect is fixed.** With the harmonic sieve, YIN tracks
+   the true fundamental on both pure and harmonic-rich signals (≤~1% error),
+   versus the 40.6% mean error documented in October 2025.
 
-2. **Spectral method is superior** in every metric
-   - 44x better accuracy (0.92% vs 40.6% error)
-   - 26% faster performance
-   - Robust to noise
-   - Works correctly across all tested frequencies
+2. **The spectral method remains primary** — comparable accuracy on clean tones
+   and clearly superior noise robustness (YIN still fails at ≤5 dB SNR).
 
-3. **FFT implementation choice matters for performance, not accuracy**
-   - FFTOptimized provides 1.18x speedup
-   - Both implementations produce identical results
-   - Factory automatically selects optimized version ✓
+3. **FFT implementation choice affects performance, not accuracy** — and for
+   size 4096 there is no dedicated optimized class, so both code paths are
+   `FFTBase` and yield identical numbers.
 
-### Immediate Action Items
+### Action Items — all complete
 
-- [ ] Update PitchDetectionDemo to use spectral method as primary
-- [ ] Fix PitchDetectionUtils.detectPitchHybrid logic
-- [ ] Add subharmonic detection validation
-- [ ] Update comments (remove "YIN is more accurate" claims)
-- [ ] Re-test song recognition accuracy
-- [ ] Update documentation (README.md, CLAUDE.md)
+- [x] Update PitchDetectionDemo to use spectral method as primary
+- [x] Fix `PitchDetectionUtils.detectPitchHybrid` logic
+- [x] Add subharmonic detection validation (and an in-algorithm harmonic sieve)
+- [x] Update comments (remove "YIN is more accurate" claims)
+- [x] Align documentation (this file, README.md, CLAUDE.md)
 
 ### Long-Term Considerations
 
-The YIN algorithm *can* work well for:
-- Speech/voice analysis (complex, aperiodic signals)
-- Signals with strong harmonic structure and noise
-- When properly tuned with subharmonic suppression
-
-However, for **musical instrument pitch detection**, the FFT-based spectral method is clearly superior.
+YIN's residual weakness is **noise robustness**, not subharmonics. For musical
+instrument pitch detection on clean signals it is now accurate; for noisy input
+the spectral method is preferred, which is why the hybrid strategy keeps spectral
+as primary.
 
 ---
 
-## 10. Test Reproducibility
+## 9. Test Reproducibility
 
 All results can be reproduced by running:
 
@@ -340,10 +284,44 @@ Test source: `src/test/java/com/fft/analysis/PitchDetectionAccuracyTest.java`
 **Test Coverage:**
 - ✓ Pure sine wave accuracy
 - ✓ Complex harmonic signal accuracy
-- ✓ Noise tolerance (SNR 30-5 dB)
-- ✓ Performance benchmarking
+- ✓ Noise tolerance (SNR 30–5 dB)
+- ✓ Performance comparison
 - ✓ FFT implementation comparison
-- ✓ Subharmonic detection patterns
+
+---
+
+## Appendix A — Original Investigation (2025-10-06, pre-fix)
+
+The following is the original analysis that motivated the fix. **It describes
+the pre-fix behaviour and is retained for historical context only.** The numbers
+below no longer reflect the current code (see §1–§5 above).
+
+### YIN Algorithm Failure Pattern (pre-fix)
+
+The YIN algorithm consistently detected **subharmonics** instead of the fundamental:
+- 196 Hz → detected as 98 Hz (exactly **1/2**)
+- 246.94 Hz → detected as 123.47 Hz (exactly **1/2**)
+- 329.63 Hz → detected as 82.41 Hz (exactly **1/4**)
+- 440 Hz → detected as 110 Hz (exactly **1/4**)
+- 987.77 Hz → detected as 329.27 Hz (exactly **1/3**)
+- 1318.51 Hz → detected as 146.50 Hz (approximately **1/9**)
+
+**Root Cause:** YIN's autocorrelation function found strong correlations at
+subharmonic periods, and the threshold-based selection preferred these incorrect
+(longer) periods. This is a known limitation of autocorrelation-based pitch
+detection on pure tones, and is exactly what the harmonic sieve now corrects.
+
+### Pre-fix Accuracy Summary
+
+| Method | Mean Error | Max Error | Min Error | Mean Confidence |
+|--------|-----------|-----------|-----------|----------------|
+| YIN Algorithm | **40.557%** | 88.889% | 0.000% | 1.000 |
+| Spectral (FFTBase) | **0.922%** | 2.883% | 0.110% | 27.774 |
+
+The misleadingly high (1.000) YIN confidence on wrong subharmonics was a key
+symptom: callers could not rely on YIN's confidence score to reject bad
+detections, which is why the original demo/hybrid logic that "trusted" YIN
+confidence was incorrect.
 
 ---
 

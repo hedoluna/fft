@@ -117,8 +117,10 @@ class BitReversalCacheTest {
         @Test
         @DisplayName("should return false for non-precomputed sizes before access")
         void shouldReturnFalseForNonPrecomputedSizes() {
-            // 16384 is not in the precomputed list
-            // Note: After calling getTable, it will be cached
+            // 16384 is not in the precomputed list. Reset to a known state first so
+            // the assertion is independent of test execution order (other tests may
+            // have populated the shared cache with size 16384 via getTable()).
+            BitReversalCache.clearCache();
             assertThat(BitReversalCache.isPrecomputed(16384)).isFalse();
         }
 

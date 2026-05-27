@@ -1447,7 +1447,7 @@ double frequency = (binIndex * sampleRate) / (double) fftSize;
 
 ### Q: How accurate is pitch detection?
 
-**A:** The library's hybrid pitch detection achieves **0.92% error** across 80Hz-2000Hz using the spectral method. This is 44x more accurate than YIN alone. See `docs/testing/PITCH_DETECTION_ANALYSIS.md` for details.
+**A:** The library's hybrid pitch detection achieves **0.92% error** across 80Hz-2000Hz using the spectral method (kept primary for its noise robustness). YIN, which once locked onto subharmonics (40.6% error), was fixed with a harmonic sieve and now measures ~0.83% on clean tones. See `docs/testing/PITCH_DETECTION_ANALYSIS.md` for details.
 
 ### Q: Can I use this for real-time audio?
 
