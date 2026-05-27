@@ -20,6 +20,10 @@ public class PerformanceComparisonTest {
 
     private FFTFactory factory;
 
+    // Consumes transform output so the JIT cannot eliminate the benchmarked call as dead code.
+    @SuppressWarnings("unused")
+    private volatile double sink;
+
     @BeforeEach
     void setUp() {
         factory = new DefaultFFTFactory();
@@ -28,21 +32,24 @@ public class PerformanceComparisonTest {
     /**
      * Returns the best (minimum) wall-clock time over several batches of {@code iterations}
      * transforms. Taking the fastest batch rejects GC/scheduling outliers, so the
-     * base-vs-optimized ratio is stable instead of flaking under host load. These are
-     * coarse sanity checks; use the JMH harness for rigorous benchmarking.
+     * base-vs-optimized ratio is stable instead of flaking under host load. The transform
+     * output is accumulated into a volatile sink so the JIT cannot dead-code-eliminate the
+     * call. These are coarse sanity checks; use the JMH harness for rigorous benchmarking.
      */
     private long bestTransformNanos(FFT fft, double[] real, double[] imag, int iterations) {
+        double local = 0.0;
         for (int i = 0; i < WARMUP; i++) {
-            fft.transform(real, imag, true);
+            local += fft.transform(real, imag, true).getRealAt(0);
         }
         long best = Long.MAX_VALUE;
         for (int rep = 0; rep < MEASURE_REPEATS; rep++) {
             long start = System.nanoTime();
             for (int i = 0; i < iterations; i++) {
-                fft.transform(real, imag, true);
+                local += fft.transform(real, imag, true).getRealAt(0);
             }
             best = Math.min(best, System.nanoTime() - start);
         }
+        sink = local;
         return best;
     }
     
@@ -60,8 +67,9 @@ public class PerformanceComparisonTest {
         System.out.printf("FFT Size 8 - Base: %,d ns, Optimized: %,d ns, Speedup: %.2fx%n",
                          baseTime, optimizedTime, speedup);
 
-        // FFTOptimized8 is actually slower than base - reflect reality
-        assertThat(speedup).isGreaterThan(0.1); // FFTOptimized8 shows performance regression
+        // Conservative regression guard: the size-8 optimized impl must beat FFTBase.
+        // This is a coarse in-JVM check, not the canonical speedup figure (use JMH for that).
+        assertThat(speedup).isGreaterThan(1.1);
     }
     
     @Test
@@ -78,45 +86,25 @@ public class PerformanceComparisonTest {
         System.out.printf("FFT Size 16 - Base: %,d ns, Optimized: %,d ns, Speedup: %.2fx%n",
                          baseTime, optimizedTime, speedup);
 
-        // FFT16 has a dedicated optimized implementation; best-of-batches keeps the
-        // ratio stable, so it should be at least comparable to base.
-        assertThat(speedup).isGreaterThan(0.5);
+        // Conservative regression guard: the size-16 optimized impl must beat FFTBase.
+        // Coarse in-JVM check, not the canonical speedup figure (use JMH for that).
+        assertThat(speedup).isGreaterThan(1.1);
     }
     
     @Test
-    void compareFFT32Performance() {
-        double[] real = generateTestSignal(32);
-        double[] imag = new double[32];
-        FFTBase base = new FFTBase();
-        FFT optimized = factory.createFFT(32);
-
-        long baseTime = bestTransformNanos(base, real, imag, 10000);
-        long optimizedTime = bestTransformNanos(optimized, real, imag, 10000);
-
-        double speedup = (double) baseTime / optimizedTime;
-        System.out.printf("FFT Size 32 - Base: %,d ns, Optimized: %,d ns, Speedup: %.2fx%n",
-                         baseTime, optimizedTime, speedup);
-
-        // Size 32 uses the FFTBase fallback, allow some performance degradation
-        assertThat(speedup).isGreaterThan(0.1); // Very relaxed threshold for fallback implementation
+    void fft32UsesBaseFallback() {
+        // No size-32 optimized implementation exists, so factory.createFFT(32) returns the
+        // FFTBase fallback. A "base vs optimized" speedup would compare FFTBase to itself and
+        // measure nothing, so we assert the fallback instead. (Output correctness for size 32
+        // is covered by validateCorrectness.)
+        assertThat(factory.createFFT(32)).isInstanceOf(FFTBase.class);
     }
-    
+
     @Test
-    void compareFFT64Performance() {
-        double[] real = generateTestSignal(64);
-        double[] imag = new double[64];
-        FFTBase base = new FFTBase();
-        FFT optimized = factory.createFFT(64);
-
-        long baseTime = bestTransformNanos(base, real, imag, 5000);
-        long optimizedTime = bestTransformNanos(optimized, real, imag, 5000);
-
-        double speedup = (double) baseTime / optimizedTime;
-        System.out.printf("FFT Size 64 - Base: %,d ns, Optimized: %,d ns, Speedup: %.2fx%n",
-                         baseTime, optimizedTime, speedup);
-
-        // Size 64 uses the FFTBase fallback, allow some performance degradation
-        assertThat(speedup).isGreaterThan(0.1); // Very relaxed threshold for fallback implementation
+    void fft64UsesBaseFallback() {
+        // No size-64 optimized implementation exists: factory.createFFT(64) falls back to
+        // FFTBase, so there is no speedup to measure here.
+        assertThat(factory.createFFT(64)).isInstanceOf(FFTBase.class);
     }
     
     @Test

@@ -31,9 +31,14 @@ class FFTPerformanceBenchmarkTest {
     private FFTBase baseImplementation;
 
     // Test configuration
-    private static final int WARMUP_ITERATIONS = 50;
+    private static final int WARMUP_ITERATIONS = 2000;
     private static final int BENCHMARK_ITERATIONS = 500;
+    private static final int MEASURE_REPEATS = 5;
     private static final double TOLERANCE = 1e-10;
+
+    // Consumes transform output so the JIT cannot eliminate the benchmarked call as dead code.
+    @SuppressWarnings("unused")
+    private volatile double sink;
 
     // Sizes to benchmark
     private static final int[] SIZES = { 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536 };
@@ -119,9 +124,11 @@ class FFTPerformanceBenchmarkTest {
                     avgSpeedup, minSpeedup, maxSpeedup, speedups.size());
             System.out.println("=".repeat(80) + "\n");
 
-            // Verify that we have working implementations across the board
-            assertThat(avgSpeedup).isGreaterThan(0.1); // Implementations should not be dramatically slower
-            assertThat(minSpeedup).isGreaterThan(0.005); // All should at least run (adjusted for fast modern hardware)
+            // Only sizes with a dedicated optimized impl (8, 16) are measured here; the rest
+            // fall back to FFTBase and are skipped above. Conservative guards: optimized sizes
+            // should not regress below FFTBase. Canonical figures come from JMH.
+            assertThat(avgSpeedup).isGreaterThan(1.0);
+            assertThat(minSpeedup).isGreaterThan(0.9);
             assertThat(speedups.size()).isGreaterThanOrEqualTo(1); // Should have at least one optimized implementation
         }
 
@@ -259,15 +266,12 @@ class FFTPerformanceBenchmarkTest {
         System.out.printf("  Speedup:                  %.2fx\n", result.speedup);
         System.out.printf("  Efficiency:               %.1f%%\n", result.efficiency * 100);
 
-        // For implementations that fall back to base, speedup may not be significant
-        // Verify that the implementation at least runs correctly (adjusted for modern
-        // fast hardware)
-        assertThat(result.speedup).isGreaterThan(0.005); // At least not dramatically slower
-
-        // Log if this is likely a fallback implementation
-        if (result.speedup < 1.1) {
-            System.out.printf("  Note: Implementation likely using fallback (speedup=%.2fx)\n", result.speedup);
-        }
+        // Conservative regression guard for sizes that DO have an optimized impl (8, 16).
+        // Canonical speedup figures come from JMH; this only catches a catastrophic regression
+        // without flaking under host load.
+        assertThat(result.speedup)
+            .as("optimized size %d should beat FFTBase", size)
+            .isGreaterThan(1.1);
     }
 
     /**
@@ -277,30 +281,36 @@ class FFTPerformanceBenchmarkTest {
         double[] real = FFTUtils.generateTestSignal(size, "mixed");
         double[] imag = new double[size];
 
-        // Warmup both implementations
+        // Warmup both, consuming output so the JIT cannot dead-code-eliminate the transform.
+        double local = 0.0;
         for (int i = 0; i < WARMUP_ITERATIONS; i++) {
-            baseImplementation.transform(real, imag, true);
-            optimized.transform(real, imag, true);
+            local += baseImplementation.transform(real, imag, true).getRealAt(0);
+            local += optimized.transform(real, imag, true).getRealAt(0);
         }
 
-        // Benchmark base implementation
-        long baseStartTime = System.nanoTime();
-        for (int i = 0; i < BENCHMARK_ITERATIONS; i++) {
-            baseImplementation.transform(real, imag, true);
-        }
-        long baseEndTime = System.nanoTime();
-        double baseTimeNs = (double) (baseEndTime - baseStartTime) / BENCHMARK_ITERATIONS;
+        // Best-of-batches: time whole batches and keep the fastest, rejecting GC/scheduling
+        // outliers so the ratio is stable instead of flaking under host load.
+        long bestBase = Long.MAX_VALUE;
+        long bestOpt = Long.MAX_VALUE;
+        for (int rep = 0; rep < MEASURE_REPEATS; rep++) {
+            long t0 = System.nanoTime();
+            for (int i = 0; i < BENCHMARK_ITERATIONS; i++) {
+                local += baseImplementation.transform(real, imag, true).getRealAt(0);
+            }
+            bestBase = Math.min(bestBase, System.nanoTime() - t0);
 
-        // Benchmark optimized implementation
-        long optimizedStartTime = System.nanoTime();
-        for (int i = 0; i < BENCHMARK_ITERATIONS; i++) {
-            optimized.transform(real, imag, true);
+            long t1 = System.nanoTime();
+            for (int i = 0; i < BENCHMARK_ITERATIONS; i++) {
+                local += optimized.transform(real, imag, true).getRealAt(0);
+            }
+            bestOpt = Math.min(bestOpt, System.nanoTime() - t1);
         }
-        long optimizedEndTime = System.nanoTime();
-        double optimizedTimeNs = (double) (optimizedEndTime - optimizedStartTime) / BENCHMARK_ITERATIONS;
+        sink = local;
 
+        double baseTimeNs = (double) bestBase / BENCHMARK_ITERATIONS;
+        double optimizedTimeNs = (double) bestOpt / BENCHMARK_ITERATIONS;
         double speedup = baseTimeNs / optimizedTimeNs;
-        double efficiency = (speedup - 1.0) / speedup; // Efficiency as fraction of theoretical maximum
+        double efficiency = (speedup - 1.0) / speedup;
 
         return new PerformanceResult(baseTimeNs, optimizedTimeNs, speedup, efficiency);
     }

@@ -1,7 +1,9 @@
 package com.fft.regression;
 
+import com.fft.core.FFTBase;
 import com.fft.core.FFTResult;
 import com.fft.core.TwiddleFactorCache;
+import com.fft.optimized.FFTOptimized8;
 import com.fft.utils.FFTUtils;
 import com.fft.utils.PitchDetectionUtils;
 import org.junit.jupiter.api.DisplayName;
@@ -90,31 +92,43 @@ class PerformanceRegressionTest {
     class FFTPerformanceBaselines {
 
         @Test
-        @DisplayName("Should maintain FFT8 speedup (target: 2.27x)")
+        @DisplayName("Should keep FFT8 optimized faster than FFTBase (conservative guard)")
         void shouldMaintainFFT8Speedup() {
-            double[] signal = FFTUtils.generateTestSignal(8, "random");
+            double[] real = FFTUtils.generateTestSignal(8, "random");
+            double[] imag = new double[8];
+            FFTBase base = new FFTBase();
+            FFTOptimized8 optimized = new FFTOptimized8();
 
-            // Warmup
-            warmup(() -> FFTUtils.fft(signal.clone()));
+            warmup(() -> base.transform(real, imag, true));
+            warmup(() -> optimized.transform(real, imag, true));
 
-            // Benchmark
-            long avgTime = benchmark(() -> FFTUtils.fft(signal.clone()));
+            long baseNanos = bestNanosPerOp(BENCHMARK_ITERATIONS,
+                () -> base.transform(real, imag, true).getRealAt(0));
+            long optimizedNanos = bestNanosPerOp(BENCHMARK_ITERATIONS,
+                () -> optimized.transform(real, imag, true).getRealAt(0));
 
-            // FFT8 should complete in reasonable time (< 10 microseconds)
-            assertThat(avgTime).isLessThan(10_000L); // 10 µs
+            double speedup = (double) baseNanos / optimizedNanos;
+            // Conservative regression guard (in-JVM, best-of-batches). The canonical speedup
+            // figure is measured separately with JMH; here we only assert the optimized path
+            // is genuinely faster, catching a catastrophic regression without flaking.
+            assertThat(speedup)
+                .as("FFT8 optimized should beat FFTBase")
+                .isGreaterThan(1.1);
         }
 
         @Test
-        @DisplayName("Should maintain FFT128 speedup (target: 1.42x)")
-        void shouldMaintainFFT128Speedup() {
+        @DisplayName("Should meet FFT128 latency budget (FFTBase fallback, no dedicated impl)")
+        void shouldMeetFFT128LatencyBudget() {
+            // Size 128 has no optimized implementation; it runs on FFTBase. This is an
+            // absolute-latency budget, not a speedup target.
             double[] signal = FFTUtils.generateTestSignal(128, "random");
 
-            warmup(() -> FFTUtils.fft(signal.clone()));
+            warmup(() -> FFTUtils.fft(signal));
 
-            long avgTime = benchmark(() -> FFTUtils.fft(signal.clone()));
+            long bestTime = bestNanosPerOp(BENCHMARK_ITERATIONS,
+                () -> FFTUtils.fft(signal).getRealAt(0));
 
-            // FFT128 should complete in reasonable time (< 50 microseconds)
-            assertThat(avgTime).isLessThan(50_000L); // 50 µs
+            assertThat(bestTime).isLessThan(50_000L); // 50 µs
         }
 
         @Test
@@ -122,12 +136,13 @@ class PerformanceRegressionTest {
         void shouldMaintainMediumSizePerformance() {
             double[] signal = FFTUtils.generateTestSignal(512, "random");
 
-            warmup(() -> FFTUtils.fft(signal.clone()));
+            warmup(() -> FFTUtils.fft(signal));
 
-            long avgTime = benchmark(() -> FFTUtils.fft(signal.clone()));
+            long bestTime = bestNanosPerOp(BENCHMARK_ITERATIONS,
+                () -> FFTUtils.fft(signal).getRealAt(0));
 
             // FFT512 should complete in reasonable time (< 200 microseconds)
-            assertThat(avgTime).isLessThan(200_000L); // 200 µs
+            assertThat(bestTime).isLessThan(200_000L); // 200 µs
         }
 
         @Test
@@ -135,12 +150,13 @@ class PerformanceRegressionTest {
         void shouldMaintainLargeSizePerformance() {
             double[] signal = FFTUtils.generateTestSignal(4096, "random");
 
-            warmup(() -> FFTUtils.fft(signal.clone()));
+            warmup(() -> FFTUtils.fft(signal));
 
-            long avgTime = benchmark(() -> FFTUtils.fft(signal.clone()));
+            long bestTime = bestNanosPerOp(BENCHMARK_ITERATIONS,
+                () -> FFTUtils.fft(signal).getRealAt(0));
 
             // FFT4096 should complete in reasonable time (< 2ms)
-            assertThat(avgTime).isLessThan(2_000_000L); // 2 ms
+            assertThat(bestTime).isLessThan(2_000_000L); // 2 ms
         }
     }
 
@@ -272,19 +288,20 @@ class PerformanceRegressionTest {
     class ComparativePerformanceTests {
 
         @Test
-        @DisplayName("Should show performance improvement for optimized sizes")
+        @DisplayName("Should scale sub-linearly from 128 to 256 (O(N log N))")
         void shouldShowOptimizedSizeImprovement() {
-            // Compare optimized size (128) vs larger size (256)
+            // Both 128 and 256 run on FFTBase (no dedicated impl); this checks O(N log N)
+            // scaling, not a speedup.
             double[] signal128 = FFTUtils.generateTestSignal(128, "random");
             double[] signal256 = FFTUtils.generateTestSignal(256, "random");
 
             warmup(() -> {
-                FFTUtils.fft(signal128.clone());
-                FFTUtils.fft(signal256.clone());
+                FFTUtils.fft(signal128);
+                FFTUtils.fft(signal256);
             });
 
-            long time128 = benchmark(() -> FFTUtils.fft(signal128.clone()));
-            long time256 = benchmark(() -> FFTUtils.fft(signal256.clone()));
+            long time128 = bestNanosPerOp(BENCHMARK_ITERATIONS, () -> FFTUtils.fft(signal128).getRealAt(0));
+            long time256 = bestNanosPerOp(BENCHMARK_ITERATIONS, () -> FFTUtils.fft(signal256).getRealAt(0));
 
             // 256-point should take less than 4x the time of 128-point
             // (O(N log N) complexity, so 2x size should be ~2.15x time)
@@ -300,8 +317,8 @@ class PerformanceRegressionTest {
 
             for (int i = 0; i < sizes.length; i++) {
                 double[] signal = FFTUtils.generateTestSignal(sizes[i], "random");
-                warmup(() -> FFTUtils.fft(signal.clone()));
-                times[i] = benchmark(() -> FFTUtils.fft(signal.clone()));
+                warmup(() -> FFTUtils.fft(signal));
+                times[i] = bestNanosPerOp(BENCHMARK_ITERATIONS, () -> FFTUtils.fft(signal).getRealAt(0));
             }
 
             // Verify rough O(N log N) scaling
@@ -338,13 +355,13 @@ class PerformanceRegressionTest {
         void shouldHaveEfficientResultCreation() {
             double[] signal = FFTUtils.generateTestSignal(256, "random");
 
-            warmup(() -> FFTUtils.fft(signal.clone()));
+            warmup(() -> FFTUtils.fft(signal));
 
-            long avgTime = benchmark(() -> FFTUtils.fft(signal.clone()));
+            long bestTime = bestNanosPerOp(BENCHMARK_ITERATIONS, () -> FFTUtils.fft(signal).getRealAt(0));
 
             // Total time should be dominated by computation, not allocation
             // (< 100 microseconds for 256-point FFT)
-            assertThat(avgTime).isLessThan(100_000L);
+            assertThat(bestTime).isLessThan(100_000L);
         }
     }
 
@@ -406,13 +423,13 @@ class PerformanceRegressionTest {
         void shouldDetectFFT8Regression() {
             double[] signal = FFTUtils.generateTestSignal(8, "random");
 
-            warmup(() -> FFTUtils.fft(signal.clone()));
+            warmup(() -> FFTUtils.fft(signal));
 
-            long avgTime = benchmark(() -> FFTUtils.fft(signal.clone()));
+            long bestTime = bestNanosPerOp(BENCHMARK_ITERATIONS, () -> FFTUtils.fft(signal).getRealAt(0));
 
             // FFT8 should maintain speedup (< 10 µs baseline)
             // If this fails, there's a performance regression
-            assertThat(avgTime)
+            assertThat(bestTime)
                 .as("FFT8 performance regression detected!")
                 .isLessThan(10_000L);
         }
