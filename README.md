@@ -7,7 +7,7 @@
 [![Maven Central](https://img.shields.io/badge/Maven-2.1.0--SNAPSHOT-green.svg)](pom.xml)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/hedoluna/fft)
 
-A Java FFT library with a reference implementation, factory-based selection, one size-specific optimized implementation for FFT-8, and audio analysis demos built on top of the FFT primitives.
+A Java FFT library with a reference implementation, factory-based selection, size-specific optimized implementations for FFT-8 and FFT-16, and audio analysis demos built on top of the FFT primitives.
 
 Based on the algorithms originally published by E. Oran Brigham "The Fast Fourier Transform" 1973, in ALGOL60 and FORTRAN.  
 Originally written in the summer of 2008 during holidays in Sardinia by Orlando Selenu.  
@@ -140,7 +140,7 @@ double[] magnitudes = FFTUtils.getMagnitudes(result);
 
 **CRITICAL UPDATE**: After comprehensive accuracy analysis, the library now uses **spectral FFT-based method as primary** (0.92% error vs YIN's 40.6% error on pure tones). See [docs/testing/PITCH_DETECTION_ANALYSIS.md](docs/testing/PITCH_DETECTION_ANALYSIS.md) for complete details.
 
-The library features state-of-the-art pitch detection using hybrid approach:
+The library features state-of-the-art pitch detection using a hybrid approach:
 
 - **Spectral Method (Primary)**: FFT-based peak detection with **0.92% error** (44x more accurate than YIN alone)
   - Parabolic interpolation for sub-bin accuracy

@@ -5,8 +5,9 @@
 > "14 implementations") that no longer exist. The current codebase ships only
 > `FFTOptimized8` and `FFTOptimized16`; all other power-of-two sizes use `FFTBase`
 > with shared twiddle-factor and bit-reversal caches. For accurate, current
-> information see [README.md](../../README.md), [USER_GUIDE.md](../../USER_GUIDE.md),
-> and [DOCUMENTATION_INDEX.md](../../DOCUMENTATION_INDEX.md). Kept for historical reference only.
+> information **start here: [DOCUMENTATION_INDEX.md](../../DOCUMENTATION_INDEX.md)** (master
+> navigation), then see [README.md](../../README.md) and [USER_GUIDE.md](../../USER_GUIDE.md).
+> Kept for historical reference only.
 
 ## Struttura File
 

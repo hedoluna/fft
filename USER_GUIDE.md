@@ -711,7 +711,8 @@ The library has dedicated optimized implementations for specific sizes:
 // Query which implementation will be used
 String info = FFTUtils.getImplementationInfo(1024);
 System.out.println(info);
-// Output: size 1024 has no dedicated implementation, so FFTBase (with caches) is used
+// Output: Generic FFT implementation (Cooley-Tukey algorithm) (priority: 0)
+// (size 1024 has no dedicated implementation, so FFTBase with caches is used)
 ```
 
 ### Reuse Objects
