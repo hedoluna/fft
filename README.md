@@ -147,7 +147,7 @@ The library features state-of-the-art pitch detection using a hybrid approach:
   - Harmonic analysis for fundamental frequency extraction
   - Faster than YIN (O(N log N) vs O(N²))
 - **YIN Algorithm (Validation)**: Autocorrelation-based with a harmonic sieve
-  - ~0.83% error on clean tones (no longer locks onto subharmonics)
+  - Comparable to spectral on clean tones since the harmonic-sieve fix (no longer locks onto subharmonics)
   - Used as a cross-check; degrades under heavy noise
 - **Hybrid Approach**: Combines both methods for best accuracy
   - Results averaged when both agree (within 5%)
@@ -252,7 +252,7 @@ The current optimization strategy is conservative:
 
 ### Audio Processing Algorithms
 1. **Spectral Pitch Detection (primary)**: FFT peak detection with parabolic interpolation (0.92% error)
-2. **YIN Algorithm (validation)**: Autocorrelation-based with a harmonic sieve (~0.83% on clean tones); used to flag subharmonic/octave disagreements
+2. **YIN Algorithm (validation)**: Autocorrelation-based with a harmonic sieve; used to flag subharmonic/octave disagreements
 3. **Voicing Detection**: RMS-based sound/silence discrimination
 4. **Median Filtering**: Pitch stability enhancement through temporal smoothing
 5. **Windowing Functions**: Hamming window implementation for spectral leakage reduction
@@ -284,7 +284,7 @@ cd fast-fourier-transform
 mvn clean compile test
 ```
 
-**Status**: Build succeeds with 675 tests (1 skipped). Functional tests all pass; a couple of timing-based performance-regression tests can flake under host load. Core functionality is operational with working auto-discovery and factory pattern.
+**Status**: Build succeeds with 675 tests (1 skipped, an environment-dependent performance check). Core functionality is operational with working auto-discovery and factory pattern.
 
 ### Running Demos
 ```bash

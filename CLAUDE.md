@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Java Fast Fourier Transform (FFT) library with factory pattern, auto-discovery, and audio processing. v2.1 release with proven performance optimizations (6-9% improvement), comprehensive testing, and advanced audio features.
 
-**✅ BUILD STATUS**: Maven 3.6.3 + Java 17, 675 tests (1 skipped - an environment-dependent performance test). Functional tests all pass; a couple of timing-based performance-regression tests can flake under host load.
+**✅ BUILD STATUS**: Maven 3.6.3 + Java 17, 675 tests (1 skipped - an environment-dependent performance test). All other tests pass; the micro-benchmark timing tests use a best-of-batches measurement so they no longer flake under host load.
 **🚀 PERFORMANCE**: v2.1 - 1.06-1.09x overall (6-9%), FFT8: 1.83-1.91x (83-91%), zero regressions
 **⚡ OPTIMIZATIONS**: System.arraycopy (2-3%), TwiddleFactorCache (30-50%), BitReversalCache (O(n) vs O(n log n))
 **✅ COVERAGE**: JaCoCo enforces 90% line / 85% branch coverage - verified passing
@@ -286,7 +286,7 @@ mvn test -Dtest=FFTPerformanceBenchmarkTest
 **Test Organization:**
 - Unit tests: `src/test/java/**/*Test.java` (675 tests, 1 skipped)
 - **Skipped Tests**: 1 test skipped - `PerformanceRegressionTest$TwiddleCachePerformance` (too environment-dependent: cache speedup varies wildly across hosts). No tests are disabled for YIN — the subharmonic defect was fixed (see PITCH_DETECTION_ANALYSIS.md).
-- **Flaky note**: A couple of timing-based performance-regression tests can fail under host load; they are not correctness failures.
+- **Timing tests**: `PerformanceRegressionTest` micro-benchmarks use a best-of-batches measurement (`bestNanosPerOp`) to stay stable under host load rather than failing intermittently.
 - Accuracy tests: `src/test/java/com/fft/analysis/PitchDetectionAccuracyTest.java` (4 test scenarios)
 - Integration tests: `src/test/java/**/*IntegrationTest.java`
 - Performance tests: Nested classes within test files (e.g., `PerformanceTests`)
@@ -529,7 +529,7 @@ mvn test -Djava.util.logging.config.file=logging.properties
 - Document all optimizations with TDD methodology (RED phase, GREEN phase, REFACTOR phase)
 
 **Audio Processing:**
-- ⚠️ **CRITICAL**: Spectral method is primary (0.92% error); YIN is a validation pass (~0.83% on clean tones after the harmonic-sieve fix, but less robust to noise)
+- ⚠️ **CRITICAL**: Spectral method is primary; YIN is a validation pass (less robust to noise). See PITCH_DETECTION_ANALYSIS.md for canonical accuracy figures.
 - Always verify correctness when modifying pitch detection to avoid regressions
 - Test with PitchDetectionAccuracyTest.java to validate algorithm changes
 - Spectral method in PitchDetectionUtils is the reference implementation
@@ -561,7 +561,7 @@ mvn test -Djava.util.logging.config.file=logging.properties
 - `docs/testing/TESTING_COMPLIANCE.md`: Test coverage requirements and quality gates
 
 **Audio Processing & Accuracy:**
-- `docs/testing/PITCH_DETECTION_ANALYSIS.md`: **Complete pitch detection accuracy analysis** (spectral 0.92%; YIN ~0.83% after harmonic-sieve fix, was 40.6%)
+- `docs/testing/PITCH_DETECTION_ANALYSIS.md`: **Complete pitch detection accuracy analysis** — canonical source for all pitch-detection figures
 - `src/test/java/com/fft/analysis/PitchDetectionAccuracyTest.java`: Comprehensive accuracy test suite (4 scenarios, 10 frequencies)
 
 **Implementation Reports:**
@@ -594,13 +594,10 @@ mvn test -Djava.util.logging.config.file=logging.properties
 - **Test suite**: 675 tests, 1 skipped
   - **1 skipped test**: `PerformanceRegressionTest$TwiddleCachePerformance` (environment-dependent timing, not a YIN issue)
   - **No YIN-disabled tests**: the subharmonic defect was fixed via the harmonic sieve
-  - **Flaky note**: timing-based performance-regression tests can flake under host load (not correctness failures)
-  - Includes PitchDetectionAccuracyTest.java with 4 comprehensive test scenarios
-  - Validates spectral method accuracy (0.92% error) vs YIN (~0.83% on clean tones)
-- **Pitch detection strategy**: Spectral method is primary (0.92% error); YIN is a validation pass
-  - YIN now ~0.83% on clean tones after the harmonic-sieve fix (was 40.6% due to subharmonics)
+  - Includes PitchDetectionAccuracyTest.java with 4 comprehensive test scenarios (now with regression-guard assertions)
+- **Pitch detection strategy**: Spectral method is primary; YIN is a validation pass
   - Spectral kept as primary because it is far more robust to noise (YIN fails at ≤5 dB SNR)
-  - See docs/testing/PITCH_DETECTION_ANALYSIS.md for complete accuracy analysis
+  - See docs/testing/PITCH_DETECTION_ANALYSIS.md — canonical source for accuracy figures
 - **v2.1 Optimizations Verified**:
   - FFT8: 1.83-1.91x speedup (complete loop unrolling)
   - TwiddleFactorCache: 30-50% on twiddle operations

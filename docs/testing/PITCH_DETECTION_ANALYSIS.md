@@ -5,6 +5,19 @@
 **Test Suite:** `PitchDetectionAccuracyTest.java`
 **Objective:** Evaluate accuracy and performance of pitch detection with base vs optimized FFT implementations
 
+> **📌 Canonical source.** This document is the single source of truth for
+> pitch-detection accuracy figures. README, CLAUDE.md, and USER_GUIDE link here
+> instead of repeating the exact numbers, so there is only one place to update
+> when behaviour changes. Canonical figures:
+>
+> | Metric | Value |
+> |--------|-------|
+> | Spectral method (primary) mean error, pure tones | **0.92%** |
+> | YIN (with harmonic sieve) mean error, pure tones | **0.83%** |
+> | YIN before the fix (subharmonic locking) | 40.6% |
+> | Noise robustness | Spectral robust to ≤5 dB SNR; YIN degrades below ~10 dB |
+> | FFT for size 4096 | `FFTBase` + universal caches (no `FFTOptimized4096`, as of v2.1) |
+
 ---
 
 ## Status: RESOLVED ✅
