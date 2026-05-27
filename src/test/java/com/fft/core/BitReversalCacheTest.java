@@ -3,11 +3,16 @@ package com.fft.core;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Isolated;
 
 import java.lang.reflect.Constructor;
 
 import static org.assertj.core.api.Assertions.*;
 
+// Some tests here mutate the shared static BitReversalCache (e.g. clearCache()).
+// @Isolated guarantees the class runs alone if JUnit parallel execution is ever
+// enabled, preventing races with other tests that populate the cache via getTable().
+@Isolated
 @DisplayName("BitReversalCache Tests")
 class BitReversalCacheTest {
 
@@ -117,8 +122,10 @@ class BitReversalCacheTest {
         @Test
         @DisplayName("should return false for non-precomputed sizes before access")
         void shouldReturnFalseForNonPrecomputedSizes() {
-            // 16384 is not in the precomputed list
-            // Note: After calling getTable, it will be cached
+            // 16384 is not in the precomputed list. Reset to a known state first so
+            // the assertion is independent of test execution order (other tests may
+            // have populated the shared cache with size 16384 via getTable()).
+            BitReversalCache.clearCache();
             assertThat(BitReversalCache.isPrecomputed(16384)).isFalse();
         }
 

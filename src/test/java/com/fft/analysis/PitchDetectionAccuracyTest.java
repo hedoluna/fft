@@ -10,6 +10,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
+
 /**
  * Comprehensive test suite for evaluating pitch detection accuracy and performance
  * with different FFT implementations (base vs optimized).
@@ -76,6 +79,19 @@ public class PitchDetectionAccuracyTest {
 
         // Print summary
         printSummary(yinResults, spectralBaseResults, spectralOptimizedResults);
+
+        // Regression guards (errors are percentages; signals are deterministic, so these are stable).
+        // A YIN regression to subharmonic locking would push the mean error toward 40%+, far above 2%.
+        assertThat(yinResults.getMeanError())
+            .as("YIN mean error must stay low - guards against subharmonic-locking regression")
+            .isLessThan(2.0);
+        assertThat(spectralBaseResults.getMeanError())
+            .as("Spectral mean error must stay low")
+            .isLessThan(2.0);
+        // The factory returns FFTBase for size 4096 (no FFTOptimized4096), so the two paths must match exactly.
+        assertThat(spectralOptimizedResults.getMeanError())
+            .as("FFT implementation choice must not affect accuracy")
+            .isCloseTo(spectralBaseResults.getMeanError(), within(1e-9));
     }
 
     @Test
@@ -342,18 +358,18 @@ public class PitchDetectionAccuracyTest {
 
         System.out.println("\n=== RECOMMENDATIONS ===\n");
 
+        // Since the harmonic sieve fix (commit 6bafe58), YIN no longer locks onto
+        // subharmonics and is comparable to the spectral method on clean tones.
         if (yin.getMeanError() < spectralBase.getMeanError()) {
-            System.out.println("✓ YIN algorithm provides better accuracy than spectral method");
-            System.out.println("  → Use YIN as primary method (already implemented in PitchDetectionDemo)");
+            System.out.println("✓ YIN and spectral methods are comparable on clean tones (YIN slightly better here)");
         } else {
-            System.out.println("✓ Spectral method provides comparable accuracy to YIN");
+            System.out.println("✓ YIN and spectral methods are comparable on clean tones (spectral slightly better here)");
         }
+        System.out.println("  → Spectral method remains primary (more robust to noise); YIN is used as validation");
 
         System.out.println("✓ FFT implementation (base vs optimized) does NOT affect accuracy");
-        System.out.println("  → Both produce mathematically identical results");
-        System.out.printf("✓ FFTOptimized provides %.2fx performance improvement over FFTBase\n",
-            (double) spectralBase.getMeanTime() / spectralOpt.getMeanTime());
-        System.out.println("  → Always use optimized FFT when available (automatic via factory)");
+        System.out.println("  → For size 4096 the factory returns FFTBase (no size-specific optimized class)");
+        System.out.println("  → The factory automatically selects the best available implementation per size");
     }
 
     // Helper class to accumulate results

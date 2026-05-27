@@ -1,5 +1,6 @@
 package com.fft.optimized;
 
+import com.fft.core.FFT;
 import com.fft.core.FFTBase;
 import com.fft.core.FFTResult;
 import com.fft.factory.FFTFactory;
@@ -13,12 +14,36 @@ import static org.assertj.core.api.Assertions.*;
  * Performance comparison tests to measure optimization effectiveness.
  */
 public class PerformanceComparisonTest {
-    
+
+    private static final int WARMUP = 1000;
+    private static final int MEASURE_REPEATS = 5;
+
     private FFTFactory factory;
-    
+
     @BeforeEach
     void setUp() {
         factory = new DefaultFFTFactory();
+    }
+
+    /**
+     * Returns the best (minimum) wall-clock time over several batches of {@code iterations}
+     * transforms. Taking the fastest batch rejects GC/scheduling outliers, so the
+     * base-vs-optimized ratio is stable instead of flaking under host load. These are
+     * coarse sanity checks; use the JMH harness for rigorous benchmarking.
+     */
+    private long bestTransformNanos(FFT fft, double[] real, double[] imag, int iterations) {
+        for (int i = 0; i < WARMUP; i++) {
+            fft.transform(real, imag, true);
+        }
+        long best = Long.MAX_VALUE;
+        for (int rep = 0; rep < MEASURE_REPEATS; rep++) {
+            long start = System.nanoTime();
+            for (int i = 0; i < iterations; i++) {
+                fft.transform(real, imag, true);
+            }
+            best = Math.min(best, System.nanoTime() - start);
+        }
+        return best;
     }
     
     @Test
@@ -26,32 +51,15 @@ public class PerformanceComparisonTest {
         double[] real = generateTestSignal(8);
         double[] imag = new double[8];
         FFTBase base = new FFTBase();
-        var optimized = factory.createFFT(8);
-        
-        // Warm up
-        for (int i = 0; i < 1000; i++) {
-            base.transform(real, imag, true);
-            optimized.transform(real, imag, true);
-        }
-        
-        // Benchmark base implementation
-        long baseStart = System.nanoTime();
-        for (int i = 0; i < 10000; i++) {
-            base.transform(real, imag, true);
-        }
-        long baseTime = System.nanoTime() - baseStart;
-        
-        // Benchmark optimized implementation
-        long optimizedStart = System.nanoTime();
-        for (int i = 0; i < 10000; i++) {
-            optimized.transform(real, imag, true);
-        }
-        long optimizedTime = System.nanoTime() - optimizedStart;
-        
+        FFT optimized = factory.createFFT(8);
+
+        long baseTime = bestTransformNanos(base, real, imag, 10000);
+        long optimizedTime = bestTransformNanos(optimized, real, imag, 10000);
+
         double speedup = (double) baseTime / optimizedTime;
-        System.out.printf("FFT Size 8 - Base: %,d ns, Optimized: %,d ns, Speedup: %.2fx%n", 
+        System.out.printf("FFT Size 8 - Base: %,d ns, Optimized: %,d ns, Speedup: %.2fx%n",
                          baseTime, optimizedTime, speedup);
-        
+
         // FFTOptimized8 is actually slower than base - reflect reality
         assertThat(speedup).isGreaterThan(0.1); // FFTOptimized8 shows performance regression
     }
@@ -61,33 +69,17 @@ public class PerformanceComparisonTest {
         double[] real = generateTestSignal(16);
         double[] imag = new double[16];
         FFTBase base = new FFTBase();
-        var optimized = factory.createFFT(16);
-        
-        // Warm up
-        for (int i = 0; i < 1000; i++) {
-            base.transform(real, imag, true);
-            optimized.transform(real, imag, true);
-        }
-        
-        // Benchmark base implementation
-        long baseStart = System.nanoTime();
-        for (int i = 0; i < 10000; i++) {
-            base.transform(real, imag, true);
-        }
-        long baseTime = System.nanoTime() - baseStart;
-        
-        // Benchmark optimized implementation
-        long optimizedStart = System.nanoTime();
-        for (int i = 0; i < 10000; i++) {
-            optimized.transform(real, imag, true);
-        }
-        long optimizedTime = System.nanoTime() - optimizedStart;
-        
+        FFT optimized = factory.createFFT(16);
+
+        long baseTime = bestTransformNanos(base, real, imag, 10000);
+        long optimizedTime = bestTransformNanos(optimized, real, imag, 10000);
+
         double speedup = (double) baseTime / optimizedTime;
-        System.out.printf("FFT Size 16 - Base: %,d ns, Optimized: %,d ns, Speedup: %.2fx%n", 
+        System.out.printf("FFT Size 16 - Base: %,d ns, Optimized: %,d ns, Speedup: %.2fx%n",
                          baseTime, optimizedTime, speedup);
-        
-        // FFT16 now has a dedicated optimized implementation.
+
+        // FFT16 has a dedicated optimized implementation; best-of-batches keeps the
+        // ratio stable, so it should be at least comparable to base.
         assertThat(speedup).isGreaterThan(0.5);
     }
     
@@ -96,33 +88,16 @@ public class PerformanceComparisonTest {
         double[] real = generateTestSignal(32);
         double[] imag = new double[32];
         FFTBase base = new FFTBase();
-        var optimized = factory.createFFT(32);
-        
-        // Warm up
-        for (int i = 0; i < 1000; i++) {
-            base.transform(real, imag, true);
-            optimized.transform(real, imag, true);
-        }
-        
-        // Benchmark base implementation
-        long baseStart = System.nanoTime();
-        for (int i = 0; i < 10000; i++) {
-            base.transform(real, imag, true);
-        }
-        long baseTime = System.nanoTime() - baseStart;
-        
-        // Benchmark optimized implementation
-        long optimizedStart = System.nanoTime();
-        for (int i = 0; i < 10000; i++) {
-            optimized.transform(real, imag, true);
-        }
-        long optimizedTime = System.nanoTime() - optimizedStart;
-        
+        FFT optimized = factory.createFFT(32);
+
+        long baseTime = bestTransformNanos(base, real, imag, 10000);
+        long optimizedTime = bestTransformNanos(optimized, real, imag, 10000);
+
         double speedup = (double) baseTime / optimizedTime;
-        System.out.printf("FFT Size 32 - Base: %,d ns, Optimized: %,d ns, Speedup: %.2fx%n", 
+        System.out.printf("FFT Size 32 - Base: %,d ns, Optimized: %,d ns, Speedup: %.2fx%n",
                          baseTime, optimizedTime, speedup);
-        
-        // FFTOptimized32 currently uses fallback, allow some performance degradation
+
+        // Size 32 uses the FFTBase fallback, allow some performance degradation
         assertThat(speedup).isGreaterThan(0.1); // Very relaxed threshold for fallback implementation
     }
     
@@ -131,33 +106,16 @@ public class PerformanceComparisonTest {
         double[] real = generateTestSignal(64);
         double[] imag = new double[64];
         FFTBase base = new FFTBase();
-        var optimized = factory.createFFT(64);
-        
-        // Warm up
-        for (int i = 0; i < 1000; i++) {
-            base.transform(real, imag, true);
-            optimized.transform(real, imag, true);
-        }
-        
-        // Benchmark base implementation
-        long baseStart = System.nanoTime();
-        for (int i = 0; i < 5000; i++) {
-            base.transform(real, imag, true);
-        }
-        long baseTime = System.nanoTime() - baseStart;
-        
-        // Benchmark optimized implementation
-        long optimizedStart = System.nanoTime();
-        for (int i = 0; i < 5000; i++) {
-            optimized.transform(real, imag, true);
-        }
-        long optimizedTime = System.nanoTime() - optimizedStart;
-        
+        FFT optimized = factory.createFFT(64);
+
+        long baseTime = bestTransformNanos(base, real, imag, 5000);
+        long optimizedTime = bestTransformNanos(optimized, real, imag, 5000);
+
         double speedup = (double) baseTime / optimizedTime;
-        System.out.printf("FFT Size 64 - Base: %,d ns, Optimized: %,d ns, Speedup: %.2fx%n", 
+        System.out.printf("FFT Size 64 - Base: %,d ns, Optimized: %,d ns, Speedup: %.2fx%n",
                          baseTime, optimizedTime, speedup);
-        
-        // FFTOptimized64 currently uses fallback, allow some performance degradation
+
+        // Size 64 uses the FFTBase fallback, allow some performance degradation
         assertThat(speedup).isGreaterThan(0.1); // Very relaxed threshold for fallback implementation
     }
     

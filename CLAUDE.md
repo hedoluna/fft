@@ -6,12 +6,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Java Fast Fourier Transform (FFT) library with factory pattern, auto-discovery, and audio processing. v2.1 release with proven performance optimizations (6-9% improvement), comprehensive testing, and advanced audio features.
 
-**✅ BUILD STATUS**: Maven 3.6.3 + Java 17, 622 total tests (614 passing, 8 skipped) - ALL PASSING
+**✅ BUILD STATUS**: Maven 3.6.3 + Java 17, 675 tests (1 skipped - an environment-dependent performance test). All other tests pass; the micro-benchmark timing tests use a best-of-batches measurement so they no longer flake under host load.
 **🚀 PERFORMANCE**: v2.1 - 1.06-1.09x overall (6-9%), FFT8: 1.83-1.91x (83-91%), zero regressions
 **⚡ OPTIMIZATIONS**: System.arraycopy (2-3%), TwiddleFactorCache (30-50%), BitReversalCache (O(n) vs O(n log n))
 **✅ COVERAGE**: JaCoCo enforces 90% line / 85% branch coverage - verified passing
-**🎯 PITCH ACCURACY**: Spectral method 44x more accurate than YIN (0.92% vs 40.6% error)
-**📅 LAST UPDATED**: March 3, 2026 (Repository cleanup, AssertJ 3.27.7, 622 tests)
+**🎯 PITCH ACCURACY**: Spectral method primary (0.92% error); YIN now ~0.83% after the harmonic-sieve fix (was 40.6% due to subharmonics). Spectral kept primary for noise robustness.
+**📅 LAST UPDATED**: May 27, 2026 (YIN harmonic-sieve fix verified, pitch-detection docs realigned)
 
 ## ⚙️ Prerequisites
 
@@ -233,7 +233,7 @@ git push origin <branch>           # Push to feature branch
   - ✅ **BitReversalCache**: O(n) vs O(n log n) complexity (universal, all sizes)
   - ✅ **System.arraycopy**: 33% faster array initialization (confirmed)
   - ✅ **Overall**: 1.06-1.09x speedup (6-9% improvement) - proven via real measurement
-  - ✅ All sizes: 100% correctness maintained (622 tests: 614 passing, 8 skipped)
+  - ✅ All sizes: 100% correctness maintained (675 tests, 1 skipped)
 
 **What Worked (Verified in v2.1):**
 - ✅ **Precomputed caches** (TwiddleFactorCache, BitReversalCache): Measurable production gains
@@ -284,9 +284,9 @@ mvn test -Dtest=FFTPerformanceBenchmarkTest
 ## Testing & Quality
 
 **Test Organization:**
-- Unit tests: `src/test/java/**/*Test.java` (622 total tests: 614 passing, 8 skipped)
-- **Skipped Tests**: 8 tests skipped/disabled due to known YIN algorithm limitations (40.6% error rate on pure tones - see PITCH_DETECTION_ANALYSIS.md)
-- **All Core Tests Passing**: Zero failures, zero regressions from v2.1 optimizations
+- Unit tests: `src/test/java/**/*Test.java` (675 tests, 1 skipped)
+- **Skipped Tests**: 1 test skipped - `PerformanceRegressionTest$TwiddleCachePerformance` (too environment-dependent: cache speedup varies wildly across hosts). No tests are disabled for YIN — the subharmonic defect was fixed (see PITCH_DETECTION_ANALYSIS.md).
+- **Timing tests**: `PerformanceRegressionTest` micro-benchmarks use a best-of-batches measurement (`bestNanosPerOp`) to stay stable under host load rather than failing intermittently.
 - Accuracy tests: `src/test/java/com/fft/analysis/PitchDetectionAccuracyTest.java` (4 test scenarios)
 - Integration tests: `src/test/java/**/*IntegrationTest.java`
 - Performance tests: Nested classes within test files (e.g., `PerformanceTests`)
@@ -307,19 +307,19 @@ mvn test -Dtest=FFTPerformanceBenchmarkTest
 
 ## Audio Processing Features
 
-**⭐ CRITICAL UPDATE (October 2025):** Spectral method now primary after discovering YIN has 40.6% mean error on pure tones due to subharmonic detection. See **docs/testing/PITCH_DETECTION_ANALYSIS.md** for complete analysis.
+**⭐ UPDATE (May 2026):** The spectral method is primary. The October 2025 finding that YIN had 40.6% mean error (subharmonic locking) has been **fixed**: a harmonic sieve in `detectPitchYin` (`applyHarmonicSieve`) brings YIN down to ~0.83% on pure tones. Spectral remains primary for its superior noise robustness (YIN still fails at ≤5 dB SNR). See **docs/testing/PITCH_DETECTION_ANALYSIS.md** for the full analysis and re-measured evidence.
 
 **Advanced Pitch Detection:**
 - **Spectral Method (Primary)**: FFT-based peak detection, **0.92% error** across 80Hz-2000Hz
   - Parabolic interpolation for sub-bin accuracy
   - Harmonic analysis for fundamental frequency extraction
-  - 26% faster than YIN (O(N log N) vs O(N²))
-- **YIN Algorithm (Validation)**: Autocorrelation-based, used to detect subharmonic issues
-  - High confidence but prone to subharmonic errors (detecting 110Hz instead of 440Hz)
-  - Used as validation check, not primary method
+  - Faster than YIN (O(N log N) vs O(N²))
+- **YIN Algorithm (Validation)**: Autocorrelation-based with a harmonic sieve
+  - ~0.83% error on clean tones (no longer locks onto subharmonics)
+  - Used as a cross-check/validation pass; degrades under heavy noise
 - **Hybrid Approach**: Combines both methods for best accuracy
-  - Spectral method as primary (most accurate)
-  - YIN validation detects subharmonic issues
+  - Spectral method as primary (robust to noise)
+  - YIN cross-check flags any residual subharmonic/octave disagreement
   - Results averaged when both agree (within 5%)
 - **Voicing Detection**: RMS-based sound/silence discrimination (0.001 threshold)
 - **Median Filtering**: Pitch stability enhancement (5-frame window)
@@ -350,8 +350,8 @@ mvn test -Dtest=FFTPerformanceBenchmarkTest
 - Real-time capability: 44.1 kHz sampling rate
 - Pitch detection: 12,000+ detections/second
 - FFT processing: 4096-point in ~75ms
-- Spectral method: 1,374,480 ns/op (with FFTOptimized)
-- YIN algorithm: 1,978,400 ns/op (baseline)
+- Spectral method: faster than YIN (O(N log N); 4096-point FFT uses FFTBase + universal caches, no size-specific optimized class exists for 4096)
+- YIN algorithm: slower (O(N²) difference function); use JMH for rigorous figures
 
 ## Demo Applications
 
@@ -529,11 +529,11 @@ mvn test -Djava.util.logging.config.file=logging.properties
 - Document all optimizations with TDD methodology (RED phase, GREEN phase, REFACTOR phase)
 
 **Audio Processing:**
-- ⚠️ **CRITICAL**: Spectral method is primary (0.92% error), YIN is validation only (40.6% error)
+- ⚠️ **CRITICAL**: Spectral method is primary; YIN is a validation pass (less robust to noise). See PITCH_DETECTION_ANALYSIS.md for canonical accuracy figures.
 - Always verify correctness when modifying pitch detection to avoid regressions
 - Test with PitchDetectionAccuracyTest.java to validate algorithm changes
 - Spectral method in PitchDetectionUtils is the reference implementation
-- YIN algorithm used for subharmonic detection validation only
+- YIN's harmonic sieve (`applyHarmonicSieve`) rejects subharmonic periods; keep it when modifying YIN
 - Voicing detection prevents false positives from background noise
 - Parsons code generation requires stable pitch tracking
 - See docs/testing/PITCH_DETECTION_ANALYSIS.md for complete accuracy analysis
@@ -561,7 +561,7 @@ mvn test -Djava.util.logging.config.file=logging.properties
 - `docs/testing/TESTING_COMPLIANCE.md`: Test coverage requirements and quality gates
 
 **Audio Processing & Accuracy:**
-- `docs/testing/PITCH_DETECTION_ANALYSIS.md`: **Complete pitch detection accuracy analysis** (spectral 0.92% vs YIN 40.6% error)
+- `docs/testing/PITCH_DETECTION_ANALYSIS.md`: **Complete pitch detection accuracy analysis** — canonical source for all pitch-detection figures
 - `src/test/java/com/fft/analysis/PitchDetectionAccuracyTest.java`: Comprehensive accuracy test suite (4 scenarios, 10 frequencies)
 
 **Implementation Reports:**
@@ -591,15 +591,13 @@ mvn test -Djava.util.logging.config.file=logging.properties
 - Full git history preserved for reference
 
 **Important Notes (v2.1 - January 2026):**
-- **Test suite**: 622 total tests (614 passing, 8 skipped) - ✅ ALL PASSING
-  - **8 skipped tests**: YIN algorithm tests disabled due to known 40.6% error on pure tones (subharmonic detection)
-  - **All core tests passing**: Zero failures, zero regressions from v2.1 optimizations
-  - Includes PitchDetectionAccuracyTest.java with 4 comprehensive test scenarios
-  - Validates spectral method accuracy (0.92% error) vs YIN (40.6% error)
-- **Pitch detection strategy**: Spectral method is primary (0.92% error), YIN is validation only
-  - Spectral FFT-based method achieves 0.92% error (44x more accurate than YIN)
-  - YIN (40.6% error) retained for subharmonic detection validation
-  - See docs/testing/PITCH_DETECTION_ANALYSIS.md for complete accuracy analysis
+- **Test suite**: 675 tests, 1 skipped
+  - **1 skipped test**: `PerformanceRegressionTest$TwiddleCachePerformance` (environment-dependent timing, not a YIN issue)
+  - **No YIN-disabled tests**: the subharmonic defect was fixed via the harmonic sieve
+  - Includes PitchDetectionAccuracyTest.java with 4 comprehensive test scenarios (now with regression-guard assertions)
+- **Pitch detection strategy**: Spectral method is primary; YIN is a validation pass
+  - Spectral kept as primary because it is far more robust to noise (YIN fails at ≤5 dB SNR)
+  - See docs/testing/PITCH_DETECTION_ANALYSIS.md — canonical source for accuracy figures
 - **v2.1 Optimizations Verified**:
   - FFT8: 1.83-1.91x speedup (complete loop unrolling)
   - TwiddleFactorCache: 30-50% on twiddle operations
