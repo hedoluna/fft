@@ -10,6 +10,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
+
 /**
  * Comprehensive test suite for evaluating pitch detection accuracy and performance
  * with different FFT implementations (base vs optimized).
@@ -76,6 +79,19 @@ public class PitchDetectionAccuracyTest {
 
         // Print summary
         printSummary(yinResults, spectralBaseResults, spectralOptimizedResults);
+
+        // Regression guards (errors are percentages; signals are deterministic, so these are stable).
+        // A YIN regression to subharmonic locking would push the mean error toward 40%+, far above 2%.
+        assertThat(yinResults.getMeanError())
+            .as("YIN mean error must stay low - guards against subharmonic-locking regression")
+            .isLessThan(2.0);
+        assertThat(spectralBaseResults.getMeanError())
+            .as("Spectral mean error must stay low")
+            .isLessThan(2.0);
+        // The factory returns FFTBase for size 4096 (no FFTOptimized4096), so the two paths must match exactly.
+        assertThat(spectralOptimizedResults.getMeanError())
+            .as("FFT implementation choice must not affect accuracy")
+            .isCloseTo(spectralBaseResults.getMeanError(), within(1e-9));
     }
 
     @Test

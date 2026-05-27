@@ -34,14 +34,15 @@ keeps the **spectral method as primary** because it remains markedly more
 cross-check/validation pass. All the action items from the original
 investigation have been implemented (see §7).
 
-> **FFT-selection correction:** There is no `FFTOptimized4096`. Only
-> `FFTOptimized8` and `FFTOptimized16` exist; every other size (including the
-> 4096-point transform used here) falls back to `FFTBase` enriched with the
-> universal `TwiddleFactorCache` / `BitReversalCache`. The "FFTBase vs
-> FFTOptimized" columns in this document therefore exercise the *same*
-> implementation for size 4096, which is why their results are byte-for-byte
-> identical. The earlier "FFTOptimized4096 / 1.18x speedup" claims were
-> inaccurate and have been removed.
+> **FFT-selection correction:** As of v2.1 there is no `FFTOptimized4096` —
+> only `FFTOptimized8` and `FFTOptimized16` exist, and every other size
+> (including the 4096-point transform used here) falls back to `FFTBase`
+> enriched with the universal `TwiddleFactorCache` / `BitReversalCache`. (If the
+> factory gains more size-specific implementations later, re-check this.) The
+> "FFTBase vs FFTOptimized" columns in this document therefore exercise the
+> *same* implementation for size 4096, which is why their results are
+> byte-for-byte identical. The earlier "FFTOptimized4096 / 1.18x speedup" claims
+> were inaccurate and have been removed.
 
 ---
 
