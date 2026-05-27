@@ -1,7 +1,7 @@
 # FFT Library User Guide
 
-**Version**: 2.0.0-SNAPSHOT
-**Last Updated**: November 4, 2025
+**Version**: 2.1.0-SNAPSHOT
+**Last Updated**: May 27, 2026
 **Audience**: Developers using the FFT library in their applications
 
 ---
@@ -57,7 +57,7 @@ Add this to your `pom.xml`:
 <dependency>
     <groupId>com.fft</groupId>
     <artifactId>fast-fourier-transform</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>2.1.0-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -701,17 +701,18 @@ System.out.printf("At FFT size %d: %.2f Hz resolution\n",
 
 ### Optimal Sizes for This Library
 
-The library has optimized implementations for specific sizes:
+The library has dedicated optimized implementations for specific sizes:
 
-- **FFT8**: ~2.3x faster (best optimization)
-- **FFT128**: ~1.4x faster
-- **All sizes**: 30-50% faster due to twiddle cache
+- **FFT8**: 1.83-1.91x faster (complete loop unrolling with hardcoded twiddles)
+- **FFT16**: dedicated `FFTOptimized16` (radix-2 split built on FFT-8 blocks)
+- **All other sizes**: `FFTBase` with shared twiddle-factor and bit-reversal caches (30-50% faster on twiddle operations)
 
 ```java
 // Query which implementation will be used
 String info = FFTUtils.getImplementationInfo(1024);
 System.out.println(info);
-// Output: "Size 1024 will use: FFTOptimized1024 (priority: 50)"
+// Output: Generic FFT implementation (Cooley-Tukey algorithm) (priority: 0)
+// (size 1024 has no dedicated implementation, so FFTBase with caches is used)
 ```
 
 ### Reuse Objects

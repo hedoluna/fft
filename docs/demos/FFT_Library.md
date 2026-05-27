@@ -1,4 +1,13 @@
-# FFT Library Documentation v2.0.0-SNAPSHOT
+# FFT Library Documentation (HISTORICAL)
+
+> ⚠️ **HISTORICAL / OUTDATED** — This document describes an earlier architecture
+> with many size-specific implementations (e.g. `FFTOptimized32`, `FFTOptimized64`,
+> "14 implementations") that no longer exist. The current codebase ships only
+> `FFTOptimized8` and `FFTOptimized16`; all other power-of-two sizes use `FFTBase`
+> with shared twiddle-factor and bit-reversal caches. For accurate, current
+> information **start here: [DOCUMENTATION_INDEX.md](../../DOCUMENTATION_INDEX.md)** (master
+> navigation), then see [README.md](../../README.md) and [USER_GUIDE.md](../../USER_GUIDE.md).
+> Kept for historical reference only.
 
 ## Struttura File
 

@@ -51,7 +51,8 @@ mvn exec:java -Dexec.mainClass="com.fft.demo.SongRecognitionDemo"
 **Current Performance Status (January 2026 - v2.1):**
 - **Overall**: 1.06-1.09x speedup (6-9% improvement) - proven via real measurement
 - **FFT8**: 1.83-1.91x (83-91% faster) - complete loop unrolling with hardcoded twiddles
-- **FFT16+**: Fallback to FFTBase with universal optimizations:
+- **FFT16**: `FFTOptimized16` - radix-2 split built on two `FFTOptimized8` blocks
+- **FFT32+**: Fallback to FFTBase with universal optimizations:
   - TwiddleFactorCache: 30-50% speedup on twiddle operations
   - BitReversalCache: O(n) instead of O(n log n)
   - System.arraycopy: 33% faster array initialization
@@ -188,9 +189,8 @@ git push origin <branch>           # Push to feature branch
 ## Core Architecture
 
 **Package Structure:**
-- `com.fft.core`: Core FFT implementation (FFTBase with universal optimizations)
-- `com.fft.cache`: Performance optimization caches (TwiddleFactorCache, BitReversalCache)
-- `com.fft.optimized`: Size-specific implementations (FFTOptimized8 with 1.83-1.91x speedup)
+- `com.fft.core`: Core FFT implementation (FFTBase) plus performance caches (TwiddleFactorCache, BitReversalCache)
+- `com.fft.optimized`: Size-specific implementations (FFTOptimized8 with 1.83-1.91x speedup, FFTOptimized16)
 - `com.fft.factory`: Factory pattern and auto-discovery (DefaultFFTFactory, FFTImplementationDiscovery)
 - `com.fft.utils`: FFTUtils (legacy API), PitchDetectionUtils (spectral + YIN methods)
 - `com.fft.demo`: Audio processing demos (pitch detection, song recognition, chord recognition)
@@ -516,7 +516,7 @@ mvn test -Djava.util.logging.config.file=logging.properties
 
 **Architecture Principles:**
 - Factory pattern provides automatic implementation selection based on size and priority
-- **FFTOptimized8**: Only size with dedicated optimized implementation (1.83-1.91x)
+- **FFTOptimized8** (1.83-1.91x) and **FFTOptimized16** (radix-2 split on FFT-8 blocks): dedicated optimized implementations
 - **All other sizes**: Use FFTBase with universal cache optimizations (TwiddleFactorCache, BitReversalCache)
 - FFTBase is the reference implementation and correctness baseline
 - Never modify implementations without verifying correctness against test suite
@@ -573,9 +573,10 @@ mvn test -Djava.util.logging.config.file=logging.properties
 
 **Core Implementation:**
 - `src/main/java/com/fft/core/TwiddleFactorCache.java`: Precomputed cos/sin tables (30-50% on twiddles, universal)
-- `src/main/java/com/fft/cache/BitReversalCache.java`: O(n) vs O(n log n) precomputed tables (universal)
+- `src/main/java/com/fft/core/BitReversalCache.java`: O(n) vs O(n log n) precomputed tables (universal)
 - `src/main/java/com/fft/core/FFTBase.java`: Reference implementation with universal cache optimizations
 - `src/main/java/com/fft/optimized/FFTOptimized8.java`: Complete loop unrolling (1.83-1.91x verified with 10K+ warmup)
+- `src/main/java/com/fft/optimized/FFTOptimized16.java`: Radix-2 split built on two FFTOptimized8 blocks
 - `src/main/java/com/fft/optimized/OptimizedFFTFramework.java`: DEPRECATED (framework overhead eliminated)
 
 **User Documentation:**

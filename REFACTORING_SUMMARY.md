@@ -1,5 +1,7 @@
 # FFT Library Refactoring Summary
 
+> **Start here:** [DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md) is the master navigation for all documentation.
+
 ## Overview
 Successfully completed Phase 1 of the comprehensive FFT library refactoring according to the REFACTORING_ROADMAP.md. The refactoring improves maintainability, extensibility, and code organization while preserving exceptional performance characteristics.
 
@@ -104,7 +106,7 @@ double[] powerSpectrum = spectrum.getPowerSpectrum();
 ```
 
 -### 5. **Comprehensive Quality Assurance**
-- 197 unit tests with 100% pass rate
+- 622 tests (614 passing, 8 skipped, 0 failures)
 - JaCoCo code coverage reporting
 - SpotBugs static analysis integration
 - Maven build automation
@@ -118,7 +120,7 @@ double[] powerSpectrum = spectrum.getPowerSpectrum();
 - **Memory Usage**: Efficient immutable result objects
 
 ### Quality Metrics
-- **Test Coverage**: 94 tests covering all major functionality
+- **Test Coverage**: 622 tests (614 passing, 8 skipped) covering all major functionality
 - **Code Quality**: Modern Java 17 patterns and practices
 - **Documentation**: Comprehensive JavaDoc with examples
 - **Maintainability**: Clear separation of concerns
