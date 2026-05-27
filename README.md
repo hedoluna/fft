@@ -5,6 +5,7 @@
 [![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](http://unlicense.org/)
 [![Java Version](https://img.shields.io/badge/Java-17%2B-orange.svg)](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
 [![Maven Central](https://img.shields.io/badge/Maven-2.0.0--SNAPSHOT-green.svg)](pom.xml)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/hedoluna/fft)
 
 A Java FFT library with a reference implementation, factory-based selection, one size-specific optimized implementation for FFT-8, and audio analysis demos built on top of the FFT primitives.
 
