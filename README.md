@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/hedoluna/fft/branch/main/graph/badge.svg)](https://codecov.io/gh/hedoluna/fft)
 [![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](http://unlicense.org/)
 [![Java Version](https://img.shields.io/badge/Java-17%2B-orange.svg)](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
-[![Maven Central](https://img.shields.io/badge/Maven-2.0.0--SNAPSHOT-green.svg)](pom.xml)
+[![Maven Central](https://img.shields.io/badge/Maven-2.1.0--SNAPSHOT-green.svg)](pom.xml)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/hedoluna/fft)
 
 A Java FFT library with a reference implementation, factory-based selection, one size-specific optimized implementation for FFT-8, and audio analysis demos built on top of the FFT primitives.
@@ -15,23 +15,26 @@ Enhanced and refactored in 2025 with modern Java patterns, comprehensive testing
 
 ## ✨ Key Features
 
-- **🚀 Performance-Oriented Core**: `FFTOptimized8` is auto-selected for size 8, while other power-of-two sizes use `FFTBase`
+- **🚀 Performance-Oriented Core**: `FFTOptimized8` (size 8) and `FFTOptimized16` (size 16, built on FFT-8 blocks) are auto-selected; other power-of-two sizes use `FFTBase`
 - **🏭 Factory Pattern**: Automatic implementation selection via `DefaultFFTFactory`
 - **⚡ Core Optimizations**: cached twiddle factors, cached bit-reversal tables, and efficient array copying in `FFTBase`
 - **🎯 Type Safety**: Modern API with immutable result objects and rich data extraction
 - **🧪 Comprehensive Testing**: large JUnit suite covering correctness, factory behavior, demos, performance checks, and regression scenarios
 - **🎵 Audio Processing**: Real-time pitch detection (0.92% error), song recognition using Parsons code, chord detection
-- **📦 Zero Dependencies**: Pure Java 17 implementation (uses javax.sound for audio demos only)
+- **📦 Minimal Dependencies**: Core depends only on the SLF4J API (logging); audio demos use `javax.sound` from the JDK
 - **🔧 Maven Build**: Modern build system with quality gates (JaCoCo: 90% line, 85% branch coverage)
 - **🆓 Public Domain**: Completely free for any use, commercial or academic
 
 ## 📦 Package Structure
 
 ```
-com.fft.core/         # Core FFT interfaces and base implementations
-├── FFT.java          # Main FFT interface
-├── FFTBase.java      # Generic reference implementation  
-└── FFTResult.java    # Immutable result wrapper
+com.fft.core/         # Core FFT interfaces, algorithm, and performance caches
+├── FFT.java                  # Main FFT interface
+├── FFTBase.java              # Generic reference implementation / fallback for unspecialized sizes
+├── FFTResult.java            # Immutable result wrapper
+├── FFTMath.java              # Shared math helpers
+├── TwiddleFactorCache.java   # Precomputed cos/sin tables
+└── BitReversalCache.java     # Cached bit-reversal tables
 
 com.fft.factory/      # Implementation selection and factory pattern
 ├── FFTFactory.java   # Factory interface
@@ -40,13 +43,9 @@ com.fft.factory/      # Implementation selection and factory pattern
 
 com.fft.optimized/    # Size-specific optimized implementations
 ├── FFTOptimized8.java        # 8-point FFT with complete loop unrolling
+├── FFTOptimized16.java       # 16-point FFT built on FFT-8 blocks
 ├── OptimizedFFTFramework.java # Historical/deprecated optimization scaffold
 └── OptimizedFFTUtils.java    # Shared optimized helpers
-
-com.fft.core/         # Core algorithm + performance support classes
-├── FFTBase.java              # Generic fallback for all other power-of-two sizes
-├── TwiddleFactorCache.java   # Precomputed cos/sin tables
-└── BitReversalCache.java     # Cached bit-reversal tables
 
 com.fft.utils/        # Utility classes and helpers
 ├── FFTUtils.java     # Convenience methods and legacy API
@@ -54,7 +53,9 @@ com.fft.utils/        # Utility classes and helpers
 
 com.fft.demo/         # Advanced demonstration applications
 ├── PitchDetectionDemo.java     # Real-time pitch detection
+├── RealTimeSongRecognitionDemo.java # Live whistle/hum song recognition
 ├── SongRecognitionDemo.java    # Melody recognition using Parsons code
+├── ChordRecognitionDemo.java   # Multi-pitch chord detection
 ├── SimulatedPitchDetectionDemo.java # Performance validation
 ├── ParsonsCodeUtils.java       # Music information retrieval utilities
 └── RefactoringDemo.java        # Migration examples
@@ -68,7 +69,7 @@ Add to your `pom.xml`:
 <dependency>
     <groupId>com.fft</groupId>
     <artifactId>fast-fourier-transform</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>2.1.0-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -137,7 +138,7 @@ double[] magnitudes = FFTUtils.getMagnitudes(result);
 
 ### 🎯 Advanced Pitch Detection (Updated October 2025)
 
-**CRITICAL UPDATE**: After comprehensive accuracy analysis, the library now uses **spectral FFT-based method as primary** (0.92% error vs YIN's 40.6% error on pure tones). See `PITCH_DETECTION_ANALYSIS.md` for complete details.
+**CRITICAL UPDATE**: After comprehensive accuracy analysis, the library now uses **spectral FFT-based method as primary** (0.92% error vs YIN's 40.6% error on pure tones). See [docs/testing/PITCH_DETECTION_ANALYSIS.md](docs/testing/PITCH_DETECTION_ANALYSIS.md) for complete details.
 
 The library features state-of-the-art pitch detection using hybrid approach:
 
@@ -197,16 +198,17 @@ System.out.println("Parsons code: " + parsonsCode); // e.g., "*UDUDRDU"
 
 | Size | Implementation selected by factory | Notes |
 |------|------------------------------------|-------|
-| 8 | `FFTOptimized8` | Specialized implementation with loop unrolling |
-| 16+ power-of-two sizes | `FFTBase` | Uses cached twiddle factors and cached bit-reversal tables |
+| 8 | `FFTOptimized8` | Specialized implementation with complete loop unrolling |
+| 16 | `FFTOptimized16` | Radix-2 split built on two `FFTOptimized8` blocks |
+| other power-of-two sizes | `FFTBase` | Uses cached twiddle factors and cached bit-reversal tables |
 | non power-of-two sizes | not supported directly | Use `FFTUtils.zeroPadToPowerOfTwo(...)` first |
 
 The repository contains historical benchmark reports under `docs/performance/`, but the current codebase should be understood as:
-- one specialized optimized implementation for FFT size 8
+- specialized optimized implementations for FFT sizes 8 and 16
 - one general-purpose `FFTBase` implementation for the remaining supported sizes
 - performance-sensitive caches integrated into the base implementation
 
-**Performance Breakdown (from PROFILING_RESULTS.md):**
+**Performance Breakdown (from historical profiling, archived under `docs/archive/`):**
 ```
 Size 256 (before twiddle cache):
 - Twiddle factors: 56.1% of time
@@ -221,16 +223,16 @@ Size 256 (with twiddle cache):
 ### Optimization Notes
 
 The current optimization strategy is conservative:
-- specialize only the tiny FFT-8 case where manual unrolling is manageable
+- specialize the small FFT-8 and FFT-16 cases where unrolling/block reuse is manageable
 - keep the larger-size implementation centralized in `FFTBase`
 - rely on shared caches and validation tests instead of duplicating many size-specific classes
 
 ### Audio Processing Performance
 - **Real-time Capability**: 44.1 kHz sampling rate supported
-- **Pitch Detection Speed**: 12,000+ recognitions/second with YIN algorithm
+- **Pitch Detection Speed**: 12,000+ detections/second (spectral method, ~26% faster than YIN)
 - **Song Recognition**: 60-80% accuracy for partial melody sequences with improved pitch detection
 - **Noise Robustness**: Maintains accuracy down to 6dB SNR with voicing detection
-- **Pitch Accuracy**: <0.5% error across musical range (80Hz-2000Hz) with YIN algorithm
+- **Pitch Accuracy**: 0.92% error across musical range (80Hz-2000Hz) with the spectral method
 
 ## 🔬 Algorithm Details
 
@@ -246,22 +248,23 @@ The current optimization strategy is conservative:
 2. **Precomputed Trigonometry**: Hardcoded sine/cosine values avoid runtime calculations
 3. **Factory Pattern**: Zero-overhead automatic implementation selection
 4. **Immutable Results**: Thread-safe result objects with efficient data access
-5. **Memory Pooling**: Reduced garbage collection pressure in high-frequency scenarios
+5. **Cached Twiddle & Bit-Reversal Tables**: Precomputed in `FFTBase` to avoid repeated trig/index work
 
 ### Audio Processing Algorithms
-1. **YIN Algorithm**: Autocorrelation-based pitch detection with high accuracy
-2. **Voicing Detection**: RMS-based sound/silence discrimination
-3. **Median Filtering**: Pitch stability enhancement through temporal smoothing
-4. **Windowing Functions**: Hamming window implementation for spectral leakage reduction
-5. **Peak Detection**: Parabolic interpolation for sub-bin frequency accuracy
-6. **Harmonic Analysis**: Fundamental frequency detection from overtone series
-7. **Parsons Code**: Complete music information retrieval methodology
-8. **Noise Filtering**: Configurable thresholds for robust detection
+1. **Spectral Pitch Detection (primary)**: FFT peak detection with parabolic interpolation (0.92% error)
+2. **YIN Algorithm (validation)**: Autocorrelation-based, used to flag subharmonic/octave errors
+3. **Voicing Detection**: RMS-based sound/silence discrimination
+4. **Median Filtering**: Pitch stability enhancement through temporal smoothing
+5. **Windowing Functions**: Hamming window implementation for spectral leakage reduction
+6. **Peak Detection**: Parabolic interpolation for sub-bin frequency accuracy
+7. **Harmonic Analysis**: Fundamental frequency detection from overtone series
+8. **Parsons Code**: Complete music information retrieval methodology
+9. **Noise Filtering**: Configurable thresholds for robust detection
 
 ## 🧪 Testing and Quality
 
 ### Test Coverage
-- **100+ Unit Tests**: Comprehensive coverage of all functionality
+- **622 Tests (614 passing, 8 skipped)**: Comprehensive coverage of all functionality
 - **Property-Based Testing**: Mathematical properties (Parseval's theorem, energy conservation)
 - **Performance Regression Testing**: Automated detection of performance degradation
 - **Audio Processing Tests**: Pitch detection accuracy and song recognition validation
@@ -281,7 +284,7 @@ cd fast-fourier-transform
 mvn clean compile test
 ```
 
-**Status**: Build succeeds with 100% test pass rate (197/197 tests passing). Core functionality is operational with working auto-discovery and factory pattern.
+**Status**: Build succeeds with 622 tests (614 passing, 8 skipped, 0 failures). Core functionality is operational with working auto-discovery and factory pattern.
 
 ### Running Demos
 ```bash
@@ -373,4 +376,4 @@ Have fun with FFTs! They are a great source of inspiration, and when you start l
 
 ---
 
-*For detailed implementation notes, see [REFACTORING_ROADMAP.md](REFACTORING_ROADMAP.md) and [REFACTORING_SUMMARY.md](REFACTORING_SUMMARY.md)*
+*For detailed implementation notes, see [REFACTORING_SUMMARY.md](REFACTORING_SUMMARY.md) and the [documentation index](DOCUMENTATION_INDEX.md).*
