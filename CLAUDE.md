@@ -616,3 +616,9 @@ mvn test -Djava.util.logging.config.file=logging.properties
   - JaCoCo coverage enforces 90% line / 85% branch
   - SpotBugs disabled (Java 17 compatibility issue)
 - **Logging**: All code uses SLF4J API with Logback configuration (test scope only)
+
+# RTK (Rust Token Killer)
+
+@~/.claude/RTK.md
+
+Always prefix CLI commands with tk (e.g. tk git status, tk pytest, tk pnpm test) to save 60-90% tokens.

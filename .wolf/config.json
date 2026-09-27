@@ -34,7 +34,7 @@
       "report_frequency": "weekly",
       "waste_threshold_percent": 15,
       "chars_per_token_code": 3.5,
-      "chars_per_token_prose": 4.0
+      "chars_per_token_prose": 4
     },
     "cron": {
       "enabled": true,
@@ -53,18 +53,26 @@
       "reflection_frequency": "weekly"
     },
     "daemon": {
-      "port": 18790,
+      "port": 18816,
       "log_level": "info"
     },
     "dashboard": {
       "enabled": true,
-      "port": 18791
+      "port": 18916
     },
     "designqc": {
       "enabled": true,
       "viewports": [
-        { "name": "desktop", "width": 1440, "height": 900 },
-        { "name": "mobile", "width": 375, "height": 812 }
+        {
+          "name": "desktop",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "name": "mobile",
+          "width": 375,
+          "height": 812
+        }
       ],
       "max_screenshots": 6,
       "chrome_path": null
